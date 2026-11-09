@@ -19,20 +19,21 @@ N+S+L+O=72 · N+2S+O=76 · S+2L=52 · N+L+2O=76 → forma matricial Ax=b.
 Unicidade: det(A)≠0 / posto(A)=posto([A|b])=4 (Rouché–Capelli) → solução única. Resolver com NumPy, verificar Ax=b e integralidade/não negatividade.
 **Etapa 2 — redistribuir.** Necessidade = ceil(passageiros/40) por região; comparar com atual → déficit/superávit. Política: matriz T 4×4 **coluna-estocástica** (entradas ≥0, cada coluna soma 1: fração da frota de cada centro que fica/é cedida). Provar: soma(Tx)=soma(x) (1ᵀT=1ᵀ) e Tx≥0 (T≥0, x≥0). Explicar cada coeficiente. Garantir resultado inteiro. Avaliar antes × depois (ocupação, déficit).
 Observação: a necessidade total coincide com a frota total — a política pode zerar o déficit (argumento forte do relatório).
-Integração: vira `core/frota/` e aba Operador do app.
+Entrega separada com os dados do enunciado; a plataforma só reaproveita a lógica (D3).
 ⚠️ Conferir com o professor se há Etapa 3 / formato do relatório (o PDF recebido termina na Etapa 2).
 
 ## MLAM (10 pts · GitHub + .txt no portal)
-| Item | Pede | Com OD 2017 |
+Base: OD 2017 recortada para viagens a trabalho em SP. Variáveis e hipóteses em `docs/05_variaveis_modelo.md`.
+| Item | Pede | Como |
 |---|---|---|
-| 02 Normal (1,0) | P(X<média), P(X>mediana) + classificar evento | X = duração da viagem. P(X<μ)=0,5 por simetria; P(X>mediana) ≠0,5 se assimétrica → discutir |
-| 03 Teste de hipótese (1,0) | a) unilateral à esquerda α=6%, n=20; b) à direita α=9%, n=25; σ = desvio populacional | teste Z com σ conhecido; amostras aleatórias com seed; μ₀ = média da base |
-| 04 Bivariada (2,0) | dispersão, cov, Pearson, gráfico, reta, R², F, previsão | duração ~ distância |
-| 05 Múltipla (2,0) | ≥3 variáveis, matrizes cov/corr, equação, R², F, previsão c/ ≥2 | duração ~ distância + renda + nº autos (+ idade) |
-| 06 Logística (2,0) | equação, matriz de confusão, acurácia, classificação | usa_coletivo ~ renda + nº autos + distância |
-| 07 Relatório PDF (2,0) | tabelas, gráficos, interpretação, limitações, insights | "quem depende do ônibus" → justifica Linha Certa |
-| 08 Entrega | csv/xlsx + fonte, códigos com saídas, PDF, README | estrutura em `entregas/mlam/` |
-Penalidades: -1 por item ausente, -2 entrega incorreta. Repositório público e acessível.
+| 02 Normal (1,0) | P(X<média), P(X>mediana), classificar evento | X = duração das viagens de ônibus; P(X<μ)=0,5 por simetria da normal; P(X>mediana) difere de 0,5 se a amostra é assimétrica → discutir |
+| 03 Hipóteses (1,0) | Z unilateral: n=20 α=6% à esquerda; n=25 α=9% à direita; σ populacional | amostras aleatórias com seed; μ₀ = média da base tratada |
+| 04 Bivariada (2,0) | dispersão, cov, Pearson, reta, R², F, previsão | duração ~ distância |
+| 05 Múltipla (2,0) | ≥3 quantitativas, matrizes, equação, R², F, previsão | duração ~ distância + renda + carros (+ idade) |
+| 06 Logística (2,0) | equação, matriz de confusão, acurácia, classificação | usa_onibus ~ renda + carros + distância + idade (+ CLT, pico) |
+| 07 Relatório PDF (2,0) | insights para cliente | "Quem depende do ônibus em SP para trabalhar, e quando" |
+| 08 Entrega | csv + fonte, código com saídas, PDF, README | `entregas/mlam/` |
+Penalidades: −1 por item ausente; −2 por entrega errada no portal.
 
 ## O que você aprende (mapa)
 RAG/LLMOps e avaliação (Prompt) · Álgebra linear aplicada a decisão (MMC) · Inferência e modelagem estatística com dado sujo real (MLAM) · Produto: unir tudo num pitch.
