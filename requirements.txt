@@ -1,0 +1,14 @@
+# Travar versões exatas assim que o ambiente estiver estável (exigência do briefing de Prompt & AI)
+# langchain==
+# langchain-ollama==
+# langchain-chroma==
+# chromadb==
+# gradio==
+# ragas==
+# numpy==
+# pandas==
+# scipy==
+# statsmodels==
+# scikit-learn==
+# matplotlib==
+# seaborn==

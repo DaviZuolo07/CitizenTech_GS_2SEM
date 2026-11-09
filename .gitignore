@@ -1,0 +1,9 @@
+.env
+*.env
+__pycache__/
+.ipynb_checkpoints/
+chroma_db/
+data/raw/*
+!data/raw/.gitkeep
+*.zip
+.DS_Store
