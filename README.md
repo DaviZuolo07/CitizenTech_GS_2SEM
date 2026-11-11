@@ -21,6 +21,16 @@ notebooks/          exploração (não é entrega)
 tests/              testes de guardrails e tools
 ```
 
+## Como rodar o motor de dados
+```
+pip install -r requirements.txt
+python scripts/baixar_od2017.py      # Pesquisa OD 2017 (demanda)
+python scripts/baixar_dados.py       # GTFS SPTrans (oferta) e geografia
+python scripts/passo0_pipeline.py    # grava as tabelas agregadas em data/processed/
+python -m pytest tests
+```
+Modelo, resultados e limitações: `docs/08_modelo_produto.md`.
+
 ## Regra de ouro
 A `OLLAMA_API_KEY` **nunca** entra no repositório, notebook, print ou ZIP. Use Secrets do Colab / variável de ambiente (`.env` está no `.gitignore`).
 

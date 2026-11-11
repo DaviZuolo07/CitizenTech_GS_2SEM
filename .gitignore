@@ -7,3 +7,4 @@ data/raw/*
 !data/raw/.gitkeep
 *.zip
 .DS_Store
+.pytest_cache/

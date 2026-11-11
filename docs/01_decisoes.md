@@ -114,3 +114,9 @@ Só começar se as 3 entregas estiverem completas até **17/11**. Teto: 1 dia. S
 - **Qualidade de dados é prioridade.** Limpeza, tratamento e engenharia de variáveis para maximizar a qualidade do modelo preditivo, sempre reproduzíveis em código (exigência da MLAM).
 - **Simulação 3D** será alimentada pelos dados do próprio app: um dia "sem monitoramento" (oferta atual do GTFS × demanda OD) contra um dia "com monitoramento" (oferta redistribuída pelo modelo).
 - **Passo 0 (próximo chat):** modelagem matemática do produto real + aquisição e preparo dos datasets (OD 2017 já obtida; GTFS a baixar).
+
+## D10 — Modelo do produto implementado (10/11)
+Decisões aprovadas e ajustes impostos pelos dados (demanda por trecho de ônibus, carga repartida pelo trajeto, fluxos em subprefeitura × faixa do dia, piso de cobertura de 20%), resultados e limitações: ver `docs/08_modelo_produto.md`. Onde houver conflito com a D9, vale a D10.
+
+## D11 — Entregas de MMC e MLAM extraídas (11/11)
+Notebooks de entrega autossuficientes em `entregas/mmc/` e `entregas/mlam/`; desenho dos testes de hipótese (referência = todos os trabalhadores; amostras de carro e de ônibus); MMC sem piso de cobertura; Olho Vivo fora do MVP. Auditoria, o que falta por disciplina, peso de cada entrada do modelo e cronograma revisto: ver `docs/09_auditoria_e_plano.md`.

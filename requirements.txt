@@ -5,10 +5,17 @@
 # chromadb==
 # gradio==
 # ragas==
-# numpy==
-# pandas==
-# scipy==
-# statsmodels==
-# scikit-learn==
-# matplotlib==
+numpy==2.2.6
+pandas==2.3.3
+geopandas==1.1.4
+shapely==2.1.2
+pyogrio==0.13.0
+pyproj==3.7.1
+pytest==9.2.0
+scipy==1.15.3
+statsmodels==0.15.0
+scikit-learn==1.7.2
+matplotlib==3.10.9
+nbconvert==7.17.2
+ipykernel==7.3.0
 # seaborn==

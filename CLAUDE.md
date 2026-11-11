@@ -2,7 +2,7 @@
 
 ## Contexto
 Projeto individual que entrega 3 disciplinas num só produto: Prompt & AI, Modelagem Matemática e Computacional (MMC), Modelagem Linear para ML (MLAM). Meta do produto: ônibus de São Paulo circulando de forma inteligente + comunicação Estado ↔ cidadão. Prazo final: 19/11/2026 23h59.
-Leia antes de agir: `docs/00_contrato_pitch.md`, `docs/01_decisoes.md`, `docs/02_materias.md`, `docs/05_variaveis_modelo.md`.
+Leia antes de agir: `docs/00_contrato_pitch.md`, `docs/01_decisoes.md`, `docs/02_materias.md`, `docs/05_variaveis_modelo.md`, `docs/08_modelo_produto.md` (D10: modelo implementado; prevalece sobre a D9), `docs/09_auditoria_e_plano.md` (situação, pendências e cronograma revisto).
 
 ## Regras inegociáveis
 - `OLLAMA_API_KEY` nunca aparece em código, notebook, print, commit ou ZIP. No Colab: `userdata.get('OLLAMA_API_KEY')`.
@@ -15,6 +15,10 @@ Leia antes de agir: `docs/00_contrato_pitch.md`, `docs/01_decisoes.md`, `docs/02
 ## Dados
 - OD 2017: `data/raw/od_sao_paulo_2017_not_harmonized.csv.gz` (`sep=';'`), dicionário em `data/dicionario/`. Recorte SP: `muni_o == 36 & muni_d == 36`. Ônibus SP: `modoprin == 4`. Peso: `fe_via`.
 - Modelamos fluxos agregados (zona × hora), nunca indivíduos.
+- Demanda de ônibus = trechos com `modo1..4 == 4` (não `modoprin == 4`, que perde 43% dos embarques). Na MLAM o alvo continua `modoprin == 4`.
+- Oferta: GTFS em `data/raw/sptrans_gtfs.zip` (`scripts/baixar_dados.py`). Pipeline: `python scripts/passo0_pipeline.py` grava `data/processed/`.
+- Nada sai publicado com menos de 10 viagens amostradas por célula (`MIN_AMOSTRA`).
+- Testes: `python -m pytest tests`.
 
 ## Convenções
 - Python 3.11+, versões travadas em `requirements.txt`.
