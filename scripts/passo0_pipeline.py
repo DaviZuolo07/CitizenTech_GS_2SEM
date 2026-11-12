@@ -27,7 +27,7 @@ def carregar() -> dict:
     zona_parada = geo.zona_dos_pontos(paradas.stop_lon, paradas.stop_lat, zonas_geo)
     zona_parada.index = paradas.stop_id
     od = demanda.ler_od()
-    return {"zonas": geo.tabela_zonas(zonas_geo), "zonas_geo": zonas_geo, "od": od,
+    return {"zonas": geo.tabela_zonas(zonas_geo), "zonas_geo": zonas_geo, "od": od, "gtfs": gtfs,
             "freq": oferta.frequencia_horaria(gtfs, viagens),
             "paradas": oferta.paradas_por_zona(gtfs, viagens, zona_parada),
             "trechos": demanda.trechos_onibus(od)}
@@ -83,6 +83,7 @@ def main():
     d = carregar()
     d["zonas"].to_csv(c.PROC / "zonas_sp.csv", index=False)
     pressao_por_zona(d).round(3).to_csv(c.PROC / "pressao_zona_periodo.csv", index=False)
+    oferta.tabela_linhas(d["gtfs"], d["freq"], oferta.extensao_km()).to_csv(c.PROC / "linhas_onibus.csv", index=False)
     for por_periodo, nome in ((True, "periodo"), (False, "dia")):
         demanda.fluxos(d["trechos"], d["od"], d["zonas"], "subprefeitura", por_periodo).to_csv(
             c.PROC / f"fluxos_subprefeitura_{nome}.csv", index=False)

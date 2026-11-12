@@ -8,7 +8,7 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | Motor de dados do produto | pronto, validado e documentado | 90% |
 | MMC | notebooks das duas etapas prontos, com os integrantes | 95% |
 | MLAM | base, notebooks dos itens 02 a 06 e README prontos; falta relatório PDF e publicação | 75% |
-| Prompt & AI | base documental (5 documentos) e 3 ferramentas testadas; falta o notebook inteiro | 20% |
+| Prompt & AI | notebook completo montado (seções 0 a 8), base, ferramentas e README; **falta rodar no Colab**, ground truth, textos de análise, prints e vídeo | 55% |
 | App (Gradio) e deploy | não iniciado | 0% |
 | Pitch (vídeo) | roteiro existe; nenhum material produzido | 10% |
 | Simulação 3D | não iniciada (opcional, corte em 17/11) | 0% |
@@ -175,3 +175,10 @@ Modelo completo no teste: AUC 0,814 · acurácia 0,738 · F1 0,547. A tabela mos
 - **Ferramentas** (`core/agent/ferramentas.py`): `calcular_proximo_horario(linha, hora, dia)` calcula a partir das faixas de intervalo; `verificar_gratuidade(idade, pcd, estudante, dia)` aplica o doc_04; `consultar_fluxo(origem, destino, hora)` consulta os fluxos reais da OD. Erros voltam como mensagem, sem exceção.
 - **Coerência entre RAG e ferramenta:** as ferramentas leem `operacao_vigente.json`, que já reflete a portaria. Se lessem a tabela antiga, o agente e o RAG se contradiriam.
 - **Não testado ainda:** nada que dependa do modelo (RAG, agente, RAGAS). O ambiente onde o código roda não alcança o Ollama Cloud; o notebook precisa ser executado no Colab pelo Davi.
+
+## 10. Notebook de Prompt & AI (feito em 11/11, fim da tarde)
+- `entregas/prompt_ai/1_Notebook_GS2026_2.ipynb`: seções 0 a 8 com os títulos exigidos, no padrão das aulas (Ollama Cloud, `qwen3.6:27b`, `nomic-embed-text`, ReAct com `AgentExecutor`). Turma 1CCPK, trio.
+- `4_README.md` com diagrama, armadilhas, decisões, guardrails e limitações; números e prints marcados para preencher.
+- **Testado sem rede:** todas as células rodam com modelo e embeddings falsos (agente, guardrails, interface, exportação do JSON). **Não testado:** a execução real com o Ollama Cloud. O primeiro `Run all` no Colab pode revelar ajustes de versão ou de prompt.
+- **Só o grupo pode fazer:** rodar no Colab; escrever as 8 respostas de referência; preencher a divisão de tarefas, a justificativa do chunking, a leitura dos números e a conclusão com os valores medidos; tirar os prints; gravar o vídeo; preencher `5_certificacao.txt`, `6_Chat_Log.txt` e `7_demo_video_url.txt`.
+- **Condição para o Colab:** fazer commit e push antes, porque o notebook baixa a base de `entregas/prompt_ai/2_base_documental/` no GitHub.

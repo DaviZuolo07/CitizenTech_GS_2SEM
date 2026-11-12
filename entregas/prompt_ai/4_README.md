@@ -16,7 +16,7 @@ Assistente que responde a dúvidas de transporte por ônibus consultando uma bas
 documentos (.md com metadados)
    └─ carga + remoção de linhas com instrução maliciosa
         └─ chunking (A: 500/50 × B: 1000/150)
-             └─ embeddings nomic-embed-text ─► ChromaDB (doc_id, data_publicacao)
+             └─ embeddings multilíngues (sentence-transformers, no Colab) ─► ChromaDB (doc_id, data_publicacao)
 pergunta ─► guardrails de entrada (injection, LGPD, escopo)
               └─ agente ReAct (máx. 6 chamadas)
                    ├─ buscar_nos_documentos  ─► retriever (k=4) ─► trechos do mais recente ao mais antigo
@@ -29,10 +29,12 @@ avaliação: RAGAS (4 métricas, 8 perguntas, v1 × v2 de chunking) ─► 3_ava
 
 ## Como executar
 1. Abrir `1_Notebook_GS2026_2.ipynb` no Google Colab.
-2. Em **Secrets** (ícone de chave), criar `OLLAMA_API_KEY` com a chave do Ollama Cloud e liberar o acesso ao notebook.
+2. Em **Secrets** (ícone de chave), cadastrar a chave de **um** dos provedores gratuitos da lista do professor e ativar "Notebook access": `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `HF_TOKEN`, `GOOGLE_API_KEY`, `MISTRAL_API_KEY`, `OPENROUTER_API_KEY` ou `NVIDIA_API_KEY`. O notebook usa a primeira que encontrar e mostra o provedor e o modelo na saída.
 3. `Ambiente de execução → Executar tudo`. A base documental é lida de `2_base_documental/`; se a pasta não estiver no Colab, o notebook a baixa do repositório do grupo.
 
-Versões travadas na primeira célula: langchain 0.3.27, langchain-community 0.3.31, langchain-ollama 0.3.10, langchain-chroma 0.2.6, langchain-text-splitters 0.3.11, chromadb 1.5.9, ragas 0.4.3, datasets 5.2.0, gradio 6.31.0.
+O Ollama Cloud, usado nas aulas, deixou de ser gratuito em novembro de 2026; por orientação do professor, o modelo é acessado por um provedor com API compatível com OpenAI. Os embeddings (`paraphrase-multilingual-MiniLM-L12-v2`) rodam no próprio Colab, sem chave.
+
+Versões travadas na primeira célula: langchain 0.3.27, langchain-community 0.3.31, langchain-openai 0.3.35, langchain-huggingface 0.3.1, langchain-chroma 0.2.6, langchain-text-splitters 0.3.11, chromadb 1.5.9, ragas 0.4.3, datasets 5.2.0, gradio 6.31.0.
 
 ## Base documental e armadilhas
 | Documento | Data | Conteúdo |
@@ -55,10 +57,12 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 ## Decisões técnicas
 | Decisão | Motivo |
 |---|---|
-| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; **[preencher: qual estratégia venceu e o número]** |
+| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; a justificativa com os números está na seção 1 do notebook **[copiar aqui a frase gerada]** |
 | `k = 4` | a base é pequena (5 documentos); 4 trechos bastam para trazer os dois documentos de uma armadilha sem encher o contexto |
 | Contexto ordenado do mais recente ao mais antigo, com a data no rótulo | dá ao modelo o critério para resolver conflitos |
 | `temperature = 0` | respostas estáveis e avaliação reproduzível |
+| Provedor detectado pelos Secrets | o notebook roda com qualquer chave da lista do professor, sem editar código |
+| Embeddings locais | sem chave e sem limite de uso; o mesmo vetor em toda execução |
 | Agente ReAct com `max_iterations = 6` | limite de chamadas exigido; evita laços |
 | Ferramentas recebem um texto com campos separados por vírgula | o ReAct passa um único texto em `Action Input` |
 | Ferramentas leem a operação vigente (já com a portaria) | para RAG e ferramenta não se contradizerem |
@@ -76,7 +80,7 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 Os guardrails 2, 3 e 4 têm teste automatizado na seção 6 do notebook.
 
 ## Avaliação (RAGAS)
-**[preencher com os valores de `3_avaliacao_ragas.json`: tabela v1 × v2 das quatro métricas, a pior pergunta, a explicação e a melhoria proposta.]**
+**[copiar da seção 7 do notebook: a tabela v1 × v2 das quatro métricas e o texto "Leitura dos números", que o código monta com os valores medidos.]**
 
 ## Prints
 **[inserir: tabela de chunking · busca com distance · 3 respostas com fonte · trace do agente · interface Gradio · cada guardrail disparando · tabela do RAGAS.]**
@@ -86,6 +90,7 @@ Os guardrails 2, 3 e 4 têm teste automatizado na seção 6 do notebook.
 - O classificador de escopo usa o próprio modelo e pode errar em perguntas ambíguas.
 - O filtro de injection é por expressão regular: cobre os padrões conhecidos, não toda reformulação.
 - As métricas do RAGAS dependem de um modelo juiz e variam entre execuções.
+- Planos gratuitos têm limite de requisições: em horários de pico a avaliação pode demorar ou falhar em algumas perguntas.
 - Sem horários em tempo real; a evolução prevista é a API Olho Vivo da SPTrans.
 
 ## Custo aproximado por pergunta

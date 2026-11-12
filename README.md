@@ -18,6 +18,7 @@ core/               código compartilhado (rag, agent, guardrails, frota, analyt
 app/                interface Gradio (abas Cidadão | Operador | Dados)
 entregas/           cada pasta = exatamente o que a disciplina pede
 notebooks/          exploração (não é entrega)
+simulacao/          cidade fictícia em 3D: um dia sem e com o Linha Certa (abrir o .html)
 tests/              testes de guardrails e tools
 ```
 

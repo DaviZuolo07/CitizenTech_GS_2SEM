@@ -138,3 +138,11 @@ Notebooks de entrega autossuficientes em `entregas/mmc/` e `entregas/mlam/`; des
 - Base e dados das ferramentas em `entregas/prompt_ai/2_base_documental/`; no Colab o notebook baixa do repositório público.
 - Validação feita: todas as células executadas com modelo e embeddings falsos (sem rede), incluindo agente, guardrails, Gradio e a chamada do RAGAS. **Falta a execução real no Colab**, que depende da chave.
 - Ground truth das 8 perguntas em branco: o notebook para na seção 7 até o grupo escrevê-las.
+
+## D14 — Provedores novos, linhas reais e simulação 3D (12/11)
+- Ollama Cloud deixou de ser gratuito: o notebook de Prompt & AI usa `ChatOpenAI` com o primeiro provedor da lista do professor cuja chave estiver nos Secrets; embeddings locais (sentence-transformers).
+- Justificativa do chunking, leitura do RAGAS e conclusão são montadas pelo código com os valores medidos.
+- Ground truth continua em branco e a base continua simulada em `.md`: as duas coisas são exigências do enunciado (critérios 2 e 7).
+- `data/processed/linhas_onibus.csv`: as 1.309 linhas de ônibus do GTFS, com trajeto, extensão e frota estimada.
+- `simulacao/linha_certa_simulacao.html`: cidade fictícia em 3D, sem × com Linha Certa, usando os coeficientes do modelo e a regra de redistribuição do produto. Supera a D7 (a simulação foi feita antes do corte de 17/11, a pedido do Davi).
+- Detalhes, forma de entrega de cada disciplina, roteiro do pitch e calendário: `docs/09_auditoria_e_plano.md`.

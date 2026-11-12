@@ -64,3 +64,20 @@ def partidas_por_zona(freq: pd.DataFrame, paradas: pd.DataFrame) -> pd.DataFrame
     """Partidas/h de todas as viagens que param na zona, por zona e hora."""
     m = freq.merge(paradas[["trip_id", "zona"]], on="trip_id")
     return m.groupby(["zona", "hora"]).partidas_h.sum().reset_index()
+
+
+def extensao_km(caminho=GTFS_ZIP) -> pd.Series:
+    """Extensão de cada trajeto (shape_id) em km, lida do shapes.txt."""
+    with zipfile.ZipFile(caminho) as z:
+        sh = pd.read_csv(z.open("shapes.txt"), usecols=["shape_id", "shape_dist_traveled"])
+    return sh.groupby("shape_id").shape_dist_traveled.max() / 1000
+
+
+def tabela_linhas(gtfs: dict, freq: pd.DataFrame, km: pd.Series) -> pd.DataFrame:
+    """Uma linha por sentido de cada linha de ônibus: de onde até onde, extensão, partidas e frota estimada."""
+    v = gtfs["trips"].merge(gtfs["routes"][["route_id", "route_long_name"]], on="route_id").set_index("trip_id")
+    por_hora = freq.pivot_table(index="trip_id", columns="hora", values="frota", aggfunc="sum").reindex(columns=range(24), fill_value=0).fillna(0)
+    t = pd.DataFrame({"linha": v.route_id, "sentido": v.direction_id, "trajeto": v.route_long_name, "destino": v.trip_headsign,
+                      "extensao_km": v.shape_id.map(km), "partidas_dia": freq.groupby("trip_id").partidas_h.sum(),
+                      "frota_6h": por_hora[6], "frota_17h": por_hora[17], "frota_max": por_hora.max(axis=1)})
+    return t.dropna(subset="partidas_dia").round(1).sort_values("frota_max", ascending=False).reset_index(names="viagem")
