@@ -1,1 +1,19 @@
-# preencher
+5_certificacao.txt — GS 2026.2 · Prompt and Artificial Intelligence
+
+Turma: 1CCPK · Modalidade: trio · Frente: A (Mobilidade urbana) · Projeto: Linha Certa
+
+Integrantes
+- Davi Queiroz Zuolo — RM 571669
+- Gustavo Zagato Bottechia — RM 569420
+- Daniel Vilela Mana — RM 571632
+
+Links
+- Repositório: https://github.com/DaviZuolo07/CitizenTech_GS_2SEM
+- Vídeo de demonstração: [colar o link do YouTube, não listado]
+- Notebook no Colab: [colar o link de compartilhamento, se houver]
+
+Tela final
+[colar aqui o texto da última saída do notebook (seção 8, Conclusão) depois do Run all, com provedor, modelo e métricas]
+
+Declaramos que o notebook roda de cima para baixo no Google Colab, que nenhuma chave de API está no notebook, no
+repositório, nos prints ou neste ZIP, e que as respostas de referência da avaliação foram escritas à mão pelo grupo.

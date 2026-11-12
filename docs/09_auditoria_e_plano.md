@@ -1,184 +1,146 @@
-# Auditoria geral e plano até a entrega (posição em 11/11/2026, atualizada à tarde)
+# Auditoria geral e plano até a entrega
 
-Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
+Documento vivo. Última atualização: **quinta, 12/11/2026, 16h30**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
 
-## 1. Resumo
-| Frente | Situação | Estimativa |
-|---|---|---|
-| Motor de dados do produto | pronto, validado e documentado | 90% |
-| MMC | notebooks das duas etapas prontos, com os integrantes | 95% |
-| MLAM | base, notebooks dos itens 02 a 06 e README prontos; falta relatório PDF e publicação | 75% |
-| Prompt & AI | notebook completo montado (seções 0 a 8), base, ferramentas e README; **falta rodar no Colab**, ground truth, textos de análise, prints e vídeo | 55% |
-| App (Gradio) e deploy | não iniciado | 0% |
-| Pitch (vídeo) | roteiro existe; nenhum material produzido | 10% |
-| Simulação 3D | não iniciada (opcional, corte em 17/11) | 0% |
+Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
-**O risco do projeto mudou de lugar.** As duas disciplinas de cálculo estão adiantadas. Prompt & AI vale 10 pontos, tem a rubrica mais longa (8 critérios, 7 arquivos) e está no zero. Pelo cronograma original, os 5 documentos do RAG deveriam ser escritos hoje. Do dia 12 em diante, o trabalho deve ser quase todo em Prompt & AI.
+## 1. Situação
+| Frente | O que existe | O que falta | Estimativa |
+|---|---|---|---|
+| Motor de dados (produto) | pipeline OD + GTFS, redistribuição, modelo preditivo, tabela das 1.309 linhas, 69 testes, notebook explicativo | GTFS oficial no lugar da cópia | 95% |
+| MMC | notebooks das Etapas 1 e 2 executados, README | enviar | 95% |
+| MLAM | base tratada, notebooks dos itens 02 a 06, README | **relatório PDF (item 07, 2 pontos)**; `.txt` do portal | 75% |
+| Prompt & AI | notebook completo (seções 0 a 8) já nos provedores novos, base, ferramentas, guardrails, README | **primeira execução real no Colab**; 8 respostas de referência; prints; vídeo; arquivos 5, 6 e 7; ZIP | 65% |
+| Simulação 3D | pronta: `simulacao/linha_certa_simulacao.html` | nada obrigatório | 100% |
+| App Gradio (abas Gestor e Dados) e deploy | só a aba Cidadão, dentro do notebook | abas Gestor e Dados; Hugging Face Spaces | 20% |
+| Pitch | roteiro, números medidos, simulação | gravar o vídeo | 40% |
 
-**Commit e push feitos em 11/11** (`52a079e`). O que foi produzido depois disso (base documental, ferramentas, nomes dos integrantes) ainda precisa de novo commit.
+**Dá tempo?** As três entregas, sim, com uma condição: o notebook de Prompt & AI precisa rodar no Colab **até sexta, 13/11**, para sobrar tempo de corrigir o que a execução real mostrar. O que está em risco é o app com três abas publicado no Hugging Face; ele não vale nota em nenhuma disciplina e deve ser o primeiro corte. O pitch se sustenta com a simulação, os gráficos do notebook explicativo e a aba Cidadão.
 
-**Integrantes das entregas:** Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420) e Daniel Vilela Mana (RM 571632). Com três nomes, Prompt & AI segue o escopo de trio: 8 perguntas no RAGAS (4 + 4), 4 guardrails e documento extra (a base tem 5).
+## 2. O que mudou em 12/11
+### Ollama deixou de ser gratuito (aviso do professor em 11/11)
+- O notebook passou a usar `ChatOpenAI` contra provedores com API compatível com OpenAI, da lista do laboratório do professor: Groq, Cerebras, Hugging Face, Google AI Studio, Mistral, OpenRouter e NVIDIA NIM.
+- **Detecção automática:** usa o primeiro provedor cuja chave estiver nos Secrets do Colab. Basta cadastrar uma chave.
+- **Embeddings sem chave:** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, rodando no próprio Colab. Não gasta cota e entende português.
+- O juiz do RAGAS é o mesmo modelo, passado explicitamente; `max_workers=1` e novas tentativas automáticas para respeitar o limite de uso dos planos gratuitos.
+- Validação: todas as células executadas com modelo e embeddings falsos, inclusive a detecção do provedor. **A execução real continua pendente.**
 
-## 2. O que foi feito
-### Produto (motor de dados)
-- Download reproduzível: OD 2017, GTFS, zonas OD, distritos e subprefeituras (`scripts/baixar_od2017.py`, `scripts/baixar_dados.py`).
-- Geografia zona → distrito → subprefeitura → região (`core/analytics/geo.py`).
-- Oferta: frota reconstruída do GTFS por área e hora (`core/analytics/oferta.py`).
-- Demanda: embarques e carga a bordo por trecho de ônibus (`core/analytics/demanda.py`).
-- Redistribuição: alvo inteiro com piso de cobertura, matriz T, verificação e indicadores (`core/frota/`).
-- Modelo preditivo: funil de limpeza, treino agrupado por família, limiar por validação cruzada (`core/analytics/preparo.py`, `modelo.py`).
-- Pipeline que grava as tabelas agregadas (`scripts/passo0_pipeline.py` → `data/processed/`).
-- 54 testes automáticos; notebook explicativo com 13 checagens (`notebooks/01_motor_de_dados_explicado.ipynb`).
-- Documentação: `docs/08_modelo_produto.md` (D10) e este documento.
+### Textos de análise passam a ser gerados com os números medidos
+- **Justificativa do chunking, leitura dos números do RAGAS e conclusão** agora são montadas pelo código a partir dos resultados da execução (qual versão venceu em cada métrica, simples × armadilha, pior pergunta, documento que faltou no contexto, melhoria proposta). Nenhum número é digitado.
+- **Divisão de tarefas** preenchida: a entrega de Prompt & AI foi feita pelo Davi.
 
-### Entregas extraídas em 11/11
-- **MMC:** `entregas/mmc/01_etapa1_reconstrucao.ipynb` e `02_etapa2_redistribuicao.ipynb`, executados, mais README.
-- **MLAM:** `entregas/mlam/01_preparacao.ipynb`, `02_normal_hipoteses.ipynb`, `03_regressoes.ipynb`, executados; `dados/od2017_sp_trabalho.csv`; README com os tópicos do item 08d.
+### Linhas reais de São Paulo
+- `data/processed/linhas_onibus.csv`: uma linha por sentido de cada linha de ônibus, com trajeto (de onde até onde), destino, extensão, partidas por dia e frota estimada às 6h, às 17h e no máximo.
+- Totais do GTFS: **1.309 linhas, 2.236 sentidos, 34.341 km de trajetos, 165.105 partidas por dia útil**. A maior é a 6000-10 (Term. Parelheiros – Term. Sto. Amaro), com cerca de 50 ônibus às 6h.
+- A fonte dos trajetos é o próprio GTFS da SPTrans (`shapes.txt` traz a geometria de cada trajeto; `stops.txt`, as 22 mil paradas). São Paulo já está mapeada no motor: cada parada é atribuída a uma zona, distrito, subprefeitura e região. A API Olho Vivo acrescentaria a posição dos ônibus em tempo real e fica como evolução.
 
-## 3. Decisões registradas em 11/11 (D11)
+### Simulação 3D
+- Arquivo único, abre com dois cliques, sem internet. Mostra a mesma cidade fictícia duas vezes, lado a lado: frota fixa × frota redistribuída a cada hora.
+- **O modelo está dentro:** a probabilidade de usar ônibus de cada bairro vem dos coeficientes da regressão logística treinada na OD 2017; a forma do dia vem dos embarques reais por hora; a redistribuição é a regra do produto, reescrita em JavaScript e conferida contra o Python (mesmos resultados no caso da MMC e no teste do piso).
+- Resultado desta cidade: espera média de 11,1 para 6,8 min (−38%), maior fila de 219 para 90 pessoas, mesma quilometragem. Sem redistribuir, seriam necessários 8 ônibus a mais (44 em vez de 36) para a mesma espera.
+- **Limite:** é uma demonstração numa cidade pequena e controlada. Não valida o ganho em São Paulo; os números da cidade real são os do motor (seção 5).
+
+## 3. Decisões de 12/11 (D14)
 | Decisão | Motivo |
 |---|---|
-| Notebooks de entrega são **autossuficientes** (não importam `core/`) | o avaliador roda a pasta da disciplina sem montar o projeto inteiro; a lógica é a mesma do produto, copiada em poucas linhas |
-| MLAM 03: população de referência = todos os trabalhadores; amostra a) 20 que vão de carro (cauda esquerda), b) 25 que vão de ônibus (cauda direita) | sortear a amostra da própria população testaria uma hipótese sem conteúdo; assim cada teste responde a uma pergunta do problema |
-| MLAM 02: variável = duração das viagens de ônibus | é a variável com interpretação direta para o problema, e a assimetria rende a discussão do item b |
-| MLAM 06 na entrega: modelo de 4 quantitativas como principal, ampliado como complemento | o enunciado pede pelo menos 3 quantitativas; o ampliado mostra o que melhora o ajuste |
-| MMC: frota-alvo = necessidade, sem piso de cobertura | no enunciado a necessidade total é igual à frota (72); o piso é uma decisão do produto real, onde a regra pura esvaziava a periferia |
-| API Olho Vivo fica fora do MVP | não atende critério de nenhuma disciplina; entra como evolução no pitch. O token nunca vai para o repositório |
+| Provedor detectado pelos Secrets, em vez de um fixo | cada aluno cria a própria chave; o notebook roda com qualquer uma da lista do professor |
+| Embeddings locais, não por API | sem chave, sem limite de uso, resultado reproduzível |
+| Análises escritas pelo código com os valores da execução | o enunciado proíbe número estimado; assim o texto sempre corresponde ao que foi medido |
+| **Ground truth continua em branco no notebook** | o enunciado zera quase todo o critério 7 (2 pontos) se a resposta de referência for gerada por IA, e a instrução do próprio Projeto proíbe. O notebook indica, para cada pergunta, quais documentos ler |
+| **Base documental continua simulada e em `.md`** | o enunciado exige base "simulada, escrita pelo grupo", em `.txt` ou `.md`, e desconta autoria por "texto de fonte pública identificável". Trocar por PDFs reais perderia ponto nos critérios 2 e 7. Regras reais entram no pitch como evolução do produto |
+| Simulação em cidade fictícia pequena, não em São Paulo inteira | pedido do Davi; cabe na tela e roda em qualquer computador. O ganho em São Paulo é medido pelo motor, não pela simulação |
+| Economia expressa em "ônibus equivalentes", com custo por km como parâmetro | com frota fixa, a quilometragem não muda; a economia real é a frota que deixaria de ser necessária. O valor em reais é ilustrativo e está rotulado assim |
 
-## 4. O que tem × o que falta, por disciplina
-### MMC (Etapa 1: 5 pts · Etapa 2: 5 pts)
-| Item | Situação |
-|---|---|
-| 1a variáveis · 1b modelo · 1c forma matricial | pronto |
-| 1d unicidade (determinante = 3, posto 4, Rouché–Capelli, Laplace à mão) | pronto |
-| 1e solução em Python · 1f verificação | pronto: (12, 20, 16, 24) |
-| 2a necessidade · 2b desequilíbrios | pronto: (14, 19, 18, 21); déficit no Norte e no Leste |
-| 2c política e critérios · 2d transformação linear · 2e matriz e coeficientes | pronto |
-| 2f demonstrações (conservação, não negatividade, inteiro) | pronto, com checagem numérica |
-| Avaliação antes × depois | pronto: 160 passageiros sem vaga → 0, com 4 ônibus movidos |
-| Integrantes nos notebooks e no README | pronto |
+## 4. Como cada disciplina é entregue
+### MMC
+- **O que vai:** `entregas/mmc/01_etapa1_reconstrucao.ipynb` e `02_etapa2_redistribuicao.ipynb` (já com saídas e integrantes).
+- **Como:** pelo canal indicado pelo professor (confirmar se é o Portal e se ele quer PDF; se quiser, exportar cada notebook em PDF pelo menu Arquivo → Imprimir).
+- O projeto tem só as Etapas 1 e 2.
 
-**Como entrega:** os dois notebooks de `entregas/mmc/`. O projeto tem só as Etapas 1 e 2 (confirmado pelo Davi em 11/11). A dúvida sobre uma "Etapa 3" vinha de uma nota em `docs/02_materias.md`, escrita porque a contextualização do enunciado fala em reconstruir, redistribuir **e avaliar os resultados**, mas só lista duas etapas; a avaliação antes × depois está no fim do notebook da Etapa 2. Falta confirmar o canal de envio (Portal) e se o professor quer PDF além do notebook.
+### MLAM
+- **O que vai no Portal:** um único arquivo `.txt` com nome completo e RM dos três e o link do GitHub.
+- **Link sugerido:** `https://github.com/DaviZuolo07/CitizenTech_GS_2SEM/tree/main/entregas/mlam` (a pasta tem a base, os três notebooks, o README e, quando pronto, o PDF).
+- **Antes de enviar:** relatório PDF dentro de `entregas/mlam/relatorio/`; repositório público (já está) e com o último push.
+- Erro de entrega custa 2 pontos; item ausente, 1 ponto.
 
-**Atenção:** o enunciado da MMC diz que a política deve ser desenvolvida pela própria equipe. A regra é a que definimos juntos; é preciso saber explicá-la e defender cada coeficiente da matriz sem consultar o notebook.
+### Prompt & AI
+- **O que vai no Portal:** `GS2026_2_1CCPK_<NOME_DO_GRUPO>.zip` com exatamente:
+  1. `1_Notebook_GS2026_2.ipynb` (executado, com saídas)
+  2. `2_base_documental/` (os 5 documentos e a pasta `dados_ferramentas/`)
+  3. `3_avaliacao_ragas.json` (gerado pelo notebook)
+  4. `4_README.md` (com prints e números)
+  5. `5_certificacao.txt` (tela final, links, nomes e RMs)
+  6. `6_Chat_Log.txt` (registro do uso de IA)
+  7. `7_demo_video_url.txt` (link do vídeo no YouTube, não listado, até 3 min, com cada integrante se apresentando no início)
+- **Nunca** deixar chave no notebook, nos prints ou no ZIP.
 
-### MLAM (10 pts; −1 por item ausente; −2 por entrega errada no portal)
-| Item | Pts | Situação |
+### Pitch geral (top 3)
+Vídeo de até 3 minutos, sem divisão por disciplina:
+| Tempo | O que aparece | Fonte |
 |---|---|---|
-| 01 Base real e justificada | — | pronto: OD 2017, com fonte e endereço |
-| 02 Normal: P(X < média), P(X > mediana), classificação | 1,0 | pronto |
-| 03 Testes Z (n = 20, α = 6%, esquerda; n = 25, α = 9%, direita) | 1,0 | pronto |
-| 04 Bivariada (a–f) | 2,0 | pronto |
-| 05 Múltipla (a–f) | 2,0 | pronto, com 4 quantitativas |
-| 06 Logística (a–c) | 2,0 | pronto |
-| 07 **Relatório estatístico em PDF** | 2,0 | **falta** |
-| 08a csv + fonte + limpeza reproduzível | — | pronto |
-| 08b notebooks com saídas | — | pronto |
-| 08c PDF | — | **falta** (é o item 07) |
-| 08d README | — | pronto |
-| Repositório com tudo commitado | — | commit feito; **confirmar que está público** e commitar as mudanças da tarde |
-| **.txt do portal** (nome, RM, link) | — | **falta** |
+| 0:00–0:20 | a dor: fila no ponto de um bairro, ônibus vazio em outro | simulação, lado "sem" |
+| 0:20–0:50 | o dado real: 9,7 milhões de embarques por dia; às 17h a ocupação vai de 0,20 a 0,80 entre subprefeituras | notebook explicativo, seção 6 |
+| 0:50–1:30 | o gestor: redistribuir 1.193 ônibus (9% da frota) leva a faixa para 0,25–0,56, sem comprar veículo e sem tirar mais de 20% de nenhuma área | motor de dados |
+| 1:30–2:10 | a simulação lado a lado, em 8×, até o placar final | `simulacao/` |
+| 2:10–2:40 | o cidadão: pergunta-armadilha respondida com fonte; tentativa de injection recusada | notebook de Prompt & AI |
+| 2:40–3:00 | custo próximo de zero, o que é medido e o próximo passo (Olho Vivo) | — |
 
-**Como entrega:** um único arquivo `.txt` no Portal com nome completo, RM e o link do repositório GitHub. O repositório precisa estar **público** e abrir sem pedir autorização; conta a versão que estiver lá no prazo.
+O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação média, não o trecho mais cheio); economia em reais como fato; que a simulação prova o resultado em São Paulo.
 
-**Pontos a conferir:** (1) a classificação do evento no item 02 usa a escala impossível / improvável / tão provável quanto improvável / provável / certo; trocar pelos termos usados em aula, se forem outros. (2) No item 06 a acurácia no limiar escolhido (0,63) fica abaixo da de prever sempre "não usa" (0,79). Está explicado no notebook e a tabela mostra também o limiar 0,5 (0,78), mas é a pergunta mais provável da correção.
-
-### Prompt & AI (10 pts · ZIP com 7 arquivos · notebook roda no Colab)
-| Critério | Peso | Situação |
-|---|---|---|
-| 1 Entrega (ZIP, Run all, vídeo ≤ 3 min, sem chave) | 1,0 | falta tudo |
-| 2 Base documental (≥ 2 docs, armadilha, 2 chunkings comparados) | 1,0 | **5 documentos prontos** em `base_documental/` (3 armadilhas + injection); falta a comparação de chunking |
-| 3 RAG em LCEL com citação e "não sei" | 1,5 | falta |
-| 4 Agente (≥ 2 ferramentas, uma calcula, erro controlado, ≤ 6 chamadas) | 1,5 | **3 ferramentas prontas e testadas** em `core/agent/ferramentas.py` (15 testes, erros controlados); falta montar o agente |
-| 5 Gradio com histórico e fontes | 0,7 | falta |
-| 6 Guardrails (3; 4 no escopo de trio) | 1,0 | falta |
-| 7 RAGAS (perguntas com ground truth própria, métricas reais, explicação) | 2,0 | falta; **a ground truth é escrita pelo Davi, à mão** |
-| 8 README (diagrama, prints, decisões, armadilha) | 1,3 | falta |
-| Bônus (até +1,0) | — | pergunta composta com 2 ferramentas |
-
-**Como entrega:** `GS2026_2_<TURMA>_<NOME_GRUPO>.zip` no Portal, com `1_Notebook_GS2026_2.ipynb` (seções 0 a 8 com os títulos exatos), `2_base_documental/`, `3_avaliacao_ragas.json`, `4_README.md`, `5_certificacao.txt`, `6_Chat_Log.txt`, `7_demo_video_url.txt`.
-
-**O que depende só do Davi:** escrever a ground truth; revisar e assumir os documentos; registrar o uso de IA no `6_Chat_Log.txt`; gravar o vídeo; cadastrar `OLLAMA_API_KEY` nos Secrets do Colab.
-
-**Condição técnica:** o notebook roda no Colab, então tudo o que ele lê (documentos, tabela de fluxos) precisa estar em endereço público ou ser criado pelo próprio notebook.
-
-## 5. O que falta para o projeto geral e para o pitch
-| Item | Para quê | Situação |
-|---|---|---|
-| App Gradio com 3 abas (Cidadão, Gestor, Dados) | protótipo de 18/11; a aba Cidadão é o critério 5 de Prompt & AI | falta |
-| Aba Gestor: mapa de pressão por zona e tabela antes × depois | pitch (trecho do gestor) | dados prontos; falta a tela |
-| Deploy no Hugging Face Spaces | protótipo acessível por link | falta |
-| GTFS oficial da SPTrans | trocar a cópia de terceiros | o arquivo em `data/raw/sptrans_gtfs.zip` ainda é a cópia baixada em 10/11 (mesmo conteúdo, byte a byte); o download oficial não chegou a essa pasta |
-| Vídeo do pitch (≤ 3 min) | concorrer ao top 3 | falta |
-| Vídeo de Prompt & AI (≤ 3 min) | critério 1 | falta |
-| Simulação 3D | fecho do pitch | opcional; só se as 3 entregas estiverem prontas em 17/11 |
-
-### Números que o pitch pode usar (todos medidos)
-- 9,7 milhões de embarques de ônibus por dia na OD 2017; 43% deles ficam invisíveis se só o "modo principal" for contado.
-- Às 17h, a ocupação média vai de 0,20 (Perus) a 0,80 (Pinheiros, Butantã): uma diferença de 4 vezes com a mesma frota.
-- Redistribuindo 1.193 ônibus (9% da frota em operação), a faixa cai para 0,25–0,56, sem comprar nenhum veículo e sem tirar mais de 20% de nenhuma área.
+## 5. Números do motor (cidade real, medidos)
+- 9,72 milhões de embarques de ônibus por dia na OD 2017; contar só o "modo principal" esconderia 43% deles.
+- 17h: ocupação média de 0,20 (Perus-Anhanguera) a 0,80 (Pinheiros, Butantã). Realocando 1.193 ônibus, a faixa vai para 0,25–0,56.
+- Espera média ponderada às 17h: de 8,69 para 8,37 min. Às 6h ela sobe 0,25 min: igualar lotação e reduzir espera são objetivos diferentes.
+- Modelo preditivo: AUC 0,81 no completo e 0,71 no de 4 variáveis; a distância é a entrada que mais pesa; cada carro corta a chance de usar ônibus pela metade.
 - Viagem de ônibus ao trabalho: 58 min em média, contra 39 min na média de todos os modos.
-- Cada carro a mais em casa corta pela metade a chance de usar ônibus.
 
-### O que o pitch **não** pode afirmar
-- Que a superlotação acaba: o modelo mede a ocupação média da linha, não o trecho mais cheio.
-- Economia em reais: continua sendo hipótese (exige dado operacional).
-- Que a espera cai em toda hora: às 6h ela sobe 0,25 min.
+## 6. Etapas até a entrega
+| # | Etapa | Estado | Quem |
+|---|---|---|---|
+| 1 | Motor de dados e documentação | feito | — |
+| 2 | Entrega MMC | feito | — |
+| 3 | Entrega MLAM: notebooks e base | feito | — |
+| 4 | Prompt & AI: base, ferramentas, notebook, README | feito | — |
+| 5 | Prompt & AI nos provedores novos | feito em 12/11 | — |
+| 6 | Linhas reais de São Paulo | feito em 12/11 | — |
+| 7 | Simulação 3D | feito em 12/11 | — |
+| 8 | Primeira execução real no Colab (seções 0 a 6) | **pendente** | Davi |
+| 9 | Correções que a execução real mostrar | pendente | depois da 8 |
+| 10 | 8 respostas de referência, à mão | **pendente** | Davi |
+| 11 | RAGAS medido e JSON exportado | pendente | Davi roda |
+| 12 | Relatório PDF da MLAM | **pendente** | próximo passo |
+| 13 | Prints no README de Prompt & AI | pendente | Davi |
+| 14 | Vídeo de Prompt & AI e vídeo do pitch | pendente | grupo |
+| 15 | ZIP, `.txt` e envios | pendente | Davi |
+| 16 | App com abas Gestor e Dados; deploy | opcional | só se sobrar tempo |
 
-### Regiões no pitch
-A política é calculada em 32 subprefeituras. No pitch aparece o mesmo cálculo somado nas 5 regiões oficiais da Prefeitura (Centro, Norte, Sul, Leste, Oeste), porque uma tabela de 5 linhas cabe num slide e repete a estrutura do enunciado da MMC. É apresentação, não outro modelo. Às 17h: Oeste 0,73 e Centro 0,63 contra Norte 0,42 e Leste 0,46.
+### Calendário
+| Dia | Trabalho |
+|---|---|
+| Qui 12 | ✅ provedores, simulação, linhas · Davi: commit e push, criar a chave, rodar o Colab |
+| Sex 13 | correções do Colab · 8 respostas de referência · RAGAS · relatório PDF da MLAM |
+| Sáb 14 | prints e README de Prompt & AI · revisão do relatório da MLAM |
+| Dom 15 | vídeo de Prompt & AI · roteiro final do pitch |
+| Seg 16 | vídeo do pitch · conferência dos três pacotes |
+| Ter 17 | `Run all` limpo no Colab · montar o ZIP · reserva |
+| Qua 18 | protótipo final · reserva |
+| Qui 19 | envios, de preferência pela manhã |
 
-## 6. Entradas do modelo e peso de cada uma
-Modelo completo no teste: AUC 0,814 · acurácia 0,738 · F1 0,547. A tabela mostra o quanto cada medida cai quando a entrada é retirada.
+## 7. O que só o grupo pode fazer
+1. **Commit e push** (o notebook baixa a base do GitHub).
+2. **Criar a chave de um provedor** e cadastrar nos Secrets do Colab com "Notebook access". Sugestão: Groq (`GROQ_API_KEY`), que é o primeiro da lista do notebook.
+3. **Rodar o notebook no Colab** e enviar qualquer erro.
+4. **Escrever as 8 respostas de referência**, lendo os documentos indicados em cada pergunta (15 a 20 minutos).
+5. **Ler e revisar os 5 documentos** da base e registrar o uso de IA no `6_Chat_Log.txt`.
+6. **Prints, vídeos, `5_certificacao.txt` e `7_demo_video_url.txt`.**
+7. **Copiar o GTFS oficial** para `data\raw\sptrans_gtfs.zip` (o arquivo de lá ainda é a cópia de 10/11).
+8. **Confirmar com o professor de MMC** o canal de envio.
 
-| Entrada | Queda na AUC | Queda na acurácia | Queda no F1 | AUC usando só ela |
-|---|---|---|---|---|
-| Distância casa–trabalho (linear + log) | 0,080 | 0,068 | 0,075 | 0,643 |
-| Carros no domicílio | 0,020 | −0,018 | 0,017 | 0,665 |
-| Renda per capita (log) | 0,007 | 0,000 | 0,008 | 0,667 |
-| Ocupação | 0,007 | −0,012 | 0,009 | 0,667 |
-| Vínculo CLT | 0,004 | 0,010 | 0,007 | 0,609 |
-| Idade | 0,000 | −0,001 | −0,001 | 0,557 |
-| Horário de pico | 0,000 | 0,011 | 0,005 | 0,501 |
-
-- A **distância** é a entrada que mais pesa: sem ela a AUC cai de 0,81 para 0,73. O ganho vem da forma não linear (sobe até ~6 km e depois cai).
-- **Carros, renda e ocupação** medem coisas parecidas (condição socioeconômica): cada uma sozinha chega a AUC 0,67, mas tirar uma só custa pouco, porque as outras compensam.
-- **Idade e horário de pico** não contribuem. Podem sair do modelo.
-- Quedas negativas na acurácia aparecem porque o limiar é reescolhido a cada modelo; a AUC é a medida estável para comparar.
-- Fora das entradas, o que mais mexe na acurácia é o **limiar**: 0,806 no limiar 0,5 contra 0,738 no limiar 0,24, com o recall indo de 0,29 para 0,75.
-
-## 7. Cronograma revisto
-| Dia | Trabalho | Quem |
+## 8. Riscos abertos
+| Risco | Efeito | O que fazer |
 |---|---|---|
-| Qua 11 | ✅ commit e push · ✅ 5 documentos do RAG · ✅ ferramentas do agente · GTFS oficial (pendente) | Davi revisa os documentos |
-| Qui 12 | ground truth à mão · chunking A × B · Chroma · RAG em LCEL com citação | Davi escreve a ground truth |
-| Sex 13 | agente e 3 ferramentas · guardrails | — |
-| Sáb 14 | RAGAS v1 × v2 · interface Gradio (aba Cidadão) | — |
-| Dom 15 | abas Gestor e Dados · relatório PDF da MLAM | — |
-| Seg 16 | relatório da MMC · README de Prompt & AI · deploy | — |
-| Ter 17 | Run all limpo no Colab · decisão sobre a simulação | Davi testa no Colab |
-| Qua 18 | protótipo final · vídeos | Davi grava |
-| Qui 19 | ZIP · .txt · envio | Davi envia |
-
-## 8. Pendências que dependem do Davi
-1. Novo commit e push; confirmar que o repositório está público.
-2. Copiar o GTFS oficial baixado para `data/raw/sptrans_gtfs.zip` (substituindo o atual).
-3. Ler e revisar os 5 documentos de `base_documental/` e registrar o uso de IA no `6_Chat_Log.txt`.
-4. Informar a turma (para o nome do ZIP de Prompt & AI).
-5. Confirmar os termos de classificação de evento usados na aula de MLAM.
-6. Escrever a ground truth do RAGAS depois que os documentos estiverem prontos.
-7. Guardar o token da Olho Vivo e a `OLLAMA_API_KEY` fora do repositório.
-
-## 9. Base documental e ferramentas (feito em 11/11 à tarde)
-- **Documentos simulados** (`base_documental/`): itinerários (doc_01), tabela de horários (doc_02), portaria que altera a operação (doc_03), gratuidades (doc_04) e comunicado de obras (doc_05). Três linhas fictícias (714A-10, 502C-10, 318N-10) e o Terminal Ipê Roxo. Todos trazem aviso de documento simulado.
-- **Armadilhas:** desatualização (doc_02 × doc_03: domingo da 714A-10 e primeira partida da 318N-10), faixa condicional (doc_04: idade e dia), contradição (doc_01 × doc_05: plataforma C) e uma instrução maliciosa dentro do doc_05.
-- **Ferramentas** (`core/agent/ferramentas.py`): `calcular_proximo_horario(linha, hora, dia)` calcula a partir das faixas de intervalo; `verificar_gratuidade(idade, pcd, estudante, dia)` aplica o doc_04; `consultar_fluxo(origem, destino, hora)` consulta os fluxos reais da OD. Erros voltam como mensagem, sem exceção.
-- **Coerência entre RAG e ferramenta:** as ferramentas leem `operacao_vigente.json`, que já reflete a portaria. Se lessem a tabela antiga, o agente e o RAG se contradiriam.
-- **Não testado ainda:** nada que dependa do modelo (RAG, agente, RAGAS). O ambiente onde o código roda não alcança o Ollama Cloud; o notebook precisa ser executado no Colab pelo Davi.
-
-## 10. Notebook de Prompt & AI (feito em 11/11, fim da tarde)
-- `entregas/prompt_ai/1_Notebook_GS2026_2.ipynb`: seções 0 a 8 com os títulos exigidos, no padrão das aulas (Ollama Cloud, `qwen3.6:27b`, `nomic-embed-text`, ReAct com `AgentExecutor`). Turma 1CCPK, trio.
-- `4_README.md` com diagrama, armadilhas, decisões, guardrails e limitações; números e prints marcados para preencher.
-- **Testado sem rede:** todas as células rodam com modelo e embeddings falsos (agente, guardrails, interface, exportação do JSON). **Não testado:** a execução real com o Ollama Cloud. O primeiro `Run all` no Colab pode revelar ajustes de versão ou de prompt.
-- **Só o grupo pode fazer:** rodar no Colab; escrever as 8 respostas de referência; preencher a divisão de tarefas, a justificativa do chunking, a leitura dos números e a conclusão com os valores medidos; tirar os prints; gravar o vídeo; preencher `5_certificacao.txt`, `6_Chat_Log.txt` e `7_demo_video_url.txt`.
-- **Condição para o Colab:** fazer commit e push antes, porque o notebook baixa a base de `entregas/prompt_ai/2_base_documental/` no GitHub.
+| Notebook nunca rodou com modelo real | ajustes de versão, de prompt ou de limite de uso só aparecem no Colab | rodar até sexta |
+| Modelo pequeno não segue o formato do agente | o agente gasta voltas e pode não chegar à resposta | trocar a ordem da lista para um modelo maior (Cerebras ou Hugging Face, `gpt-oss-120b`) |
+| Limite de uso do plano gratuito no RAGAS (64 avaliações) | métricas vazias | rodar de novo mais tarde ou com outro provedor; o texto de análise avisa quando o juiz falha |
+| Relatório PDF da MLAM não existe | −2 pontos | é o próximo passo |
+| Acurácia do item 06 da MLAM abaixo do chute da maioria no limiar escolhido | pergunta na correção | já explicado no notebook; a tabela mostra também o limiar 0,5 |

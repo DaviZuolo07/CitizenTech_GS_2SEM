@@ -8,8 +8,8 @@
   "embarques_dia": 9719764,
   "subprefeitura": {
     "hora": 17,
-    "frota_total": 13320,
-    "onibus_realocados": 1193,
+    "frota_total": 13317,
+    "onibus_realocados": 1192,
     "propriedades_T": {
       "colunas_somam_1": true,
       "sem_negativos": true,
@@ -17,28 +17,28 @@
       "atinge_alvo_inteiro": true
     },
     "antes": {
-      "espera_media_min": 8.693211026683048,
-      "ocupacao_max": 0.8024732734721555,
+      "espera_media_min": 8.701062977272235,
+      "ocupacao_max": 0.8039873739881407,
       "ocupacao_min": 0.201133898932963,
       "nao_embarcados": 0.0,
-      "lugares_ociosos": 505822.94605605997
+      "lugares_ociosos": 505582.94605605997
     },
     "depois": {
-      "espera_media_min": 8.372807310286419,
+      "espera_media_min": 8.380497801205745,
       "ocupacao_max": 0.5599295531150678,
       "ocupacao_min": 0.25093848343064906,
       "nao_embarcados": 0.0,
-      "lugares_ociosos": 505822.94605605997
+      "lugares_ociosos": 505582.94605605997
     },
     "ocupacao_max_por_capacidade": {
-      "60": 1.0699643646295407,
-      "80": 0.8024732734721555,
-      "100": 0.6419786187777244
+      "60": 1.071983165317521,
+      "80": 0.8039873739881407,
+      "100": 0.6431898991905126
     }
   },
   "regiao": {
     "hora": 17,
-    "frota_total": 13320,
+    "frota_total": 13317,
     "onibus_realocados": 1057,
     "propriedades_T": {
       "colunas_somam_1": true,
@@ -47,23 +47,23 @@
       "atinge_alvo_inteiro": true
     },
     "antes": {
-      "espera_media_min": 8.681165369495186,
-      "ocupacao_max": 0.7303848622000046,
-      "ocupacao_min": 0.41562584828391663,
+      "espera_media_min": 8.687157500847713,
+      "ocupacao_max": 0.7299077982795605,
+      "ocupacao_min": 0.415787006038195,
       "nao_embarcados": 0.0,
-      "lugares_ociosos": 505822.9460560599
+      "lugares_ociosos": 505582.9460560599
     },
     "depois": {
-      "espera_media_min": 8.433075094452619,
-      "ocupacao_max": 0.5264301855080126,
+      "espera_media_min": 8.438688928333004,
+      "ocupacao_max": 0.5266205651112192,
       "ocupacao_min": 0.5195323103548958,
       "nao_embarcados": 0.0,
-      "lugares_ociosos": 505822.9460560599
+      "lugares_ociosos": 505582.9460560599
     },
     "ocupacao_max_por_capacidade": {
-      "60": 0.9738464829333395,
-      "80": 0.7303848622000046,
-      "100": 0.5843078897600037
+      "60": 0.9732103977060808,
+      "80": 0.7299077982795605,
+      "100": 0.5839262386236485
     }
   }
 }

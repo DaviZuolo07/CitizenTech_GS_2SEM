@@ -1,1 +1,43 @@
-# preencher
+6_Chat_Log.txt — Registro do uso de IA (GS 2026.2 · Prompt and Artificial Intelligence · Turma 1CCPK)
+Integrantes: Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 569420) · Daniel Vilela Mana (RM 571632)
+Responsável por esta entrega: Davi Queiroz Zuolo
+
+FERRAMENTA
+Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 12/11/2026.
+
+COMO A IA FOI USADA (resumo por sessão)
+
+09/11 — Planejamento
+- Pedi ajuda para organizar o projeto, ler o enunciado e montar a matriz de critérios da rubrica.
+- Decisões tomadas com apoio da IA: frente A (mobilidade), 5 documentos simulados com 3 armadilhas e 1 prompt injection,
+  comparação de chunking 500/50 x 1000/150, não usar GraphRAG.
+
+11/11 — Base documental e ferramentas
+- Pedi um rascunho dos 5 documentos simulados (itinerários, horários, portaria, gratuidades, comunicado), com linhas e
+  locais fictícios. A IA gerou o texto; eu li, revisei e assumo o conteúdo.
+- Pedi as funções das ferramentas do agente (calcular_proximo_horario, verificar_gratuidade, consultar_fluxo) e os testes.
+- A IA apontou que a ferramenta deveria ler a tabela já com a portaria aplicada, para não contradizer o RAG.
+
+11/11 — Notebook
+- Enviei as aulas do professor para a IA seguir o mesmo padrão (LCEL, ChromaDB, ReAct com AgentExecutor, RAGAS).
+- A IA montou o notebook nas seções 0 a 8, os 4 guardrails e o README.
+- A IA explicou por que travar o langchain na versão 0.3 (AgentExecutor) e por que as ferramentas recebem um texto único.
+
+12/11 — Troca de provedor
+- Com o fim da gratuidade do Ollama Cloud, enviei as instruções do professor. A IA adaptou o notebook para provedores
+  com API compatível com OpenAI e embeddings locais.
+- A IA transformou a justificativa do chunking, a leitura do RAGAS e a conclusão em texto montado pelo código a partir
+  dos valores medidos na execução.
+
+O QUE A IA NÃO FEZ
+- Não escreveu as respostas de referência (ground truth) das 8 perguntas: foram escritas à mão pelo grupo.
+  (Pedi que a IA as escrevesse; ela recusou, citando a regra do enunciado.)
+- Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
+- Não teve acesso a nenhuma chave de API.
+
+O QUE EU VERIFIQUEI
+- [preencher depois de rodar: o que conferi, o que corrigi no código ou nos documentos, erros encontrados no Colab]
+
+OBSERVAÇÃO
+A IA validou o encadeamento do notebook com modelo e embeddings falsos, sem rede. A execução real, as medições e a
+análise final foram feitas por mim no Google Colab.
