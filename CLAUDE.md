@@ -1,7 +1,7 @@
 # CLAUDE.md — Linha Certa (GS 2026.2 FIAP · Citizen Tech)
 
 ## Contexto
-Projeto individual que entrega 3 disciplinas num só produto: Prompt & AI, Modelagem Matemática e Computacional (MMC), Modelagem Linear para ML (MLAM). Meta do produto: ônibus de São Paulo circulando de forma inteligente + comunicação Estado ↔ cidadão. Prazo final: 19/11/2026 23h59.
+Projeto que entrega 3 disciplinas num só produto (integrantes: Davi Queiroz Zuolo RM 571669, Gustavo Zagato Bottechia RM 569420, Daniel Vilela Mana RM 571632; escopo de trio em Prompt & AI): Prompt & AI, Modelagem Matemática e Computacional (MMC), Modelagem Linear para ML (MLAM). Meta do produto: ônibus de São Paulo circulando de forma inteligente + comunicação Estado ↔ cidadão. Prazo final: 19/11/2026 23h59.
 Leia antes de agir: `docs/00_contrato_pitch.md`, `docs/01_decisoes.md`, `docs/02_materias.md`, `docs/05_variaveis_modelo.md`, `docs/08_modelo_produto.md` (D10: modelo implementado; prevalece sobre a D9), `docs/09_auditoria_e_plano.md` (situação, pendências e cronograma revisto).
 
 ## Regras inegociáveis
@@ -24,3 +24,4 @@ Leia antes de agir: `docs/00_contrato_pitch.md`, `docs/01_decisoes.md`, `docs/02
 - Python 3.11+, versões travadas em `requirements.txt`.
 - Código compartilhado em `core/`; cada pasta em `entregas/` contém só o que a disciplina pede.
 - Comentários e documentação em português.
+- Base documental simulada em `base_documental/` (5 documentos + `operacao_vigente.json`); ferramentas do agente em `core/agent/ferramentas.py`. As ferramentas leem a operação vigente (já com a portaria), nunca a tabela antiga.

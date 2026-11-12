@@ -120,3 +120,21 @@ Decisões aprovadas e ajustes impostos pelos dados (demanda por trecho de ônibu
 
 ## D11 — Entregas de MMC e MLAM extraídas (11/11)
 Notebooks de entrega autossuficientes em `entregas/mmc/` e `entregas/mlam/`; desenho dos testes de hipótese (referência = todos os trabalhadores; amostras de carro e de ônibus); MMC sem piso de cobertura; Olho Vivo fora do MVP. Auditoria, o que falta por disciplina, peso de cada entrada do modelo e cronograma revisto: ver `docs/09_auditoria_e_plano.md`.
+
+## D12 — Base documental e ferramentas do agente (11/11, tarde)
+- 5 documentos simulados em `base_documental/`, com 3 linhas fictícias (714A-10, 502C-10, 318N-10) e o Terminal Ipê Roxo. Armadilhas: desatualização (doc_02 × doc_03), faixa condicional (doc_04), contradição (doc_01 × doc_05) e prompt injection no doc_05.
+- Ferramentas em `core/agent/ferramentas.py`, funções puras e testadas: `calcular_proximo_horario`, `verificar_gratuidade`, `consultar_fluxo`. Leem `operacao_vigente.json` (tabela já com a portaria), para que RAG e ferramenta não se contradigam.
+- Entregas passam a levar os três integrantes; Prompt & AI no escopo de trio (8 perguntas, 4 guardrails).
+- MMC: só Etapas 1 e 2; a nota sobre "Etapa 3" foi removida de `docs/02_materias.md`.
+- O GTFS em `data/raw/` continua sendo a cópia de 10/11; o oficial ainda precisa ser copiado para lá.
+
+## D13 — Notebook de Prompt & AI montado (11/11)
+- Padrão copiado das aulas do Prof. Jorge: `OLLAMA_HOST=https://ollama.com`, `ChatOllama("qwen3.6:27b", temperature=0)`, `OllamaEmbeddings("nomic-embed-text")`, agente `create_react_agent` + `AgentExecutor`, RAGAS com juiz e embeddings explícitos.
+- Versões travadas e testadas em conjunto (langchain 0.3.27 etc.). O `AgentExecutor` das aulas não existe no langchain 1.x, por isso o pin em 0.3.
+- Ferramentas com entrada em um único texto ("linha, hora, dia"), porque o ReAct passa só um `Action Input`.
+- Prompt ReAct local (sem `hub.pull`), para o notebook não depender do LangChain Hub.
+- Guardrails ligados por duas listas de checagens (entrada e saída): a seção 5 (interface) define o fluxo e a seção 6 registra os guardrails, mantendo a ordem de seções exigida.
+- Limite de confiança determinístico: a resposta só passa se citar um documento realmente consultado ou vier de ferramenta de cálculo.
+- Base e dados das ferramentas em `entregas/prompt_ai/2_base_documental/`; no Colab o notebook baixa do repositório público.
+- Validação feita: todas as células executadas com modelo e embeddings falsos (sem rede), incluindo agente, guardrails, Gradio e a chamada do RAGAS. **Falta a execução real no Colab**, que depende da chave.
+- Ground truth das 8 perguntas em branco: o notebook para na seção 7 até o grupo escrevê-las.

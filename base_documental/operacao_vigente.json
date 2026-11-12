@@ -1,0 +1,24 @@
+{
+  "_sobre": "Dados SIMULADOS usados pelas ferramentas do agente. Refletem a tabela de horários (doc_02) já com as alterações da Portaria 27/2026 (doc_03), em vigor desde 2026-10-01. Faixas: [início, fim, intervalo em minutos].",
+  "714A-10": {
+    "nome": "Jardim das Acácias / Terminal Ipê Roxo",
+    "util": [["04:30", "06:00", 15], ["06:00", "09:00", 8], ["09:00", "16:00", 12], ["16:00", "20:00", 8], ["20:00", "23:40", 20]],
+    "sabado": [["05:00", "23:00", 15]],
+    "domingo": [],
+    "fontes": ["doc_02", "doc_03"]
+  },
+  "502C-10": {
+    "nome": "Vila Aurora / Terminal Ipê Roxo",
+    "util": [["05:00", "06:00", 15], ["06:00", "09:00", 10], ["09:00", "23:00", 15]],
+    "sabado": [["05:30", "22:30", 20]],
+    "domingo": [["06:00", "22:00", 20]],
+    "fontes": ["doc_02", "doc_03"]
+  },
+  "318N-10": {
+    "nome": "Parque dos Manacás / Estação Mirante",
+    "util": [["05:10", "07:00", 20], ["07:00", "19:00", 15], ["19:00", "22:30", 30]],
+    "sabado": [["05:30", "21:30", 30]],
+    "domingo": [],
+    "fontes": ["doc_02", "doc_03"]
+  }
+}

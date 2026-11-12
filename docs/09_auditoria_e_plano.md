@@ -1,4 +1,4 @@
-# Auditoria geral e plano até a entrega (posição em 11/11/2026)
+# Auditoria geral e plano até a entrega (posição em 11/11/2026, atualizada à tarde)
 
 Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 
@@ -6,16 +6,18 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | Frente | Situação | Estimativa |
 |---|---|---|
 | Motor de dados do produto | pronto, validado e documentado | 90% |
-| MMC | notebooks das duas etapas prontos; falta relatório | 80% |
+| MMC | notebooks das duas etapas prontos, com os integrantes | 95% |
 | MLAM | base, notebooks dos itens 02 a 06 e README prontos; falta relatório PDF e publicação | 75% |
-| Prompt & AI | **nada construído** (só a estrutura de pastas) | 5% |
+| Prompt & AI | base documental (5 documentos) e 3 ferramentas testadas; falta o notebook inteiro | 20% |
 | App (Gradio) e deploy | não iniciado | 0% |
 | Pitch (vídeo) | roteiro existe; nenhum material produzido | 10% |
 | Simulação 3D | não iniciada (opcional, corte em 17/11) | 0% |
 
 **O risco do projeto mudou de lugar.** As duas disciplinas de cálculo estão adiantadas. Prompt & AI vale 10 pontos, tem a rubrica mais longa (8 critérios, 7 arquivos) e está no zero. Pelo cronograma original, os 5 documentos do RAG deveriam ser escritos hoje. Do dia 12 em diante, o trabalho deve ser quase todo em Prompt & AI.
 
-**Nada foi commitado desde 09/11.** Todo o trabalho dos dias 10 e 11 existe só na pasta local. A MLAM é avaliada pelo que estiver no GitHub no prazo. Commit e push são a próxima ação.
+**Commit e push feitos em 11/11** (`52a079e`). O que foi produzido depois disso (base documental, ferramentas, nomes dos integrantes) ainda precisa de novo commit.
+
+**Integrantes das entregas:** Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420) e Daniel Vilela Mana (RM 571632). Com três nomes, Prompt & AI segue o escopo de trio: 8 perguntas no RAGAS (4 + 4), 4 guardrails e documento extra (a base tem 5).
 
 ## 2. O que foi feito
 ### Produto (motor de dados)
@@ -54,12 +56,11 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | 2c política e critérios · 2d transformação linear · 2e matriz e coeficientes | pronto |
 | 2f demonstrações (conservação, não negatividade, inteiro) | pronto, com checagem numérica |
 | Avaliação antes × depois | pronto: 160 passageiros sem vaga → 0, com 4 ônibus movidos |
-| **Relatório** | **falta** (formato a confirmar) |
-| **Nome, RM e turma** nos notebooks e no README | **falta preencher** |
+| Integrantes nos notebooks e no README | pronto |
 
-**Como entrega:** o enunciado recebido termina na Etapa 2 e não define o formato. **Confirmar com o professor** se há Etapa 3, se a entrega é notebook, PDF ou os dois, e onde se envia. Enquanto isso: os dois notebooks mais um PDF gerado a partir deles.
+**Como entrega:** os dois notebooks de `entregas/mmc/`. O projeto tem só as Etapas 1 e 2 (confirmado pelo Davi em 11/11). A dúvida sobre uma "Etapa 3" vinha de uma nota em `docs/02_materias.md`, escrita porque a contextualização do enunciado fala em reconstruir, redistribuir **e avaliar os resultados**, mas só lista duas etapas; a avaliação antes × depois está no fim do notebook da Etapa 2. Falta confirmar o canal de envio (Portal) e se o professor quer PDF além do notebook.
 
-**Atenção:** o enunciado diz que a política deve ser desenvolvida pela própria equipe. A regra é a que definimos juntos; é preciso saber explicá-la e defender cada coeficiente da matriz sem consultar o notebook.
+**Atenção:** o enunciado da MMC diz que a política deve ser desenvolvida pela própria equipe. A regra é a que definimos juntos; é preciso saber explicá-la e defender cada coeficiente da matriz sem consultar o notebook.
 
 ### MLAM (10 pts; −1 por item ausente; −2 por entrega errada no portal)
 | Item | Pts | Situação |
@@ -74,8 +75,8 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | 08a csv + fonte + limpeza reproduzível | — | pronto |
 | 08b notebooks com saídas | — | pronto |
 | 08c PDF | — | **falta** (é o item 07) |
-| 08d README | — | pronto, **falta nome completo e RM** |
-| **Repositório público com tudo commitado** | — | **falta** |
+| 08d README | — | pronto |
+| Repositório com tudo commitado | — | commit feito; **confirmar que está público** e commitar as mudanças da tarde |
 | **.txt do portal** (nome, RM, link) | — | **falta** |
 
 **Como entrega:** um único arquivo `.txt` no Portal com nome completo, RM e o link do repositório GitHub. O repositório precisa estar **público** e abrir sem pedir autorização; conta a versão que estiver lá no prazo.
@@ -86,9 +87,9 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | Critério | Peso | Situação |
 |---|---|---|
 | 1 Entrega (ZIP, Run all, vídeo ≤ 3 min, sem chave) | 1,0 | falta tudo |
-| 2 Base documental (≥ 2 docs, armadilha, 2 chunkings comparados) | 1,0 | falta: 5 documentos simulados a escrever |
+| 2 Base documental (≥ 2 docs, armadilha, 2 chunkings comparados) | 1,0 | **5 documentos prontos** em `base_documental/` (3 armadilhas + injection); falta a comparação de chunking |
 | 3 RAG em LCEL com citação e "não sei" | 1,5 | falta |
-| 4 Agente (≥ 2 ferramentas, uma calcula, erro controlado, ≤ 6 chamadas) | 1,5 | falta; os dados da `consultar_fluxo` já existem em `data/processed/fluxos_subprefeitura_*.csv` |
+| 4 Agente (≥ 2 ferramentas, uma calcula, erro controlado, ≤ 6 chamadas) | 1,5 | **3 ferramentas prontas e testadas** em `core/agent/ferramentas.py` (15 testes, erros controlados); falta montar o agente |
 | 5 Gradio com histórico e fontes | 0,7 | falta |
 | 6 Guardrails (3; 4 no escopo de trio) | 1,0 | falta |
 | 7 RAGAS (perguntas com ground truth própria, métricas reais, explicação) | 2,0 | falta; **a ground truth é escrita pelo Davi, à mão** |
@@ -107,7 +108,7 @@ Prazo final: **19/11 às 23h59**. Protótipo: 18/11. Faltam 8 dias.
 | App Gradio com 3 abas (Cidadão, Gestor, Dados) | protótipo de 18/11; a aba Cidadão é o critério 5 de Prompt & AI | falta |
 | Aba Gestor: mapa de pressão por zona e tabela antes × depois | pitch (trecho do gestor) | dados prontos; falta a tela |
 | Deploy no Hugging Face Spaces | protótipo acessível por link | falta |
-| GTFS oficial da SPTrans | trocar a cópia de terceiros | conta aprovada; falta baixar e rodar de novo |
+| GTFS oficial da SPTrans | trocar a cópia de terceiros | o arquivo em `data/raw/sptrans_gtfs.zip` ainda é a cópia baixada em 10/11 (mesmo conteúdo, byte a byte); o download oficial não chegou a essa pasta |
 | Vídeo do pitch (≤ 3 min) | concorrer ao top 3 | falta |
 | Vídeo de Prompt & AI (≤ 3 min) | critério 1 | falta |
 | Simulação 3D | fecho do pitch | opcional; só se as 3 entregas estiverem prontas em 17/11 |
@@ -149,7 +150,7 @@ Modelo completo no teste: AUC 0,814 · acurácia 0,738 · F1 0,547. A tabela mos
 ## 7. Cronograma revisto
 | Dia | Trabalho | Quem |
 |---|---|---|
-| Qua 11 | commit e push · baixar GTFS oficial e rodar o pipeline · escrever os 5 documentos do RAG | Davi (GTFS, revisão dos documentos) |
+| Qua 11 | ✅ commit e push · ✅ 5 documentos do RAG · ✅ ferramentas do agente · GTFS oficial (pendente) | Davi revisa os documentos |
 | Qui 12 | ground truth à mão · chunking A × B · Chroma · RAG em LCEL com citação | Davi escreve a ground truth |
 | Sex 13 | agente e 3 ferramentas · guardrails | — |
 | Sáb 14 | RAGAS v1 × v2 · interface Gradio (aba Cidadão) | — |
@@ -160,10 +161,17 @@ Modelo completo no teste: AUC 0,814 · acurácia 0,738 · F1 0,547. A tabela mos
 | Qui 19 | ZIP · .txt · envio | Davi envia |
 
 ## 8. Pendências que dependem do Davi
-1. Commit e push; confirmar que o repositório está público.
-2. Baixar o GTFS oficial e salvar em `data/raw/sptrans_gtfs.zip`.
-3. Preencher nome completo, RM e turma nos notebooks e READMEs.
-4. Perguntar ao professor de MMC sobre Etapa 3 e formato da entrega.
+1. Novo commit e push; confirmar que o repositório está público.
+2. Copiar o GTFS oficial baixado para `data/raw/sptrans_gtfs.zip` (substituindo o atual).
+3. Ler e revisar os 5 documentos de `base_documental/` e registrar o uso de IA no `6_Chat_Log.txt`.
+4. Informar a turma (para o nome do ZIP de Prompt & AI).
 5. Confirmar os termos de classificação de evento usados na aula de MLAM.
 6. Escrever a ground truth do RAGAS depois que os documentos estiverem prontos.
 7. Guardar o token da Olho Vivo e a `OLLAMA_API_KEY` fora do repositório.
+
+## 9. Base documental e ferramentas (feito em 11/11 à tarde)
+- **Documentos simulados** (`base_documental/`): itinerários (doc_01), tabela de horários (doc_02), portaria que altera a operação (doc_03), gratuidades (doc_04) e comunicado de obras (doc_05). Três linhas fictícias (714A-10, 502C-10, 318N-10) e o Terminal Ipê Roxo. Todos trazem aviso de documento simulado.
+- **Armadilhas:** desatualização (doc_02 × doc_03: domingo da 714A-10 e primeira partida da 318N-10), faixa condicional (doc_04: idade e dia), contradição (doc_01 × doc_05: plataforma C) e uma instrução maliciosa dentro do doc_05.
+- **Ferramentas** (`core/agent/ferramentas.py`): `calcular_proximo_horario(linha, hora, dia)` calcula a partir das faixas de intervalo; `verificar_gratuidade(idade, pcd, estudante, dia)` aplica o doc_04; `consultar_fluxo(origem, destino, hora)` consulta os fluxos reais da OD. Erros voltam como mensagem, sem exceção.
+- **Coerência entre RAG e ferramenta:** as ferramentas leem `operacao_vigente.json`, que já reflete a portaria. Se lessem a tabela antiga, o agente e o RAG se contradiriam.
+- **Não testado ainda:** nada que dependa do modelo (RAG, agente, RAGAS). O ambiente onde o código roda não alcança o Ollama Cloud; o notebook precisa ser executado no Colab pelo Davi.

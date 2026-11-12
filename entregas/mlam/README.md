@@ -3,7 +3,9 @@
 ## Integrantes
 | Nome completo | RM |
 |---|---|
-| Davi Zuolo ______ | ______ |
+| Davi Queiroz Zuolo | 571669 |
+| Gustavo Zagato Bottechia | 569420 |
+| Daniel Vilela Mana | 571632 |
 
 ## Problema e objetivo
 Tema CitizenTech: mobilidade urbana. Em São Paulo a oferta de ônibus nem sempre está onde a demanda está. O objetivo das análises é descrever, com dados reais, **quem depende do ônibus para ir ao trabalho** e **quanto tempo essa viagem custa**, para apoiar decisões de distribuição da frota.

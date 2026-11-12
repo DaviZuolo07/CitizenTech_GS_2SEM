@@ -34,5 +34,10 @@ Modelo, resultados e limitações: `docs/08_modelo_produto.md`.
 ## Regra de ouro
 A `OLLAMA_API_KEY` **nunca** entra no repositório, notebook, print ou ZIP. Use Secrets do Colab / variável de ambiente (`.env` está no `.gitignore`).
 
-## Integrante
-Davi Zuolo — RM: ______ · Turma: ______
+## Integrantes
+| Nome completo | RM |
+|---|---|
+| Davi Queiroz Zuolo | 571669 |
+| Gustavo Zagato Bottechia | 569420 |
+| Daniel Vilela Mana | 571632 |
+

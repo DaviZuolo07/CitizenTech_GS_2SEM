@@ -6,7 +6,7 @@
 | 1 Entrega (1,0) | ZIP 7 itens, Run all, vídeo ≤3 min, sem chave | checklist em `entregas/prompt_ai/README.md` |
 | 2 Base/chunking (1,0) | ≥2 docs, armadilha, 2 chunkings comparados | D2 + D3 (5 docs, 3 armadilhas) |
 | 3 RAG (1,5) | LCEL, Chroma c/ metadados, cita doc_id, "não sei" | retriever → prompt → ChatOllama → parser; preferir doc mais recente |
-| 4 Agente (1,5) | ≥2 tools, 1 calcula, erro controlado, ≤6 chamadas | `calcular_proximo_horario(linha, hora, dia)`, `verificar_gratuidade(idade, pcd, estudante, dia)`, `consultar_status_linha(id)`; max_iterations |
+| 4 Agente (1,5) | ≥2 tools, 1 calcula, erro controlado, ≤6 chamadas | `calcular_proximo_horario(linha, hora, dia)`, `verificar_gratuidade(idade, pcd, estudante, dia)`, `consultar_fluxo(origem, destino, hora)`; max_iterations |
 | 5 Gradio (0,7) | histórico + fontes | aba Cidadão do app |
 | 6 Guardrails (1,0) | 3 (trio: 4) | escopo · injection na fonte · LGPD · limite de confiança (+ teste automatizado = bônus) |
 | 7 RAGAS (2,0) | 8 perguntas 4+4, ground truth próprio, explicar número | `03_ground_truth.md`; juiz e embeddings configurados explicitamente |
@@ -20,7 +20,7 @@ Unicidade: det(A)≠0 / posto(A)=posto([A|b])=4 (Rouché–Capelli) → soluçã
 **Etapa 2 — redistribuir.** Necessidade = ceil(passageiros/40) por região; comparar com atual → déficit/superávit. Política: matriz T 4×4 **coluna-estocástica** (entradas ≥0, cada coluna soma 1: fração da frota de cada centro que fica/é cedida). Provar: soma(Tx)=soma(x) (1ᵀT=1ᵀ) e Tx≥0 (T≥0, x≥0). Explicar cada coeficiente. Garantir resultado inteiro. Avaliar antes × depois (ocupação, déficit).
 Observação: a necessidade total coincide com a frota total — a política pode zerar o déficit (argumento forte do relatório).
 Entrega separada com os dados do enunciado; a plataforma só reaproveita a lógica (D3).
-⚠️ Conferir com o professor se há Etapa 3 / formato do relatório (o PDF recebido termina na Etapa 2).
+O projeto tem só as Etapas 1 e 2 (confirmado em 11/11). Entrega: os dois notebooks de `entregas/mmc/`.
 
 ## MLAM (10 pts · GitHub + .txt no portal)
 Base: OD 2017 recortada para viagens a trabalho em SP. Variáveis e hipóteses em `docs/05_variaveis_modelo.md`.

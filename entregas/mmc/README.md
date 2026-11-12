@@ -1,6 +1,12 @@
 # Entrega MMC — Mobilidade Urbana Inteligente
 
-**Integrante:** Davi Zuolo — RM: ______ · Turma: ______
+## Integrantes
+| Nome completo | RM |
+|---|---|
+| Davi Queiroz Zuolo | 571669 |
+| Gustavo Zagato Bottechia | 569420 |
+| Daniel Vilela Mana | 571632 |
+
 
 Resolução das duas etapas do projeto com os dados do enunciado (4 regiões, 72 ônibus).
 
@@ -8,7 +14,6 @@ Resolução das duas etapas do projeto com os dados do enunciado (4 regiões, 72
 |---|---|---|
 | `01_etapa1_reconstrucao.ipynb` | variáveis, modelo, forma matricial, unicidade (determinante e Rouché–Capelli), solução em NumPy, verificação | Etapa 1, a–f |
 | `02_etapa2_redistribuicao.ipynb` | necessidade, desequilíbrios, política, transformação linear, matriz T, significado dos coeficientes, demonstrações, avaliação antes × depois | Etapa 2, a–f |
-| `relatorio.pdf` | relatório final (a gerar a partir dos notebooks) | — |
 
 ## Resultado
 - **Etapa 1:** Norte = 12, Sul = 20, Leste = 16, Oeste = 24. Solução única: det(A) = 3 e posto(A) = posto([A|b]) = 4.
