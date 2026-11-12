@@ -29,9 +29,13 @@ COMO A IA FOI USADA (resumo por sessão)
 - A IA transformou a justificativa do chunking, a leitura do RAGAS e a conclusão em texto montado pelo código a partir
   dos valores medidos na execução.
 
+12/11 — Respostas de referência e ajustes do agente
+- Pedi que a IA redigisse as 8 respostas de referência (ground truth) a partir dos documentos da base, após isso corrigi e auditei as respostas
+- Na primeira execução real (Groq, gpt-oss-20b) o agente falhou com "Tool choice is none, but model called a tool".
+  A IA explicou a causa e criou o teste que escolhe um modelo compatível com o formato ReAct.
+- Limite de tokens por resposta e tratamento de erro de formato do agente, para caber no plano gratuito.
+
 O QUE A IA NÃO FEZ
-- Não escreveu as respostas de referência (ground truth) das 8 perguntas: foram escritas à mão pelo grupo.
-  (Pedi que a IA as escrevesse; ela recusou, citando a regra do enunciado.)
 - Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
 - Não teve acesso a nenhuma chave de API.
 

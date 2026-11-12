@@ -16,4 +16,4 @@ Tela final
 [colar aqui o texto da última saída do notebook (seção 8, Conclusão) depois do Run all, com provedor, modelo e métricas]
 
 Declaramos que o notebook roda de cima para baixo no Google Colab, que nenhuma chave de API está no notebook, no
-repositório, nos prints ou neste ZIP, e que as respostas de referência da avaliação foram escritas à mão pelo grupo.
+repositório, nos prints ou neste ZIP, e que todas as métricas foram medidas pela execução do notebook.
