@@ -146,3 +146,6 @@ Notebooks de entrega autossuficientes em `entregas/mmc/` e `entregas/mlam/`; des
 - `data/processed/linhas_onibus.csv`: as 1.309 linhas de ônibus do GTFS, com trajeto, extensão e frota estimada.
 - `simulacao/linha_certa_simulacao.html`: cidade fictícia em 3D, sem × com Linha Certa, usando os coeficientes do modelo e a regra de redistribuição do produto. Supera a D7 (a simulação foi feita antes do corte de 17/11, a pedido do Davi).
 - Detalhes, forma de entrega de cada disciplina, roteiro do pitch e calendário: `docs/09_auditoria_e_plano.md`.
+
+## D15 — Escolha do modelo por teste de formato (12/11)
+Na primeira execução real (Groq, `openai/gpt-oss-20b`), o RAG funcionou e o agente falhou com "Tool choice is none, but model called a tool": o modelo tenta uma chamada de ferramenta nativa ao ver o formato ReAct em texto, e a Groq recusa porque nenhuma ferramenta foi declarada na requisição. Correção: cada provedor tem uma lista de modelos candidatos, e o notebook usa o primeiro que passa num teste curto no formato do agente. Na Groq a ordem é Llama 3.3 70B, Qwen 3.8 27B, Llama 3.1 8B e, por último, gpt-oss.

@@ -62,6 +62,7 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 | Contexto ordenado do mais recente ao mais antigo, com a data no rótulo | dá ao modelo o critério para resolver conflitos |
 | `temperature = 0` | respostas estáveis e avaliação reproduzível |
 | Provedor detectado pelos Secrets | o notebook roda com qualquer chave da lista do professor, sem editar código |
+| Modelo escolhido por um teste no formato do agente | modelos como os `gpt-oss` na Groq tentam fazer chamada de ferramenta nativa ao ver `Action:` e o provedor recusa ("Tool choice is none, but model called a tool"); o notebook testa os candidatos e usa o primeiro que responde em texto |
 | Embeddings locais | sem chave e sem limite de uso; o mesmo vetor em toda execução |
 | Agente ReAct com `max_iterations = 6` | limite de chamadas exigido; evita laços |
 | Ferramentas recebem um texto com campos separados por vírgula | o ReAct passa um único texto em `Action Input` |
