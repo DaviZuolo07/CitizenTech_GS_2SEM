@@ -178,3 +178,22 @@ Ordem da fila: primeiro os modelos preferidos **que existem naquela chave**, dep
 A mensagem de erro ganhou um caso para o 404: além do motivo de cada candidato, ela **imprime o catálogo da chave**, para que o próximo passo seja escolher um ID da lista em vez de adivinhar outro.
 
 Lógica conferida em cinco cenários simulados: catálogo da Groq sem o modelo preferido (o 404 de hoje), catálogo indisponível, Cerebras com todos os preferidos presentes, juiz obrigado a ficar na cota do agente, e juiz com Groq + Cerebras.
+
+## D19 — Google AI Studio como provedor principal e RAGAS retomável (14/11, tarde)
+A Cerebras passou a exigir crédito pago, o que derrubou a saída da D17 (juiz em provedor com 1 milhão de tokens/dia). Levantamento do que continua gratuito **sem cartão** e com cota suficiente para os 64 jobs do RAGAS:
+
+| Provedor | Grátis sem cartão | Cabe o RAGAS? |
+|---|---|---|
+| **Google AI Studio** (`gemini-2.5-flash`) | sim | **sim** — é a escolha |
+| Groq | sim | não como juiz: 200 mil tokens/dia, que o RAGAS esgota |
+| OpenRouter (modelos `:free`, inclui `gemma-4` e `nemotron`, open-source) | sim | não: 50 requisições/dia contra 64 necessárias |
+| Cerebras | não mais | — |
+| Hugging Face | não (free = US$ 0,00 de crédito) | — |
+
+**Decisão:** o Google AI Studio vai para a frente da lista `PROVEDORES`. Ele está na lista do laboratório do professor, então não foge do enunciado. A Groq fica em segundo e continua servindo bem ao agente, que gasta pouco. Modelo aberto rodando localmente no Colab foi considerado e recusado: num T4 gratuito só cabe um modelo de ~7B quantizado, e modelo pequeno erra o JSON das métricas — o resultado seria "o juiz falhou" em vez de medição, o mesmo problema da D17.
+
+**O travamento tinha outra causa, independente da cota.** Com `max_retries=6` e espera progressiva, cada um dos 64 jobs ficava minutos tentando de novo contra uma cota já esgotada antes de desistir — daí o "evaluating" parado por muito tempo e o erro só no fim. O juiz passou a usar `max_retries=2`: com a cota morta, falha em segundos.
+
+**RAGAS retomável.** Antes, as 8 perguntas de uma estratégia iam num único `evaluate`; quando a cota acabava no meio (em 13/11, no job 10 de 64), a chamada inteira morria e nada era aproveitado — a execução seguinte recomeçava do zero e esbarrava no mesmo ponto. Agora cada pergunta é medida e gravada em `ragas_cache.json` assim que termina, e a célula retoma da primeira que falta. Perguntas em que o juiz falhou de ponta a ponta **não** entram no cache, para serem tentadas de novo sem que o cache precise ser apagado à mão. Isso torna a medição viável mesmo dentro de uma cota diária pequena: dá para fechar as 64 medições em duas ou três execuções, em dias diferentes, sem perder o que já foi medido.
+
+Conferido em simulação: cota morrendo na 5ª pergunta grava 4 medições e marca 48 como vazias; execução seguinte com cota nova gasta exatamente as 12 chamadas que faltavam e fecha as 64, sem intervenção manual.
