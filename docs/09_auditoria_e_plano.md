@@ -1,21 +1,21 @@
 # Auditoria geral e plano até a entrega
 
-Documento vivo. Última atualização: **quinta, 12/11/2026, 16h30**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
+Documento vivo. Última atualização: **sábado, 14/11/2026, 12h**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
 
 Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
 ## 1. Situação
 | Frente | O que existe | O que falta | Estimativa |
 |---|---|---|---|
-| Motor de dados (produto) | pipeline OD + GTFS, redistribuição, modelo preditivo, tabela das 1.309 linhas, 69 testes, notebook explicativo | GTFS oficial no lugar da cópia | 95% |
+| Motor de dados (produto) | pipeline OD + GTFS oficial, redistribuição, modelo preditivo, tabela das 1.310 linhas, 69 testes, notebook explicativo | nada | 100% |
 | MMC | notebooks das Etapas 1 e 2 executados, README | enviar | 95% |
-| MLAM | base tratada, notebooks dos itens 02 a 06, README | **relatório PDF (item 07, 2 pontos)**; `.txt` do portal | 75% |
-| Prompt & AI | notebook completo (seções 0 a 8) já nos provedores novos, base, ferramentas, guardrails, README | **primeira execução real no Colab**; 8 respostas de referência; prints; vídeo; arquivos 5, 6 e 7; ZIP | 65% |
+| MLAM | base tratada, notebooks dos itens 02 a 06, relatório PDF (item 07), README | `.txt` do Portal; ler o relatório PDF antes de enviar | 95% |
+| Prompt & AI | notebook completo (seções 0 a 8), base, ferramentas, guardrails, README, 8 respostas de referência, as 3 correções do RAGAS aplicadas | **fechar a execução real** (seções 0 a 6 já passaram; a 7 falhou e foi corrigida); prints; vídeo; completar os arquivos 5 e 7; ZIP | 80% |
 | Simulação 3D | pronta: `simulacao/linha_certa_simulacao.html` | nada obrigatório | 100% |
 | App Gradio (abas Gestor e Dados) e deploy | só a aba Cidadão, dentro do notebook | abas Gestor e Dados; Hugging Face Spaces | 20% |
 | Pitch | roteiro, números medidos, simulação | gravar o vídeo | 40% |
 
-**Dá tempo?** As três entregas, sim, com uma condição: o notebook de Prompt & AI precisa rodar no Colab **até sexta, 13/11**, para sobrar tempo de corrigir o que a execução real mostrar. O que está em risco é o app com três abas publicado no Hugging Face; ele não vale nota em nenhuma disciplina e deve ser o primeiro corte. O pitch se sustenta com a simulação, os gráficos do notebook explicativo e a aba Cidadão.
+**Dá tempo?** As três entregas, sim. O notebook de Prompt & AI já rodou duas vezes no Colab (13 e 14/11) e as falhas das duas execuções estão corrigidas; falta a execução que fecha a seção 7, que depende de uma chave da Cerebras (5 minutos). A folga até 19/11 é de quatro dias. O que está em risco é o app com três abas publicado no Hugging Face; ele não vale nota em nenhuma disciplina e deve ser o primeiro corte. O pitch se sustenta com a simulação, os gráficos do notebook explicativo e a aba Cidadão.
 
 ## 2. O que mudou em 12/11
 ### Ollama deixou de ser gratuito (aviso do professor em 11/11)
@@ -104,11 +104,11 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 | 5 | Prompt & AI nos provedores novos | feito em 12/11 | — |
 | 6 | Linhas reais de São Paulo | feito em 12/11 | — |
 | 7 | Simulação 3D | feito em 12/11 | — |
-| 8 | Primeira execução real no Colab (seções 0 a 6) | **pendente** | Davi |
-| 9 | Correções que a execução real mostrar | pendente | depois da 8 |
-| 10 | 8 respostas de referência, à mão | **pendente** | Davi |
-| 11 | RAGAS medido e JSON exportado | pendente | Davi roda |
-| 12 | Relatório PDF da MLAM | **pendente** | próximo passo |
+| 8 | Primeira execução real no Colab (seções 0 a 6) | feito em 13/11 | — |
+| 9 | Correções que a execução real mostrar | feito em 13 e 14/11 (D17) | — |
+| 10 | 8 respostas de referência (D16: IA redige, Davi confere) | feito em 13/11 | Davi valida |
+| 11 | RAGAS medido e JSON exportado | **pendente** — depende da chave Cerebras | Davi roda |
+| 12 | Relatório PDF da MLAM | feito em 12/11 | Davi lê e valida |
 | 13 | Prints no README de Prompt & AI | pendente | Davi |
 | 14 | Vídeo de Prompt & AI e vídeo do pitch | pendente | grupo |
 | 15 | ZIP, `.txt` e envios | pendente | Davi |
@@ -119,7 +119,7 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 |---|---|
 | Qui 12 | ✅ provedores, simulação, linhas · Davi: commit e push, criar a chave, rodar o Colab |
 | Sex 13 | correções do Colab · 8 respostas de referência · RAGAS · relatório PDF da MLAM |
-| Sáb 14 | prints e README de Prompt & AI · revisão do relatório da MLAM |
+| Sáb 14 | ✅ correções do RAGAS (D17) · Davi: chave da Cerebras, rodar o Colab inteiro · prints e README de Prompt & AI |
 | Dom 15 | vídeo de Prompt & AI · roteiro final do pitch |
 | Seg 16 | vídeo do pitch · conferência dos três pacotes |
 | Ter 17 | `Run all` limpo no Colab · montar o ZIP · reserva |
@@ -128,19 +128,50 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 
 ## 7. O que só o grupo pode fazer
 1. **Commit e push** (o notebook baixa a base do GitHub).
-2. **Criar a chave de um provedor** e cadastrar nos Secrets do Colab com "Notebook access". Sugestão: Groq (`GROQ_API_KEY`), que é o primeiro da lista do notebook.
+2. **Criar a chave da Cerebras** em `cloud.cerebras.ai` e cadastrar nos Secrets do Colab como `CEREBRAS_API_KEY`, com "Notebook access". É o provedor com mais folga de tokens por dia no plano gratuito (1 milhão, contra 200 mil da Groq), e é dela que o juiz do RAGAS precisa. A chave da Groq pode continuar cadastrada: ela serve bem para o agente.
 3. **Rodar o notebook no Colab** e enviar qualquer erro.
-4. **Escrever as 8 respostas de referência**, lendo os documentos indicados em cada pergunta (15 a 20 minutos).
+4. **Validar as 8 respostas de referência** da seção 7 do notebook, conferindo cada uma contra os documentos que ela cita (D16).
 5. **Ler e revisar os 5 documentos** da base e registrar o uso de IA no `6_Chat_Log.txt`.
 6. **Prints, vídeos, `5_certificacao.txt` e `7_demo_video_url.txt`.**
-7. **Copiar o GTFS oficial** para `data\raw\sptrans_gtfs.zip` (o arquivo de lá ainda é a cópia de 10/11).
-8. **Confirmar com o professor de MMC** o canal de envio.
+7. **Confirmar com o professor de MMC** o canal de envio.
 
 ## 8. Riscos abertos
 | Risco | Efeito | O que fazer |
 |---|---|---|
-| Notebook nunca rodou com modelo real | ajustes de versão, de prompt ou de limite de uso só aparecem no Colab | rodar até sexta |
-| Modelo pequeno não segue o formato do agente | o agente gasta voltas e pode não chegar à resposta | trocar a ordem da lista para um modelo maior (Cerebras ou Hugging Face, `gpt-oss-120b`) |
-| Limite de uso do plano gratuito no RAGAS (64 avaliações) | métricas vazias | rodar de novo mais tarde ou com outro provedor; o texto de análise avisa quando o juiz falha |
-| Relatório PDF da MLAM não existe | −2 pontos | é o próximo passo |
+| ~~Notebook nunca rodou com modelo real~~ | **resolvido**: rodou em 13 e 14/11 | as falhas das duas execuções estão corrigidas na D17 |
+| Modelo pequeno não segue o formato do agente | o agente gasta voltas e pode não chegar à resposta | resolvido na D15: cada candidato passa por um teste de formato antes de ser usado |
+| ~~Limite de uso do plano gratuito no RAGAS~~ | **ocorreu em 13/11** | resolvido na D17: `bypass_n=True`, juiz em outra chave, `max_tokens=800`. O texto de análise continua avisando quando o juiz falha |
 | Acurácia do item 06 da MLAM abaixo do chute da maioria no limiar escolhido | pergunta na correção | já explicado no notebook; a tabela mostra também o limiar 0,5 |
+| Nenhuma chave com folga de tokens para o juiz do RAGAS | métricas vazias e critério 5 (2 pontos) sem medição | criar a chave da Cerebras (gratuita, 1 milhão de tokens/dia). Sem ela o notebook usa a cota do agente e avisa na saída |
+
+## 9. Atualização de 12/11, 17h
+- **GTFS oficial instalado** (versão 12/11/2026 da SPTrans). O pipeline e o notebook explicativo foram executados de novo. Os resultados quase não mudam: às 17h, frota de 13.317 (antes 13.320), 1.192 ônibus realocados (antes 1.193), ocupação de 0,80 para 0,56, espera de 8,70 para 8,38 min. O feed novo tem 1.310 linhas e 34.353 km de trajetos. Os números citados nas seções anteriores e em `docs/08` são os do feed de 09/11; a diferença é de arredondamento.
+- **Relatório estatístico da MLAM pronto:** `entregas/mlam/relatorio/relatorio_estatistico.pdf` (5 páginas), com a fonte em `.html` e as figuras na mesma pasta. Todos os números vêm dos notebooks 01 a 03.
+- **`6_Chat_Log.txt` e `5_certificacao.txt` preenchidos** em rascunho. No chat log falta a parte "o que eu verifiquei"; na certificação, o link do vídeo e a tela final.
+- **Respostas de referência:** ficam na seção 7 do notebook, na lista `AVALIACAO`. Em 13/11 foram preenchidas (D16).
+
+## 10. Atualização de 13 e 14/11 — as três falhas da seção 7 e a troca de provedor
+
+As seções 0 a 6 passaram na primeira execução real. A seção 7 (RAGAS) foi a única que falhou, e trouxe **três erros de causas diferentes na mesma saída**, o que à primeira vista parecia um problema só. Todos registrados na **D17**:
+
+| Erro | Causa | Correção |
+|---|---|---|
+| `400 'n' : number must be at most 1` (jobs 1, 5, 9, 13…) | o RAGAS 0.4 pede `n>1` ao juiz: ele gera várias opiniões e tira a maioria. Groq e Cerebras recusam esse parâmetro | `LangchainLLMWrapper(..., bypass_n=True)` — correção oficial (issue #2354 do RAGAS). Conferido que o parâmetro existe no `ragas==0.4.3`, a versão fixada na célula 1 |
+| `429 tokens per day (TPD): Limit 200000` (a maioria dos jobs) | o RAGAS gasta ~150 mil tokens por execução (8 perguntas × 2 estratégias × 4 métricas = 64 jobs). Somado ao gasto do agente, estourava a cota diária da Groq | o juiz passou a usar **outra chave**, de outro provedor, para que as duas cotas não se somem |
+| `429 OTPM: Limit 1000, Requested 1207` e `LLMDidNotFinishException` | `max_tokens=1500` no juiz passava do limite de tokens de saída por minuto do plano gratuito | `max_tokens=800` no juiz |
+
+### O 403 da Hugging Face (14/11) não era o modelo
+A tentativa de pôr o juiz na Hugging Face falhou antes de qualquer modelo responder: `403 does not have sufficient permissions to call Inference Providers` nos **três** candidatos (`Qwen2.5-72B`, `Llama-3.3-70B` e `gpt-oss-120b`). Falhar igual nos três é o sinal de que a causa não é o modelo, é o token. A Hugging Face exige token *fine-grained* com "Make calls to Inference Providers" marcado — e, mais a fundo, **o plano gratuito deixou de incluir crédito para esses provedores** (free = US$ 0,00/mês; só conta PRO recebe crédito). Trocar para um modelo menor, como o Llama 3.1 8B, daria exatamente o mesmo 403.
+
+Por isso a Hugging Face foi para o **fim** da lista de provedores, com o motivo escrito em comentário, e a mensagem de erro do notebook passou a reconhecer esse 403 e a apontar a Cerebras como caminho.
+
+### O que o notebook faz agora
+- **`PROVEDORES` ordenado pela folga de tokens por dia** do plano gratuito: Cerebras (1 mi/dia), Groq (200 mil/dia), Google AI Studio, Mistral, OpenRouter, NVIDIA e, por último, Hugging Face.
+- **A escolha do juiz é separada da do agente.** O notebook percorre a lista de preferência em duas passadas: primeiro procura um provedor **diferente** do agente, e só depois aceita o mesmo. Quando cai na mesma cota, imprime um aviso em vez de falhar em silêncio.
+- **Nenhum modelo de 8B na preferência do juiz.** As 4 métricas dependem de o juiz devolver JSON válido; modelos pequenos erram o formato e a métrica volta vazia (NaN), o que registraria "o juiz falhou" em vez de uma medição. A preferência só tem modelos de 70B ou mais: `gpt-oss-120b` e `qwen-3-235b` na Cerebras, `llama-3.3-70b-versatile` na Groq, `gemini-2.5-flash` no Google. Para o **agente** um modelo menor serve, porque ali só é preciso acertar o formato ReAct em texto (D15).
+- A lógica de escolha foi conferida em seis cenários de chave: só Groq, Groq + Cerebras, só Cerebras, Groq + HF com o 403, Cerebras recusando o `gpt-oss-120b`, e um provedor sem juiz preferido.
+
+### O que falta do lado do Davi
+1. Criar a chave em `cloud.cerebras.ai` e cadastrar nos Secrets do Colab como `CEREBRAS_API_KEY`, com "Notebook access".
+2. Commit e push (o notebook baixa a base documental do GitHub).
+3. Rodar o notebook inteiro e conferir que a seção 7 imprime as 4 métricas nas duas estratégias.

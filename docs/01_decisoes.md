@@ -149,3 +149,21 @@ Notebooks de entrega autossuficientes em `entregas/mmc/` e `entregas/mlam/`; des
 
 ## D15 — Escolha do modelo por teste de formato (12/11)
 Na primeira execução real (Groq, `openai/gpt-oss-20b`), o RAG funcionou e o agente falhou com "Tool choice is none, but model called a tool": o modelo tenta uma chamada de ferramenta nativa ao ver o formato ReAct em texto, e a Groq recusa porque nenhuma ferramenta foi declarada na requisição. Correção: cada provedor tem uma lista de modelos candidatos, e o notebook usa o primeiro que passa num teste curto no formato do agente. Na Groq a ordem é Llama 3.3 70B, Qwen 3.8 27B, Llama 3.1 8B e, por último, gpt-oss.
+
+## D16 — Ground truth das 8 perguntas redigida com apoio de IA (13/11)
+Decisão do Davi, registrada como tal: as 8 respostas de referência do RAGAS foram redigidas a partir dos documentos da base e conferidas por ele, em vez de escritas à mão desde o início. O enunciado limita o critério 7 a 1,0 de 2,0 quando a ground truth é gerada por IA, e essa perda está aceita. As declarações do notebook, do `5_certificacao.txt` e do `6_Chat_Log.txt` dizem exatamente isso — a alternativa seria declarar autoria que não houve.
+
+## D17 — Juiz do RAGAS em provedor separado do agente (14/11)
+A execução de 13/11 falhou nos 64 jobs do RAGAS com três erros distintos, e cada um exigiu uma correção diferente:
+
+| Erro observado | Causa | Correção |
+|---|---|---|
+| `400 'n' : number must be at most 1` nos jobs ímpares | o RAGAS 0.4 pede `n>1` ao juiz (gera várias opiniões e tira a maioria); Groq e Cerebras recusam esse parâmetro | `LangchainLLMWrapper(..., bypass_n=True)` — correção oficial, issue #2354; confirmado presente no `ragas==0.4.3` |
+| `429 tokens per day (TPD): Limit 200000` na maioria dos jobs | o RAGAS gasta ~150 mil tokens por execução (8 perguntas × 2 estratégias × 4 métricas); somado ao gasto do agente, estoura o limite diário do plano gratuito da Groq | juiz passa a usar **outra chave**, para que as duas cotas não se somem |
+| `429 OTPM: Limit 1000, Requested 1207` e `LLMDidNotFinishException` | `max_tokens=1500` no juiz passava do limite de tokens de saída por minuto | `max_tokens=800` no juiz |
+
+**Ordem dos provedores trocada.** A lista `PROVEDORES` passou a ser ordenada pela folga de tokens por dia do plano gratuito: Cerebras (1 milhão/dia) na frente, Groq (200 mil/dia) em segundo. A Hugging Face foi para o **fim** da lista: desde 2026 o plano gratuito não inclui crédito para os Inference Providers (free = US$ 0,00/mês) e o token precisa ser *fine-grained* com "Make calls to Inference Providers" marcado — sem isso a API responde `403 does not have sufficient permissions`, que foi o erro de 14/11. Ela só serve com conta PRO.
+
+**Por que nenhum modelo de 8B no juiz.** As 4 métricas dependem de o juiz devolver JSON válido. Modelos pequenos erram o formato e a métrica volta vazia (NaN), o que registraria "o juiz falhou" em vez de uma medição. A lista de preferência do juiz só tem modelos de 70B ou mais: `gpt-oss-120b` e `qwen-3-235b` na Cerebras, `llama-3.3-70b-versatile` na Groq, `gemini-2.5-flash` no Google. Para o **agente** um modelo menor serve, porque ele só precisa acertar o formato ReAct em texto (D15).
+
+A escolha do juiz é automática: o notebook percorre a preferência em duas passadas, primeiro procurando um provedor diferente do agente e só depois aceitando o mesmo, e avisa na saída quando caiu na mesma cota. Lógica conferida em seis cenários de chave (só Groq, Groq + Cerebras, só Cerebras, Groq + HF com 403, Cerebras recusando o 120b, e um provedor sem juiz preferido).
