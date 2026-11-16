@@ -3,7 +3,7 @@ Integrantes: Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 5694
 Responsável por esta entrega: Davi Queiroz Zuolo
 
 FERRAMENTA
-Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 12/11/2026.
+Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 16/11/2026.
 
 COMO A IA FOI USADA (resumo por sessão)
 
@@ -35,6 +35,20 @@ COMO A IA FOI USADA (resumo por sessão)
   A IA explicou a causa e criou o teste que escolhe um modelo compatível com o formato ReAct.
 - Limite de tokens por resposta e tratamento de erro de formato do agente, para caber no plano gratuito.
 
+13/11 e 14/11 — Erros da execução real no Colab
+- A seção 7 (RAGAS) falhou com três erros na mesma saída. Enviei o trace e a IA separou as causas: o RAGAS pede n>1 ao
+  juiz e o provedor recusa (corrigido com bypass_n=True); a avaliação esgotava a cota diária de tokens da Groq (juiz
+  movido para outro provedor); max_tokens do juiz acima do limite por minuto.
+- Tentei usar a Hugging Face e recebi 403. A IA mostrou que era permissão do token e falta de crédito no plano gratuito,
+  não o modelo que eu suspeitava.
+- Um nome de modelo trocado pela própria IA não existia na Groq (404). A correção foi o notebook consultar o catálogo
+  da chave em vez de usar uma lista fixa de nomes.
+- A IA fez a avaliação gravar cada pergunta medida em cache, para retomar de onde parou quando a cota acaba.
+
+16/11 — Revisão final
+- Pedi uma revisão do notebook contra a rubrica. A IA reescreveu a célula de configuração (agente na Groq, juiz no
+  Google, limite de chamadas por minuto, modelos Gemini sem "pensamento") e atualizou o README.
+
 O QUE A IA NÃO FEZ
 - Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
 - Não teve acesso a nenhuma chave de API.
@@ -43,5 +57,5 @@ O QUE EU VERIFIQUEI
 - [preencher depois de rodar: o que conferi, o que corrigi no código ou nos documentos, erros encontrados no Colab]
 
 OBSERVAÇÃO
-A IA validou o encadeamento do notebook com modelo e embeddings falsos, sem rede. A execução real, as medições e a
-análise final foram feitas por mim no Google Colab.
+A IA validou o encadeamento do notebook com modelo, embeddings e RAGAS simulados, sem acesso a nenhum provedor. A
+execução real, as medições e a análise final foram feitas por mim no Google Colab.

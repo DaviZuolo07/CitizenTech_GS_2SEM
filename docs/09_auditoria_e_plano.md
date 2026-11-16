@@ -1,6 +1,6 @@
 # Auditoria geral e plano até a entrega
 
-Documento vivo. Última atualização: **sábado, 14/11/2026, 12h**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
+Documento vivo. Última atualização: **segunda, 16/11/2026, 11h**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
 
 Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
@@ -8,14 +8,14 @@ Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420
 | Frente | O que existe | O que falta | Estimativa |
 |---|---|---|---|
 | Motor de dados (produto) | pipeline OD + GTFS oficial, redistribuição, modelo preditivo, tabela das 1.310 linhas, 69 testes, notebook explicativo | nada | 100% |
-| MMC | notebooks das Etapas 1 e 2 executados, README | enviar | 95% |
-| MLAM | base tratada, notebooks dos itens 02 a 06, relatório PDF (item 07), README | `.txt` do Portal; ler o relatório PDF antes de enviar | 95% |
-| Prompt & AI | notebook completo (seções 0 a 8), base, ferramentas, guardrails, README, 8 respostas de referência, as 3 correções do RAGAS aplicadas | **fechar a execução real** (seções 0 a 6 já passaram; a 7 falhou e foi corrigida); prints; vídeo; completar os arquivos 5 e 7; ZIP | 80% |
+| MMC | notebooks das Etapas 1 e 2 executados (reexecutados pelo Davi no Colab em 16/11), README com links do Colab | enviar; confirmar o canal com o professor | 98% |
+| MLAM | base tratada, notebooks dos itens 02 a 06 rodando sozinhos no Colab, relatório PDF (item 07), README, `.txt` do Portal pronto | commit e push; ler o relatório PDF; enviar o `.txt` | 98% |
+| Prompt & AI | notebook completo (seções 0 a 8) revisado em 16/11 (D21), base, ferramentas, guardrails, README, 8 respostas de referência | **fechar a execução real** (seções 0 a 6 já passaram na Groq; a 7 nunca terminou); prints; vídeo; completar os arquivos 5 e 7; ZIP | 80% |
 | Simulação 3D | pronta: `simulacao/linha_certa_simulacao.html` | nada obrigatório | 100% |
 | App Gradio (abas Gestor e Dados) e deploy | só a aba Cidadão, dentro do notebook | abas Gestor e Dados; Hugging Face Spaces | 20% |
 | Pitch | roteiro, números medidos, simulação | gravar o vídeo | 40% |
 
-**Dá tempo?** As três entregas, sim. O notebook de Prompt & AI já rodou duas vezes no Colab (13 e 14/11) e as falhas das duas execuções estão corrigidas; falta a execução que fecha a seção 7, que depende de uma chave da Cerebras (5 minutos). A folga até 19/11 é de quatro dias. O que está em risco é o app com três abas publicado no Hugging Face; ele não vale nota em nenhuma disciplina e deve ser o primeiro corte. O pitch se sustenta com a simulação, os gráficos do notebook explicativo e a aba Cidadão.
+**Dá tempo?** As três entregas, sim. O notebook de Prompt & AI já rodou duas vezes no Colab (13 e 14/11) e as falhas das duas execuções estão corrigidas; falta a execução que fecha a seção 7, com as chaves da Groq e do Google AI Studio (a Cerebras deixou de ser gratuita em 14/11). Em 16/11 a folga até o prazo é de três dias. O que está em risco é o app com três abas publicado no Hugging Face; ele não vale nota em nenhuma disciplina e deve ser o primeiro corte. O pitch se sustenta com a simulação, os gráficos do notebook explicativo e a aba Cidadão.
 
 ## 2. O que mudou em 12/11
 ### Ollama deixou de ser gratuito (aviso do professor em 11/11)
@@ -107,7 +107,7 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 | 8 | Primeira execução real no Colab (seções 0 a 6) | feito em 13/11 | — |
 | 9 | Correções que a execução real mostrar | feito em 13 e 14/11 (D17) | — |
 | 10 | 8 respostas de referência (D16: IA redige, Davi confere) | feito em 13/11 | Davi valida |
-| 11 | RAGAS medido e JSON exportado | **pendente** — depende da chave Cerebras | Davi roda |
+| 11 | RAGAS medido e JSON exportado | **pendente** — chaves da Groq e do Google | Davi roda |
 | 12 | Relatório PDF da MLAM | feito em 12/11 | Davi lê e valida |
 | 13 | Prints no README de Prompt & AI | pendente | Davi |
 | 14 | Vídeo de Prompt & AI e vídeo do pitch | pendente | grupo |
@@ -128,7 +128,7 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 
 ## 7. O que só o grupo pode fazer
 1. **Commit e push** (o notebook baixa a base do GitHub).
-2. **Criar a chave da Cerebras** em `cloud.cerebras.ai` e cadastrar nos Secrets do Colab como `CEREBRAS_API_KEY`, com "Notebook access". É o provedor com mais folga de tokens por dia no plano gratuito (1 milhão, contra 200 mil da Groq), e é dela que o juiz do RAGAS precisa. A chave da Groq pode continuar cadastrada: ela serve bem para o agente.
+2. **Cadastrar duas chaves gratuitas** nos Secrets do Colab, com "Notebook access": `GROQ_API_KEY` (agente) e `GOOGLE_API_KEY` (juiz do RAGAS). A Cerebras e a Hugging Face deixaram de ter plano gratuito utilizável.
 3. **Rodar o notebook no Colab** e enviar qualquer erro.
 4. **Validar as 8 respostas de referência** da seção 7 do notebook, conferindo cada uma contra os documentos que ela cita (D16).
 5. **Ler e revisar os 5 documentos** da base e registrar o uso de IA no `6_Chat_Log.txt`.
@@ -142,7 +142,7 @@ O que o pitch não pode afirmar: fim da superlotação (o modelo mede ocupação
 | Modelo pequeno não segue o formato do agente | o agente gasta voltas e pode não chegar à resposta | resolvido na D15: cada candidato passa por um teste de formato antes de ser usado |
 | ~~Limite de uso do plano gratuito no RAGAS~~ | **ocorreu em 13/11** | resolvido na D17: `bypass_n=True`, juiz em outra chave, `max_tokens=800`. O texto de análise continua avisando quando o juiz falha |
 | Acurácia do item 06 da MLAM abaixo do chute da maioria no limiar escolhido | pergunta na correção | já explicado no notebook; a tabela mostra também o limiar 0,5 |
-| Nenhuma chave com folga de tokens para o juiz do RAGAS | métricas vazias e critério 5 (2 pontos) sem medição | criar a chave da Cerebras (gratuita, 1 milhão de tokens/dia). Sem ela o notebook usa a cota do agente e avisa na saída |
+| Nenhuma chave com folga de tokens para o juiz do RAGAS | métricas vazias e critério 5 (2 pontos) sem medição | cadastrar a chave do Google AI Studio além da Groq. Sem a segunda chave o notebook usa a cota do agente, avisa na saída e retoma do cache na execução seguinte |
 
 ## 9. Atualização de 12/11, 17h
 - **GTFS oficial instalado** (versão 12/11/2026 da SPTrans). O pipeline e o notebook explicativo foram executados de novo. Os resultados quase não mudam: às 17h, frota de 13.317 (antes 13.320), 1.192 ônibus realocados (antes 1.193), ocupação de 0,80 para 0,56, espera de 8,70 para 8,38 min. O feed novo tem 1.310 linhas e 34.353 km de trajetos. Os números citados nas seções anteriores e em `docs/08` são os do feed de 09/11; a diferença é de arredondamento.
@@ -171,7 +171,23 @@ Por isso a Hugging Face foi para o **fim** da lista de provedores, com o motivo 
 - **Nenhum modelo de 8B na preferência do juiz.** As 4 métricas dependem de o juiz devolver JSON válido; modelos pequenos erram o formato e a métrica volta vazia (NaN), o que registraria "o juiz falhou" em vez de uma medição. A preferência só tem modelos de 70B ou mais: `gpt-oss-120b` e `qwen-3-235b` na Cerebras, `llama-3.3-70b-versatile` na Groq, `gemini-2.5-flash` no Google. Para o **agente** um modelo menor serve, porque ali só é preciso acertar o formato ReAct em texto (D15).
 - A lógica de escolha foi conferida em seis cenários de chave: só Groq, Groq + Cerebras, só Cerebras, Groq + HF com o 403, Cerebras recusando o `gpt-oss-120b`, e um provedor sem juiz preferido.
 
-### O que falta do lado do Davi
-1. Criar a chave em `cloud.cerebras.ai` e cadastrar nos Secrets do Colab como `CEREBRAS_API_KEY`, com "Notebook access".
+### O que falta do lado do Davi (substituído pela seção 11)
+1. ~~Criar a chave em `cloud.cerebras.ai`~~ (a Cerebras passou a exigir crédito; ver seção 11)
 2. Commit e push (o notebook baixa a base documental do GitHub).
 3. Rodar o notebook inteiro e conferir que a seção 7 imprime as 4 métricas nas duas estratégias.
+
+## 11. Revisão geral das entregas em 16/11 (D20 e D21)
+Pedido do Davi: revisar as três entregas contra os enunciados, corrigir o que houver e dar nota a cada uma.
+
+**MLAM.** Corrigido o `FileNotFoundError` do Colab (o `02` e o `03` baixam a base do repositório quando abertos sozinhos; testado numa pasta vazia). Encontrado e corrigido um problema de reprodutibilidade: a divisão treino/teste dependia da versão do scikit-learn; agora é uma função fixa do código da família, e o relatório PDF, a figura 4 e o README foram atualizados para os números novos do item 06 (AUC 0,700; conclusões inalteradas). Interpretações com os valores medidos acrescentadas ao `03`. Criado `entregas/mlam/ENTREGA_PORTAL_MLAM.txt`, pronto para o Portal.
+
+**MMC.** Sem alteração de conteúdo: todos os itens (a–f das duas etapas) presentes, com saídas; a expansão de Laplace do determinante foi conferida à mão. README com links do Colab. O enunciado não diz como entregar: confirmar o canal com o professor.
+
+**Prompt & AI.** Célula de configuração reescrita (D21): agente na Groq, juiz no Google, catálogo do Google normalizado, Gemini sem "pensamento", 8 chamadas por minuto. Conclusão com o diagrama do fluxo e as decisões (exigência da seção 7 do briefing). README e chat log atualizados. Verificado que não há chave de API em nenhum arquivo rastreado nem no histórico do git. **Continua sem execução real completa**: a seção 7 nunca terminou no Colab.
+
+### O que só o Davi pode fazer, em ordem
+1. Commit e push (os notebooks baixam a base do GitHub; sem push o professor recebe a versão antiga).
+2. Cadastrar `GROQ_API_KEY` e `GOOGLE_API_KEY` nos Secrets e rodar o notebook de Prompt & AI inteiro (cerca de 25 minutos).
+3. Reescrever com as próprias palavras as 8 respostas de referência, lendo os documentos, para poder declarar autoria do grupo (ver nota do critério 7).
+4. Baixar o notebook executado e o `3_avaliacao_ragas.json`; prints e números no `4_README.md`; vídeo; completar os arquivos 5, 6 e 7; montar o ZIP.
+5. Enviar: `.txt` da MLAM no Portal, ZIP de Prompt & AI no Portal, MMC pelo canal do professor.

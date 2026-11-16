@@ -63,19 +63,19 @@ Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 569420) · Daniel
 <p><b>Conclusão para o gestor:</b> o tempo no ônibus depende de onde a pessoa mora e trabalha, não de quem ela é. Reduzir esse tempo é uma questão de rede (velocidade, frequência, baldeações), não de perfil do usuário.</p>
 
 <h2>6. Quem usa ônibus</h2>
-<p>Foi ajustada uma regressão logística para a probabilidade de o trabalhador usar ônibus como modo principal, com 15.522 trabalhadores no treino e 3.940 no teste. A divisão mantém cada família inteira de um só lado, porque moradores da mesma casa têm a mesma renda e o mesmo carro. A duração não entra no modelo, por ser consequência do modo escolhido.</p>
-<p><b>logit(P) = 2,530 − 0,428·ln(renda per capita) − 0,644·carros + 0,016·distância − 0,006·idade</b></p>
+<p>Foi ajustada uma regressão logística para a probabilidade de o trabalhador usar ônibus como modo principal, com 15.694 trabalhadores no treino e 3.768 no teste. A divisão mantém cada família inteira de um só lado, porque moradores da mesma casa têm a mesma renda e o mesmo carro, e é feita por uma regra fixa sobre o código da família, não por sorteio: quem executar o notebook obtém exatamente estes números. A duração não entra no modelo, por ser consequência do modo escolhido.</p>
+<p><b>logit(P) = 2,508 − 0,425·ln(renda per capita) − 0,661·carros + 0,015·distância − 0,006·idade</b></p>
 <table><thead><tr><th>Variável</th><th>Coeficiente</th><th>Razão de chances</th><th>Leitura</th></tr></thead><tbody>
-<tr><td>ln(renda per capita)</td><td>−0,428</td><td>0,65</td><td>mais renda, menos ônibus</td></tr><tr><td>Automóveis</td><td>−0,644</td><td>0,53</td><td>cada carro reduz a chance em 47%</td></tr>
-<tr><td>Distância (km)</td><td>0,016</td><td>1,02</td><td>cada km aumenta a chance em 1,7%</td></tr><tr><td>Idade</td><td>−0,006</td><td>0,99</td><td>efeito pequeno</td></tr></tbody></table>
+<tr><td>ln(renda per capita)</td><td>−0,425</td><td>0,65</td><td>mais renda, menos ônibus</td></tr><tr><td>Automóveis</td><td>−0,661</td><td>0,52</td><td>cada carro reduz a chance em 48%</td></tr>
+<tr><td>Distância (km)</td><td>0,015</td><td>1,01</td><td>cada km aumenta a chance em 1,5%</td></tr><tr><td>Idade</td><td>−0,006</td><td>0,99</td><td>efeito pequeno</td></tr></tbody></table>
 <figure><img src="figuras/f4.png"><figcaption>Figura 4. Probabilidade prevista de usar ônibus, por renda per capita e número de carros (8 km, 35 anos).</figcaption></figure>
 <h3>Qualidade da classificação (teste)</h3>
 <table><thead><tr><th>Limiar</th><th>Acurácia</th><th>Precisão</th><th>Recall</th><th>F1</th></tr></thead><tbody>
-<tr><td>0,50 (padrão)</td><td>0,782</td><td>0,294</td><td>0,024</td><td>0,045</td></tr><tr><td>0,21 (escolhido no treino)</td><td>0,632</td><td>0,330</td><td>0,725</td><td>0,454</td></tr></tbody></table>
-<table><thead><tr><th>Matriz de confusão (limiar 0,21)</th><th>Previsto: não usa</th><th>Previsto: usa</th></tr></thead><tbody>
-<tr><td>Real: não usa</td><td>1.888</td><td>1.222</td></tr><tr><td>Real: usa</td><td>228</td><td>602</td></tr></tbody></table>
-<p>Como só 21% do teste usa ônibus, prever sempre "não usa" já acerta 78,9%. No limiar padrão o modelo tem acurácia parecida (78,2%), mas encontra apenas 2,4% dos usuários: a acurácia sozinha engana quando as classes são desbalanceadas. O limiar de 0,21, escolhido por validação cruzada dentro do treino, encontra 72,5% dos usuários de ônibus ao custo de mais alarmes falsos. Para planejar oferta, deixar de identificar quem depende do ônibus custa mais do que um alarme falso.</p>
-<p>A área sob a curva ROC é 0,705: poder de discriminação moderado. Um modelo ampliado, com vínculo de trabalho, ocupação e uma forma não linear para a distância, chega a 0,814; nele, ser assalariado com carteira aumenta a chance de usar ônibus em 51%.</p>
+<tr><td>0,50 (padrão)</td><td>0,775</td><td>0,311</td><td>0,017</td><td>0,032</td></tr><tr><td>0,20 (escolhido no treino)</td><td>0,598</td><td>0,321</td><td>0,739</td><td>0,448</td></tr></tbody></table>
+<table><thead><tr><th>Matriz de confusão (limiar 0,20)</th><th>Previsto: não usa</th><th>Previsto: usa</th></tr></thead><tbody>
+<tr><td>Real: não usa</td><td>1.642</td><td>1.296</td></tr><tr><td>Real: usa</td><td>217</td><td>613</td></tr></tbody></table>
+<p>Como só 22% do teste usa ônibus, prever sempre "não usa" já acerta 78,0%. No limiar padrão o modelo tem acurácia parecida (77,5%), mas encontra apenas 1,7% dos usuários: a acurácia sozinha engana quando as classes são desbalanceadas. O limiar de 0,20, escolhido por validação cruzada dentro do treino, encontra 73,9% dos usuários (613 de 830) de ônibus ao custo de mais alarmes falsos. Para planejar oferta, deixar de identificar quem depende do ônibus custa mais do que um alarme falso.</p>
+<p>A área sob a curva ROC é 0,700: poder de discriminação moderado. Um modelo ampliado, com vínculo de trabalho, ocupação e uma forma não linear para a distância, chega a 0,806; nele, ser assalariado com carteira aumenta a chance de usar ônibus em 58%.</p>
 <p><b>Exemplo de classificação:</b> um trabalhador de 30 anos, a 8 km do trabalho, com renda per capita de R$ 1.000 e sem carro tem probabilidade de 0,38 e é classificado como usuário de ônibus. Com dois carros e renda de R$ 5.000 (45 anos), a probabilidade cai para 0,07.</p>
 
 <h2>7. Recomendações</h2>
@@ -85,7 +85,7 @@ Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 569420) · Daniel
 
 <h2>8. Limitações</h2>
 <ul><li>Os dados são de 2017, anteriores à pandemia, ao trabalho remoto e à expansão dos aplicativos de transporte.</li>
-<li>A renda foi atribuída pela pesquisa, e não declarada, em 63% dos trabalhadores. No teste de robustez, o coeficiente da renda vai de −0,43 para −0,36 quando se usam só as rendas declaradas: o sinal e a ordem de grandeza se mantêm.</li>
+<li>A renda foi atribuída pela pesquisa, e não declarada, em 63% dos trabalhadores. No teste de robustez, o coeficiente da renda vai de −0,42 para −0,34 quando se usam só as rendas declaradas: o sinal e a ordem de grandeza se mantêm.</li>
 <li>A distância é em linha reta e a duração é declarada pelo entrevistado, em múltiplos de 5 minutos.</li>
 <li>A hipótese de normalidade da duração não se sustenta plenamente; os testes Z usam amostras pequenas, fixadas pelo enunciado.</li>
 <li>As regressões foram ajustadas na amostra, sem os fatores de expansão da pesquisa.</li>

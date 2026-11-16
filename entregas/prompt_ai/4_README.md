@@ -24,13 +24,13 @@ pergunta ─► guardrails de entrada (injection, LGPD, escopo)
                    ├─ verificar_gratuidade
                    └─ consultar_fluxo (Pesquisa OD 2017, dado agregado)
               └─ guardrail de saída (limite de confiança) ─► resposta + fontes ─► Gradio
-avaliação: RAGAS (4 métricas, 8 perguntas, v1 × v2 de chunking) ─► 3_avaliacao_ragas.json
+avaliação: RAGAS (4 métricas, 8 perguntas, v1 × v2 de chunking; juiz em outro provedor) ─► 3_avaliacao_ragas.json
 ```
 
 ## Como executar
 1. Abrir `1_Notebook_GS2026_2.ipynb` no Google Colab.
-2. Em **Secrets** (ícone de chave), cadastrar a chave de **um** dos provedores gratuitos da lista do professor e ativar "Notebook access": `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `HF_TOKEN`, `GOOGLE_API_KEY`, `MISTRAL_API_KEY`, `OPENROUTER_API_KEY` ou `NVIDIA_API_KEY`. O notebook usa a primeira que encontrar e mostra o provedor e o modelo na saída.
-3. `Ambiente de execução → Executar tudo`. A base documental é lida de `2_base_documental/`; se a pasta não estiver no Colab, o notebook a baixa do repositório do grupo.
+2. Em **Secrets** (ícone de chave), cadastrar as chaves e ativar "Notebook access" em cada uma. **Recomendado: duas chaves gratuitas, `GROQ_API_KEY` (console.groq.com) e `GOOGLE_API_KEY` (aistudio.google.com/apikey).** Com as duas, o agente roda na Groq e o juiz do RAGAS no Google, e as cotas gratuitas não se somam. Com uma só o notebook também roda, mas a avaliação pode esgotar a cota do dia; nesse caso ele avisa e, ao rodar a célula de novo, completa só o que faltou. Também são aceitas `CEREBRAS_API_KEY`, `MISTRAL_API_KEY`, `OPENROUTER_API_KEY`, `NVIDIA_API_KEY` e `HF_TOKEN`.
+3. `Ambiente de execução → Executar tudo`. A base documental é lida de `2_base_documental/`; se a pasta não estiver no Colab, o notebook a baixa do repositório do grupo. Duração: cerca de 25 minutos, quase tudo na avaliação (o juiz é limitado a 8 chamadas por minuto para respeitar o plano gratuito).
 
 O Ollama Cloud, usado nas aulas, deixou de ser gratuito em novembro de 2026; por orientação do professor, o modelo é acessado por um provedor com API compatível com OpenAI. Os embeddings (`paraphrase-multilingual-MiniLM-L12-v2`) rodam no próprio Colab, sem chave.
 
@@ -63,6 +63,11 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 | `temperature = 0` | respostas estáveis e avaliação reproduzível |
 | Provedor detectado pelos Secrets | o notebook roda com qualquer chave da lista do professor, sem editar código |
 | Modelo escolhido por um teste no formato do agente | modelos como os `gpt-oss` na Groq tentam fazer chamada de ferramenta nativa ao ver `Action:` e o provedor recusa ("Tool choice is none, but model called a tool"); o notebook testa os candidatos e usa o primeiro que responde em texto |
+| Modelos consultados no catálogo da chave (`/models`) | o catálogo de cada provedor muda e nem toda chave tem os mesmos modelos; uma lista fixa de nomes quebrou com erro 404 |
+| Juiz do RAGAS em outro provedor que o do agente | a avaliação faz cerca de 160 chamadas; na mesma chave do agente ela esgotou a cota diária gratuita |
+| Juiz só com modelos grandes; `bypass_n=True` | as métricas dependem de JSON válido, e modelo pequeno devolve métrica vazia; os provedores recusam `n > 1` |
+| Avaliação pergunta por pergunta, com cache em `ragas_cache.json` | se a cota acabar no meio, nada do que já foi medido se perde; a célula retoma de onde parou |
+| Gemini com `reasoning_effort="none"` e 8 chamadas por minuto | os tokens de "pensamento" contam no limite de saída e cortariam a resposta; o plano gratuito limita requisições por minuto |
 | Embeddings locais | sem chave e sem limite de uso; o mesmo vetor em toda execução |
 | Agente ReAct com `max_iterations = 6` | limite de chamadas exigido; evita laços |
 | Ferramentas recebem um texto com campos separados por vírgula | o ReAct passa um único texto em `Action Input` |
@@ -95,4 +100,4 @@ Os guardrails 2, 3 e 4 têm teste automatizado na seção 6 do notebook.
 - Sem horários em tempo real; a evolução prevista é a API Olho Vivo da SPTrans.
 
 ## Custo aproximado por pergunta
-1 chamada ao classificador de escopo, de 2 a 7 chamadas do agente (uma por volta do laço) e 1 chamada de embeddings por busca nos documentos.
+1 chamada ao classificador de escopo, de 2 a 7 chamadas do agente (uma por volta do laço) e 1 chamada de embeddings por busca nos documentos. A avaliação é o que pesa: cerca de 10 chamadas ao juiz por pergunta e por versão de chunking (160 no total).
