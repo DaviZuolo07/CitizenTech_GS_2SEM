@@ -191,3 +191,11 @@ Pedido do Davi: revisar as três entregas contra os enunciados, corrigir o que h
 3. Reescrever com as próprias palavras as 8 respostas de referência, lendo os documentos, para poder declarar autoria do grupo (ver nota do critério 7).
 4. Baixar o notebook executado e o `3_avaliacao_ragas.json`; prints e números no `4_README.md`; vídeo; completar os arquivos 5, 6 e 7; montar o ZIP.
 5. Enviar: `.txt` da MLAM no Portal, ZIP de Prompt & AI no Portal, MMC pelo canal do professor.
+
+## 12. Revisão de 17/11 (execução real do RAGAS)
+**Resultado da execução de 16/11:** notebook rodou inteiro, 0 erros, `3_avaliacao_ragas.json` exportado no Colab. Problemas: juiz = próprio agente (Google 404 nos Gemini 2.5 para chave nova), 8 de 64 medições vazias por cota da Groq, texto de diagnóstico contraditório. Corrigido no notebook (D22). As médias de 16/11 (v2: faithfulness 0,94, answer_relevancy 0,64, context_precision 0,57, context_recall 0,83) deixam de valer se o notebook rodar de novo.
+
+**Ground truth (critério 7):** o texto das 8 respostas de referência no notebook é idêntico ao rascunho que a IA escreveu em 13/11. As declarações (notebook, 5 e 6) dizem "redigidas com apoio de IA e conferidas pelo grupo", e isso continua correto enquanto o texto for o da IA. Para declarar autoria própria, o grupo precisa reescrever as respostas com as próprias palavras antes de rodar.
+
+**Pendências do Davi, em ordem:** (1) opcional: reescrever as 8 respostas; (2) commit e push; (3) Colab: Ambiente de execução → Desconectar e excluir ambiente → Executar tudo, com GROQ_API_KEY e GOOGLE_API_KEY; (4) baixar o `.ipynb` executado e o `3_avaliacao_ragas.json` do painel Arquivos; (5) prints 1–10 em `entregas/prompt_ai/prints/`; (6) RAGAS e frase do chunking no README; (7) arquivos 5, 6 e 7; (8) vídeo ≤ 3 min, YouTube não listado, cada integrante se apresenta; (9) ZIP `GS2026_2_1CCPK_<GRUPO>.zip`; (10) envios: ZIP de Prompt & AI e `.txt` da MLAM no Portal, MMC pelo canal do professor.
+

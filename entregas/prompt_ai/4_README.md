@@ -89,13 +89,26 @@ Os guardrails 2, 3 e 4 têm teste automatizado na seção 6 do notebook.
 **[copiar da seção 7 do notebook: a tabela v1 × v2 das quatro métricas e o texto "Leitura dos números", que o código monta com os valores medidos.]**
 
 ## Prints
-**[inserir: tabela de chunking · busca com distance · 3 respostas com fonte · trace do agente · interface Gradio · cada guardrail disparando · tabela do RAGAS.]**
+Imagens na pasta `prints/`, ao lado deste README. Nenhum print mostra chave de API.
+
+| # | O que mostra | Seção | Arquivo |
+|---|---|---|---|
+| 1 | Tabela comparativa dos dois chunkings | 1 | ![](prints/01_chunking.png) |
+| 2 | Busca no ChromaDB com `distance` e metadados | 2 | ![](prints/02_busca.png) |
+| 3 | Três respostas com citação de `doc_id` | 3 | ![](prints/03_rag.png) |
+| 4 | Trace do agente escolhendo e chamando ferramentas | 4 | ![](prints/04_agente.png) |
+| 5 | Interface Gradio com histórico e fontes | 5 | ![](prints/05_gradio.png) |
+| 6 | Guardrail de escopo | 6 | ![](prints/06_escopo.png) |
+| 7 | Guardrail de prompt injection | 6 | ![](prints/07_injection.png) |
+| 8 | Guardrail de dado sensível (LGPD) | 6 | ![](prints/08_lgpd.png) |
+| 9 | Guardrail de limite de confiança | 6 | ![](prints/09_confianca.png) |
+| 10 | Tabelas do RAGAS v1 × v2 e médias | 7 | ![](prints/10_ragas.png) |
 
 ## Limitações
 - Documentos simulados; não é canal oficial.
 - O classificador de escopo usa o próprio modelo e pode errar em perguntas ambíguas.
 - O filtro de injection é por expressão regular: cobre os padrões conhecidos, não toda reformulação.
-- As métricas do RAGAS dependem de um modelo juiz e variam entre execuções.
+- As métricas do RAGAS dependem de um modelo juiz e variam entre execuções. O juiz é escolhido no catálogo da chave do Google (os Gemini 2.5 não estão mais disponíveis para chaves novas); se nenhum responder, o juiz é o próprio modelo do agente e a conclusão do notebook declara essa limitação.
 - Planos gratuitos têm limite de requisições: em horários de pico a avaliação pode demorar ou falhar em algumas perguntas.
 - Sem horários em tempo real; a evolução prevista é a API Olho Vivo da SPTrans.
 

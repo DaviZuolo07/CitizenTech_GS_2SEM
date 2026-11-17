@@ -216,3 +216,16 @@ Revisão da célula de configuração, que tinha comentários contraditórios de
 **Ordem dos provedores:** a Groq volta a ser a primeira (é onde o agente comprovadamente funcionou nas seções 0 a 6) e o juiz do RAGAS prefere o Google. Com as duas chaves, as cotas não se somam. Se nenhum modelo de um provedor servir, o notebook passa ao provedor seguinte em vez de parar.
 
 **Limite desta validação:** tudo isso foi testado com modelo, embeddings e RAGAS simulados, em cinco cenários de chave (duas chaves; só Google com o ajuste recusado; só Groq; juiz falhando no meio e retomando; Groq sem nenhum modelo). O comportamento dos provedores reais (contagem dos tokens de pensamento, limites exatos por minuto e por dia) não pôde ser verificado sem chave e só a execução no Colab confirma.
+
+## D22 — Prompt & AI: juiz do Google pelo catálogo e leitura do RAGAS coerente (17/11)
+**O que a execução de 16/11 mostrou:** o Google respondeu 404 "no longer available to new users" para `gemini-2.5-flash` e `gemini-2.5-flash-lite` (o Google retira modelos antigos de chaves novas). Sem outro juiz, o RAGAS foi julgado pelo próprio modelo do agente (Groq `qwen/qwen3.8-27b`), esgotou a cota diária de 200 mil tokens e deixou 8 de 64 medições vazias (v2 da pergunta 8 inteira).
+
+**Correções no notebook:**
+1. **Juiz pelo catálogo.** `gemini_do_catalogo()` lista os Gemini "flash" que a chave tem, com flash-lite primeiro (no plano gratuito aguenta centenas de requisições por dia; o flash, cerca de 20, e a avaliação precisa de ~160).
+2. **Cache por juiz e por resposta de referência.** A chave do `ragas_cache.json` inclui o juiz e um hash do `ground_truth`: trocar qualquer um invalida a medição antiga, em vez de misturar juízes.
+3. **Comparação pareada.** v1 × v2 compara cada métrica só nas perguntas medidas nas duas versões.
+4. **Diagnóstico coerente com a meta.** Três casos: faltou documento → `context_recall`; veio o documento mas não o trecho (recall < 0,5) → busca híbrida BM25 + embeddings e reranking; recuperação boa → a métrica de geração mais baixa. Antes, o texto dizia "perda na geração" e propunha meta de `context_recall`.
+5. **Limitação declarada.** Se o juiz cair no modelo do agente, a conclusão diz que os números valem só como comparação.
+
+**Por que importa (critério 7, peso 2,0):** "métricas reais configuradas" e "explicação e melhoria citando o número". Juiz igual ao agente é viés de autoavaliação, e a explicação anterior contradizia a meta.
+

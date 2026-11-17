@@ -49,6 +49,11 @@ COMO A IA FOI USADA (resumo por sessão)
 - Pedi uma revisão do notebook contra a rubrica. A IA reescreveu a célula de configuração (agente na Groq, juiz no
   Google, limite de chamadas por minuto, modelos Gemini sem "pensamento") e atualizou o README.
 
+17/11 — Leitura da execução real
+- Mostrei à IA o resultado do RAGAS. Ela apontou que o juiz tinha caído no próprio modelo do agente (o Google recusou os
+  Gemini 2.5 para chaves novas) e que o texto de diagnóstico contradizia a meta proposta. A IA mudou a escolha do juiz para
+  o catálogo da chave, tornou a comparação v1 × v2 pareada e reescreveu a regra do diagnóstico.
+
 O QUE A IA NÃO FEZ
 - Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
 - Não teve acesso a nenhuma chave de API.
