@@ -1,0 +1,200 @@
+{
+  "provedor": "Groq",
+  "modelo": "qwen/qwen3.8-27b",
+  "embeddings": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "juiz": "Google AI Studio / gemini-3.1-flash-lite",
+  "k": 4,
+  "estrategia_usada_no_assistente": "B",
+  "versoes": {
+    "chunking_A": {
+      "chunk_size": 500,
+      "overlap": 50,
+      "media": {
+        "faithfulness": 0.875,
+        "answer_relevancy": 0.6051,
+        "context_precision": 0.4271,
+        "context_recall": 0.4792
+      },
+      "por_pergunta": [
+        {
+          "nivel": 1,
+          "pergunta": "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?",
+          "resposta": "Não há informação na base documental sobre isso. Consulte a Central de Atendimento no telefone 0800 000 0156.",
+          "docs_faltando": [
+            "doc_02"
+          ],
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Quais pontos da linha 714A-10 são acessíveis?",
+          "resposta": "De acordo com o guia de itinerários, os pontos da linha 714A-10 com características de acessibilidade são:\n\n*   **Ponto 7** (Rua das Paineiras, 480): é o único ponto com piso tátil e rampa nos dois sentidos [doc_01].\n*   **Pontos 1 e 14**: possuem rampa apenas no sentido Terminal [doc_01].\n\nAlém disso, todos os veículos da linha possuem elevador ou piso baixo [doc_01].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.9082,
+          "context_precision": 0.4167,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Quem tem direito à gratuidade?",
+          "resposta": "Com base nos documentos fornecidos, os seguintes grupos têm direito à gratuidade:\n\n1. **Pessoas idosas**\n   - **65 anos ou mais:** Gratuidade em todos os dias da semana (inclusive sábados, domingos e feriados) e em qualquer horário. É necessário apresentar o Bilhete Sênior válido ou documento oficial com foto [doc_04].\n   - **De 60 a 64 anos:** Gratuidade somente em dias úteis. Aos sábados, domingos e feriados, aplica-se a tarifa integral [doc_04].\n\n2. **Pessoas com deficiência**\n   - Gratuidade em todos os dias e horários para quem possui a Credencial de Acessibilidade válida. O acompanhante também viaja sem pagar quando a credencial trouxer a indicação \"com acompanhante\" [doc_04].\n\n3. **Estudantes**\n   - Gratuidade apenas em dias letivos, de segunda a sexta-feira, mediante o Passe Escolar. Não vale aos sábados, domingos, feriados, nem nos períodos de recesso (mês de julho e de 15 de dezembro a 31 de janeiro). Fora dos dias letivos, o estudante paga a tarifa integral [doc_04].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.4747,
+          "context_precision": 0.0,
+          "context_recall": 0.5
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Onde fica o Terminal Ipê Roxo?",
+          "resposta": "O Terminal Ipê Roxo fica na Avenida Mirante do Sul, 2.500 [doc_01].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 1.0,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "A linha 714A-10 passa no domingo?",
+          "resposta": "A partir de 1º de outubro de 2026, a linha 714A-10 (Jardim das Acácias / Terminal Ipê Roxo) deixa de operar aos domingos e feriados [doc_03].",
+          "docs_faltando": [
+            "doc_02"
+          ],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6251,
+          "context_precision": 1.0,
+          "context_recall": 0.3333
+        },
+        {
+          "nivel": 2,
+          "pergunta": "Meu pai de 68 anos anda de graça no sábado?",
+          "resposta": "Não há informação na base documental sobre isso. Consulte a Central de Atendimento no telefone 0800 000 0156.",
+          "docs_faltando": [],
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "A plataforma C do Terminal Ipê Roxo está funcionando?",
+          "resposta": "Sim, a plataforma C do Terminal Ipê Roxo está em funcionamento normal, pois o documento informa que as quatro plataformas (de A a D) operam normalmente [doc_01].",
+          "docs_faltando": [
+            "doc_05"
+          ],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.9624,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "Estudante paga no feriado?",
+          "resposta": "Sim, o estudante paga a tarifa integral nos feriados. O Passe Escolar garante gratuidade apenas em dias letivos, de segunda a sexta-feira, e não vale aos sábados, domingos e feriados [doc_04].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8706,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        }
+      ]
+    },
+    "chunking_B": {
+      "chunk_size": 1000,
+      "overlap": 150,
+      "media": {
+        "faithfulness": 0.8452,
+        "answer_relevancy": 0.7366,
+        "context_precision": 0.5521,
+        "context_recall": 0.625
+      },
+      "por_pergunta": [
+        {
+          "nivel": 1,
+          "pergunta": "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?",
+          "resposta": "Não há informação na base documental sobre isso. Consulte a Central de Atendimento no telefone 0800 000 0156.",
+          "docs_faltando": [],
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Quais pontos da linha 714A-10 são acessíveis?",
+          "resposta": "De acordo com o Guia de itinerários e pontos de parada da Área Operacional Sul-Oeste, os pontos da linha 714A-10 com recursos de acessibilidade são:\n\n*   **Ponto 7 (Rua das Paineiras, 480):** É o único ponto com piso tátil e rampa nos dois sentidos [doc_01].\n*   **Pontos 1 e 14:** Possuem rampa apenas no sentido Terminal [doc_01].\n\nAlém disso, todos os veículos da linha possuem elevador ou piso baixo [doc_01].",
+          "docs_faltando": [],
+          "faithfulness": 0.8333,
+          "answer_relevancy": 0.9001,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Quem tem direito à gratuidade?",
+          "resposta": "Com base no Regulamento de gratuidades e benefícios tarifários, publicado em 15 de janeiro de 2026, os seguintes grupos têm direito à gratuidade:\n\n*   **Pessoas idosas:**\n    *   **65 anos ou mais:** Gratuidade em todos os dias da semana (inclusive sábados, domingos e feriados) e em qualquer horário, mediante apresentação do Bilhete Sênior válido ou documento oficial com foto [doc_04].\n    *   **De 60 a 64 anos:** Gratuidade somente em dias úteis. Aos sábados, domingos e feriados, aplica-se a tarifa integral [doc_04].\n*   **Pessoas com deficiência:**\n    *   Gratuidade em todos os dias e horários para quem possui a Credencial de Acessibilidade válida. O acompanhante também viaja sem pagar quando a credencial trouxer a indicação \"com acompanhante\" [doc_04].\n*   **Estudantes:**\n    *   Gratuidade apenas em dias letivos, de segunda a sexta-feira, mediante o Passe Escolar. Não vale aos sábados, domingos, feriados nem nos períodos de recesso (mês de julho e de 15 de dezembro a 31 de janeiro) [doc_04].\n*   **Crianças:**\n    *   Crianças de até 5 anos viajam sem pagar, desde que acompanhadas por um responsável e sem ocupar assento [doc_04].",
+          "docs_faltando": [],
+          "faithfulness": 0.9286,
+          "answer_relevancy": 0.4111,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 1,
+          "pergunta": "Onde fica o Terminal Ipê Roxo?",
+          "resposta": "O Terminal Ipê Roxo fica na Avenida Mirante do Sul, 2.500 [doc_01].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 1.0,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "A linha 714A-10 passa no domingo?",
+          "resposta": "Sim, a linha 714A-10 opera aos domingos. De acordo com a Tabela de Horários, nos domingos e feriados, a linha funciona das 06h00 às 22h00, com partidas a cada 30 minutos [doc_02].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8847,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "Meu pai de 68 anos anda de graça no sábado?",
+          "resposta": "Sim, seu pai pode viajar de graça no sábado. Pessoas com 65 anos ou mais têm direito à gratuidade em todos os dias da semana, inclusive sábados, domingos e feriados, em qualquer horário [doc_04]. Para isso, é necessário apresentar o Bilhete Sênior válido ou um documento oficial com foto [doc_04].",
+          "docs_faltando": [],
+          "faithfulness": 0.8333,
+          "answer_relevancy": 0.8292,
+          "context_precision": 0.4167,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "A plataforma C do Terminal Ipê Roxo está funcionando?",
+          "resposta": "Não, a plataforma C do Terminal Ipê Roxo **não está funcionando**. Ela está **interditada** desde 19 de outubro de 2026, com previsão de reabertura em 15 de dezembro de 2026 [doc_05].\n\nEsta informação atualiza o guia anterior, que indicava que todas as plataformas estavam em funcionamento normal [doc_01]. A regra mudou devido às obras de recuperação do pavimento e da cobertura [doc_05].",
+          "docs_faltando": [],
+          "faithfulness": 0.6667,
+          "answer_relevancy": 0.9798,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        },
+        {
+          "nivel": 2,
+          "pergunta": "Estudante paga no feriado?",
+          "resposta": "Sim, o estudante paga a tarifa integral em feriados. O Passe Escolar garante gratuidade apenas em dias letivos, de segunda a sexta-feira, e não vale aos sábados, domingos e feriados [doc_04].",
+          "docs_faltando": [],
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8879,
+          "context_precision": 1.0,
+          "context_recall": 1.0
+        }
+      ]
+    }
+  }
+}

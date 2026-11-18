@@ -238,3 +238,14 @@ Revisão da célula de configuração, que tinha comentários contraditórios de
 **Prints:** gerados das saídas do notebook executado (sem as células de código), para não depender de captura manual; só o do Gradio é captura de tela.
 
 **Por que importa (critério 7):** a explicação precisa citar o número certo; uma frase gerada que contradiz a tabela ao lado é o tipo de erro que a banca vê primeiro.
+
+## D24 — Prompt & AI: indexação idempotente e verificação automática da entrega (18/11)
+**Defeito encontrado na execução de 18/11 pela manhã.** `Chroma.from_documents` com o mesmo `collection_name` acrescenta à coleção que já existe no kernel. Rodando a célula de indexação duas vezes na mesma sessão, os 12 chunks viraram 24 duplicados; com `k = 4`, a busca passou a gastar o orçamento de trechos com repetições. Efeito medido: a armadilha principal falhou na seção 3 ("Sim, a linha 714A-10 opera aos domingos", citando só o doc_02), o teste das armadilhas da estratégia A caiu de 2 de 3 para 1 de 3, e o `context_recall` da v2 caiu de 0,75 para 0,625.
+
+**Correção.** `indexar` apaga a coleção antes de recriar e confere `count() == len(chunks)`. Reproduzido fora do Colab: com o código antigo a segunda execução dobra o índice; com o novo, não. Isso torna o notebook correto mesmo quando rodado por célula, que é como o professor pode abri-lo.
+
+**Verificação automática.** `montar_zip.py` passou a localizar as células pelo conteúdo (a posição muda quando se acrescenta uma célula) e a recusar o ZIP quando a saída da leitura dos números é anterior à correção da D23, quando a indexação está sem `delete_collection` ou quando a resposta do domingo na seção 3 não cita o doc_03.
+
+**Números fora do texto.** `atualizar_entrega.py` reescreve a seção de avaliação do `4_README.md` e o bloco de execução do `5_certificacao.txt` a partir do `3_avaliacao_ragas.json` e do notebook executado. Nenhum número é digitado: README, certificação e JSON passam a vir da mesma fonte, e refazer a execução custa um comando.
+
+**Por que importa (critérios 3 e 7):** o critério 3 pede que o RAG resolva a contradição entre documentos, e era exatamente isso que o índice duplicado quebrava; o critério 7 exige que os números do relatório sejam os medidos.

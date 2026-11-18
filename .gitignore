@@ -9,3 +9,4 @@ data/raw/*
 .DS_Store
 .pytest_cache/
 _to_delete/
+entregas/prompt_ai/ragas_cache.json

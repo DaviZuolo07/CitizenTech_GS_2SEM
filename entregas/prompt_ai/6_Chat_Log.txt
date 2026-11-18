@@ -3,79 +3,72 @@ Integrantes: Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 5694
 Responsável por esta entrega: Davi Queiroz Zuolo
 
 FERRAMENTA
-Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 17/11/2026.
+Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 18/11/2026.
 
-COMO A IA FOI USADA (resumo por sessão)
+COMO TRABALHEI COM A IA
+Eu defini o escopo, as decisões de projeto e os critérios; a IA escreveu o código e os textos que eu pedi e explicou as
+alternativas quando eu tinha dúvida. Nenhuma correção entrou sem eu rodar no Colab e ver a saída. Quando a IA propôs
+algo que eu não quis, a minha decisão prevaleceu e está registrada em docs/01_decisoes.md.
 
-09/11 — Planejamento
-- Pedi ajuda para organizar o projeto, ler o enunciado e montar a matriz de critérios da rubrica.
-- Decisões tomadas com apoio da IA: frente A (mobilidade), 5 documentos simulados com 3 armadilhas e 1 prompt injection,
-  comparação de chunking 500/50 x 1000/150, não usar GraphRAG.
+DECISÕES QUE EU TOMEI (a IA executou)
+- Tema e frente: mobilidade urbana por ônibus, assistente que só responde com fonte. Projeto "Linha Certa".
+- Base documental simulada em .md, escrita pelo grupo, com cabeçalho de metadados, em vez de documentos públicos reais:
+  o enunciado exige base simulada e desconta autoria de texto de fonte identificável.
+- Três armadilhas e uma injeção de prompt plantada na fonte (doc_05), para a avaliação ter o que medir de verdade.
+- Comparar dois chunkings (500/50 e 1000/150) e escolher pelo teste das armadilhas, não pelo tamanho do trecho.
+- Quatro ferramentas no agente, com horário e gratuidade calculados por código, nunca pelo modelo.
+- Quatro guardrails, com teste automatizado nos que não dependem do modelo.
+- Não usar GraphRAG: a base tem 5 documentos e não justifica o custo.
+- Depois do fim da gratuidade do Ollama Cloud, seguir a orientação do professor e usar provedor com API compatível
+  com OpenAI; embeddings locais, para não gastar cota e manter o resultado reproduzível.
+- Agente na Groq e juiz do RAGAS no Google: duas chaves, para as cotas não se somarem e o agente não avaliar as
+  próprias respostas.
+- Todo texto de análise do notebook é montado pelo código a partir dos valores medidos. Nenhum número digitado à mão.
+- Rodar o notebook inteiro quantas vezes fosse preciso até a seção 7 fechar sem medição vazia.
 
-11/11 — Base documental e ferramentas
-- Pedi um rascunho dos 5 documentos simulados (itinerários, horários, portaria, gratuidades, comunicado), com linhas e
-  locais fictícios. A IA gerou o texto; eu li, revisei e assumo o conteúdo.
-- Pedi as funções das ferramentas do agente (calcular_proximo_horario, verificar_gratuidade, consultar_fluxo) e os testes.
-- A IA apontou que a ferramenta deveria ler a tabela já com a portaria aplicada, para não contradizer o RAG.
+GROUND TRUTH (seção 7)
+A IA redigiu as 8 respostas de referência a partir dos documentos da base, a meu pedido. Eu auditei cada uma contra o
+documento que ela cita, corrigi o que não batia e aprovei. Portanto são respostas redigidas com apoio de IA e
+conferidas pelo grupo, não escritas do zero por mim.
 
-11/11 — Notebook
-- Enviei as aulas do professor para a IA seguir o mesmo padrão (LCEL, ChromaDB, ReAct com AgentExecutor, RAGAS).
-- A IA montou o notebook nas seções 0 a 8, os 4 guardrails e o README.
-- A IA explicou por que travar o langchain na versão 0.3 (AgentExecutor) e por que as ferramentas recebem um texto único.
-
-12/11 — Troca de provedor
-- Com o fim da gratuidade do Ollama Cloud, enviei as instruções do professor. A IA adaptou o notebook para provedores
-  com API compatível com OpenAI e embeddings locais.
-- A IA transformou a justificativa do chunking, a leitura do RAGAS e a conclusão em texto montado pelo código a partir
-  dos valores medidos na execução.
-
-12/11 — Respostas de referência e ajustes do agente
-- Pedi que a IA redigisse as 8 respostas de referência (ground truth) a partir dos documentos da base, após isso corrigi e auditei as respostas
-- Na primeira execução real (Groq, gpt-oss-20b) o agente falhou com "Tool choice is none, but model called a tool".
-  A IA explicou a causa e criou o teste que escolhe um modelo compatível com o formato ReAct.
-- Limite de tokens por resposta e tratamento de erro de formato do agente, para caber no plano gratuito.
-
-13/11 e 14/11 — Erros da execução real no Colab
-- A seção 7 (RAGAS) falhou com três erros na mesma saída. Enviei o trace e a IA separou as causas: o RAGAS pede n>1 ao
-  juiz e o provedor recusa (corrigido com bypass_n=True); a avaliação esgotava a cota diária de tokens da Groq (juiz
-  movido para outro provedor); max_tokens do juiz acima do limite por minuto.
-- Tentei usar a Hugging Face e recebi 403. A IA mostrou que era permissão do token e falta de crédito no plano gratuito,
-  não o modelo que eu suspeitava.
-- Um nome de modelo trocado pela própria IA não existia na Groq (404). A correção foi o notebook consultar o catálogo
-  da chave em vez de usar uma lista fixa de nomes.
-- A IA fez a avaliação gravar cada pergunta medida em cache, para retomar de onde parou quando a cota acaba.
-
-16/11 — Revisão final
-- Pedi uma revisão do notebook contra a rubrica. A IA reescreveu a célula de configuração (agente na Groq, juiz no
-  Google, limite de chamadas por minuto, modelos Gemini sem "pensamento") e atualizou o README.
-
-17/11 — Leitura da execução real
-- Mostrei à IA o resultado do RAGAS. Ela apontou que o juiz tinha caído no próprio modelo do agente (o Google recusou os
-  Gemini 2.5 para chaves novas) e que o texto de diagnóstico contradizia a meta proposta. A IA mudou a escolha do juiz para
-  o catálogo da chave, tornou a comparação v1 × v2 pareada e reescreveu a regra do diagnóstico.
-
-17/11 (tarde) — Execução final e documentação
-- Rodei o notebook inteiro de novo no Colab. O juiz passou a ser o gemini-3.1-flash-lite (Google), separado do agente
-  (qwen3.8-27b, Groq), e as 64 medições do RAGAS voltaram válidas.
-- A IA conferiu as saídas e encontrou um erro no texto gerado: a frase "Simples x armadilha" escolhia a métrica em que
-  as perguntas simples ganhavam, e por isso citava faithfulness com 0,88 contra 0,88. A correção usa a maior diferença
-  em qualquer sentido (context_recall: 0,50 nas simples contra 1,00 nas armadilhas). Reexecutei as células da seção 7 e 8.
-- A IA gerou os prints a partir das saídas do notebook executado e redigiu a análise do README com os números da
-  execução; eu conferi os números contra a tabela do notebook.
+O QUE PEDI À IA, POR SESSÃO
+09/11 — Leitura do enunciado e matriz de critérios da rubrica.
+11/11 — Rascunho dos 5 documentos simulados; funções das ferramentas e seus testes; notebook nas seções 0 a 8 no padrão
+        das aulas do professor (LCEL, ChromaDB, ReAct com AgentExecutor, RAGAS); README.
+12/11 — Adaptação para provedores com API compatível com OpenAI; textos de análise gerados a partir dos números.
+13/11 e 14/11 — Diagnóstico dos três erros da seção 7 na mesma saída: o RAGAS pede n>1 ao juiz e o provedor recusa
+        (bypass_n=True); a avaliação esgotava a cota diária de tokens da Groq (juiz em outro provedor); max_tokens do
+        juiz acima do limite por minuto. Também o 403 da Hugging Face, que era permissão e falta de crédito do plano
+        gratuito, não o modelo; e um nome de modelo que a própria IA errou e devolveu 404 na Groq, corrigido fazendo o
+        notebook consultar o catálogo da chave.
+16/11 — Revisão do notebook contra a rubrica; cache por pergunta, para a avaliação retomar de onde parou.
+17/11 — Execução completa. A IA leu as saídas, apontou que o juiz tinha caído no próprio modelo do agente (o Google
+        recusa os Gemini 2.5 para chaves novas) e passou a escolher o juiz pelo catálogo da chave. Gerou os prints a
+        partir das saídas e escreveu a análise do README com os números medidos.
+18/11 — Nova execução. A IA encontrou dois defeitos meus e os corrigiu: (1) a frase "simples × armadilha" escolhia a
+        métrica em que as perguntas simples iam melhor e saía contradizendo a tabela ao lado; (2) rodar a célula de
+        indexação duas vezes no mesmo kernel duplicava a coleção do ChromaDB, e com trechos repetidos ocupando o k a
+        busca perdia variedade, a ponto de a resposta do domingo citar só a tabela antiga. A indexação passou a apagar
+        a coleção antes de recriar, com verificação do número de chunks. Rodei tudo de novo, com ambiente novo.
+        A IA também escreveu o atualizar_entrega.py e o montar_zip.py, que preenchem o README e a certificação a
+        partir dos arquivos da execução e recusam montar o ZIP se algo estiver faltando ou desatualizado.
 
 O QUE A IA NÃO FEZ
-- Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
-- Não teve acesso a nenhuma chave de API.
+- Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook e do
+  3_avaliacao_ragas.json exportado por ela.
+- Não teve acesso a nenhuma chave de API. As chaves ficam nos Secrets do Colab.
+- Não executou o notebook: toda execução foi feita por mim no Google Colab.
 
 O QUE EU VERIFIQUEI
-- Rodei o notebook no Colab com as minhas chaves (Groq e Google) em 13, 14, 16 e 17/11 e levei cada erro para a IA com
-  o trace completo; nenhuma correção foi aceita sem rodar de novo e ver a saída.
-- Conferi as 8 respostas de referência contra os documentos que cada uma cita e corrigi o que não batia.
-- Na execução final, conferi que o juiz era de outro provedor, que as 64 medições vieram preenchidas e que os números do
-  README e do 3_avaliacao_ragas.json são os da tabela do notebook.
-- Conferi que nenhuma chave aparece no notebook, nos prints, no repositório ou no ZIP (as chaves ficam só nos Secrets do Colab).
+- Rodei o notebook no Colab com as minhas chaves em 13, 14, 16, 17 e 18/11, e levei cada erro para a IA com o trace
+  completo. Nenhuma correção foi aceita sem rodar de novo e ver a saída.
+- Auditei as 8 respostas de referência contra os documentos que cada uma cita.
+- Li os 5 documentos da base e confirmo o conteúdo.
+- Na execução final, conferi que o juiz é de outro provedor, que as 64 medições vieram preenchidas, que a resposta da
+  armadilha do domingo cita a portaria (doc_03) e que os números do README e da certificação são os do
+  3_avaliacao_ragas.json.
+- Conferi que nenhuma chave aparece no notebook, nos prints, no repositório ou no ZIP.
 
 OBSERVAÇÃO
-A IA validou o encadeamento do notebook com modelo, embeddings e RAGAS simulados, sem acesso a nenhum provedor. A
-execução real e as medições foram feitas por mim no Google Colab; a análise do README foi redigida com a IA a partir
-desses números e conferida por mim.
+A execução real e as medições foram feitas por mim no Google Colab. A análise do README foi gerada a partir desses
+números e conferida por mim.

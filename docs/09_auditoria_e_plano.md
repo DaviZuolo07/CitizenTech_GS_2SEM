@@ -1,6 +1,6 @@
 # Auditoria geral e plano até a entrega
 
-Documento vivo. Última atualização: **terça, 17/11/2026, 13h**. Prazo final: **19/11 às 23h59**.
+Documento vivo. Última atualização: **quarta, 18/11/2026, 11h**. Prazo final: **19/11 às 23h59**.
 
 Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
@@ -206,3 +206,12 @@ Pedido do Davi: revisar as três entregas contra os enunciados, corrigir o que h
 **Feito pela IA (D23):** correção da frase "simples × armadilha" (células 27 e 29); 9 prints em `entregas/prompt_ai/prints/`; README com tabelas, leitura e análise; `5_certificacao.txt` com a tela final; `6_Chat_Log.txt` com a verificação; `montar_zip.py`, que recusa montar se faltar algo.
 
 **Falta (Davi):** (1) no Colab, colar as células 27 e 29 corrigidas, rodar 27–29, baixar o `.ipynb` e o `3_avaliacao_ragas.json` (pasta `content`) para `entregas/prompt_ai/`; (2) print do Gradio `prints/05_gradio.png`; (3) vídeo ≤ 3 min, link nos arquivos 5 e 7; (4) `python montar_zip.py`; (5) commit e push; (6) envios no Portal (ZIP de Prompt & AI e `.txt` da MLAM) e MMC pelo canal do professor.
+
+## 14. Execução de 18/11 e o defeito do índice duplicado
+A execução da manhã de 18/11 saiu pior que a de 17/11 e a causa não era o modelo: a coleção do ChromaDB tinha sido preenchida duas vezes no mesmo kernel (24 chunks em vez de 12). Com trechos repetidos ocupando o `k`, a seção 3 respondeu **errado** a armadilha do domingo. Corrigido na D24: a indexação apaga a coleção antes de recriar e confere o total.
+
+Também ficou claro que a correção da D23 (frase "simples × armadilha") não estava na cópia do Colab: o notebook rodado era anterior ao patch. As duas correções estão agora no `.ipynb` do repositório.
+
+**Estado:** notebook corrigido e pronto para a execução final; prints 1–4 e 6–10 de 17/11 (as saídas não mudam de forma relevante, mas o 01, o 03 e o 10 valem regerar depois da execução final); README e certificação passam a ser preenchidos por `atualizar_entrega.py`; chat log reescrito com as decisões do grupo e a auditoria do ground truth; vídeo gravado, falta o áudio.
+
+**Ordem até a entrega:** (1) Colab: *Desconectar e excluir ambiente* → *Executar tudo*, com o notebook do repositório; (2) baixar o `.ipynb` e o `3_avaliacao_ragas.json` para `entregas/prompt_ai/`; (3) `python atualizar_entrega.py`; (4) link do vídeo nos arquivos 5 e 7; (5) `python montar_zip.py`; (6) commit e push; (7) envios.
