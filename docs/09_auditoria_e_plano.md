@@ -1,6 +1,6 @@
 # Auditoria geral e plano até a entrega
 
-Documento vivo. Última atualização: **segunda, 16/11/2026, 11h**. Prazo final: **19/11 às 23h59**. Protótipo: 18/11.
+Documento vivo. Última atualização: **terça, 17/11/2026, 13h**. Prazo final: **19/11 às 23h59**.
 
 Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
@@ -199,3 +199,10 @@ Pedido do Davi: revisar as três entregas contra os enunciados, corrigir o que h
 
 **Pendências do Davi, em ordem:** (1) opcional: reescrever as 8 respostas; (2) commit e push; (3) Colab: Ambiente de execução → Desconectar e excluir ambiente → Executar tudo, com GROQ_API_KEY e GOOGLE_API_KEY; (4) baixar o `.ipynb` executado e o `3_avaliacao_ragas.json` do painel Arquivos; (5) prints 1–10 em `entregas/prompt_ai/prints/`; (6) RAGAS e frase do chunking no README; (7) arquivos 5, 6 e 7; (8) vídeo ≤ 3 min, YouTube não listado, cada integrante se apresenta; (9) ZIP `GS2026_2_1CCPK_<GRUPO>.zip`; (10) envios: ZIP de Prompt & AI e `.txt` da MLAM no Portal, MMC pelo canal do professor.
 
+
+## 13. Execução final de 17/11 (tarde)
+**Resultado:** notebook rodou inteiro no Colab, 0 erros; juiz `gemini-3.1-flash-lite` (Google), separado do agente (`qwen/qwen3.8-27b`, Groq); 64 de 64 medições. v2 (chunking B) vence nas 4 métricas: faithfulness 0,875, answer_relevancy 0,691, context_precision 0,615, context_recall 0,750 (v1: 0,815 / 0,643 / 0,437 / 0,542). Armadilhas na v2: context_recall 1,00 (v1: 0,33). Pior pergunta: primeira partida da 502C-10 (recall 0 nas duas versões) → busca híbrida BM25 + reranking. Ficaram na meta faithfulness e context_recall.
+
+**Feito pela IA (D23):** correção da frase "simples × armadilha" (células 27 e 29); 9 prints em `entregas/prompt_ai/prints/`; README com tabelas, leitura e análise; `5_certificacao.txt` com a tela final; `6_Chat_Log.txt` com a verificação; `montar_zip.py`, que recusa montar se faltar algo.
+
+**Falta (Davi):** (1) no Colab, colar as células 27 e 29 corrigidas, rodar 27–29, baixar o `.ipynb` e o `3_avaliacao_ragas.json` (pasta `content`) para `entregas/prompt_ai/`; (2) print do Gradio `prints/05_gradio.png`; (3) vídeo ≤ 3 min, link nos arquivos 5 e 7; (4) `python montar_zip.py`; (5) commit e push; (6) envios no Portal (ZIP de Prompt & AI e `.txt` da MLAM) e MMC pelo canal do professor.

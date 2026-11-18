@@ -3,7 +3,7 @@ Integrantes: Davi Queiroz Zuolo (RM 571669) · Gustavo Zagato Bottechia (RM 5694
 Responsável por esta entrega: Davi Queiroz Zuolo
 
 FERRAMENTA
-Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 16/11/2026.
+Claude (Anthropic), em modo de assistente de programação, entre 09/11/2026 e 17/11/2026.
 
 COMO A IA FOI USADA (resumo por sessão)
 
@@ -54,13 +54,28 @@ COMO A IA FOI USADA (resumo por sessão)
   Gemini 2.5 para chaves novas) e que o texto de diagnóstico contradizia a meta proposta. A IA mudou a escolha do juiz para
   o catálogo da chave, tornou a comparação v1 × v2 pareada e reescreveu a regra do diagnóstico.
 
+17/11 (tarde) — Execução final e documentação
+- Rodei o notebook inteiro de novo no Colab. O juiz passou a ser o gemini-3.1-flash-lite (Google), separado do agente
+  (qwen3.8-27b, Groq), e as 64 medições do RAGAS voltaram válidas.
+- A IA conferiu as saídas e encontrou um erro no texto gerado: a frase "Simples x armadilha" escolhia a métrica em que
+  as perguntas simples ganhavam, e por isso citava faithfulness com 0,88 contra 0,88. A correção usa a maior diferença
+  em qualquer sentido (context_recall: 0,50 nas simples contra 1,00 nas armadilhas). Reexecutei as células da seção 7 e 8.
+- A IA gerou os prints a partir das saídas do notebook executado e redigiu a análise do README com os números da
+  execução; eu conferi os números contra a tabela do notebook.
+
 O QUE A IA NÃO FEZ
 - Não forneceu nem estimou nenhuma métrica do RAGAS: todos os números vêm da execução do notebook.
 - Não teve acesso a nenhuma chave de API.
 
 O QUE EU VERIFIQUEI
-- [preencher depois de rodar: o que conferi, o que corrigi no código ou nos documentos, erros encontrados no Colab]
+- Rodei o notebook no Colab com as minhas chaves (Groq e Google) em 13, 14, 16 e 17/11 e levei cada erro para a IA com
+  o trace completo; nenhuma correção foi aceita sem rodar de novo e ver a saída.
+- Conferi as 8 respostas de referência contra os documentos que cada uma cita e corrigi o que não batia.
+- Na execução final, conferi que o juiz era de outro provedor, que as 64 medições vieram preenchidas e que os números do
+  README e do 3_avaliacao_ragas.json são os da tabela do notebook.
+- Conferi que nenhuma chave aparece no notebook, nos prints, no repositório ou no ZIP (as chaves ficam só nos Secrets do Colab).
 
 OBSERVAÇÃO
 A IA validou o encadeamento do notebook com modelo, embeddings e RAGAS simulados, sem acesso a nenhum provedor. A
-execução real, as medições e a análise final foram feitas por mim no Google Colab.
+execução real e as medições foram feitas por mim no Google Colab; a análise do README foi redigida com a IA a partir
+desses números e conferida por mim.

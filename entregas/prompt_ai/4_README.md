@@ -57,7 +57,7 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 ## Decisões técnicas
 | Decisão | Motivo |
 |---|---|
-| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; a justificativa com os números está na seção 1 do notebook **[copiar aqui a frase gerada]** |
+| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; no teste da seção 1, a estratégia B (1000/150) trouxe os dois documentos necessários em 3 de 3 armadilhas, contra 2 de 3 da A (500/50); o RAGAS confirmou a escolha, com B melhor nas quatro métricas |
 | `k = 4` | a base é pequena (5 documentos); 4 trechos bastam para trazer os dois documentos de uma armadilha sem encher o contexto |
 | Contexto ordenado do mais recente ao mais antigo, com a data no rótulo | dá ao modelo o critério para resolver conflitos |
 | `temperature = 0` | respostas estáveis e avaliação reproduzível |
@@ -65,7 +65,8 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 | Modelo escolhido por um teste no formato do agente | modelos como os `gpt-oss` na Groq tentam fazer chamada de ferramenta nativa ao ver `Action:` e o provedor recusa ("Tool choice is none, but model called a tool"); o notebook testa os candidatos e usa o primeiro que responde em texto |
 | Modelos consultados no catálogo da chave (`/models`) | o catálogo de cada provedor muda e nem toda chave tem os mesmos modelos; uma lista fixa de nomes quebrou com erro 404 |
 | Juiz do RAGAS em outro provedor que o do agente | a avaliação faz cerca de 160 chamadas; na mesma chave do agente ela esgotou a cota diária gratuita |
-| Juiz só com modelos grandes; `bypass_n=True` | as métricas dependem de JSON válido, e modelo pequeno devolve métrica vazia; os provedores recusam `n > 1` |
+| Juiz escolhido no catálogo da chave do Google, com os flash-lite primeiro; `bypass_n=True` | os Gemini 2.5 não estão mais disponíveis para chaves novas, e o flash-lite tem a maior cota diária do plano gratuito; as métricas dependem de JSON válido, e nesta execução as 64 medições voltaram válidas; os provedores recusam `n > 1` |
+| Cache do RAGAS identificado pelo juiz e pela resposta de referência | uma medição antiga, feita com outro juiz ou outra resposta de referência, nunca se mistura com a atual |
 | Avaliação pergunta por pergunta, com cache em `ragas_cache.json` | se a cota acabar no meio, nada do que já foi medido se perde; a célula retoma de onde parou |
 | Gemini com `reasoning_effort="none"` e 8 chamadas por minuto | os tokens de "pensamento" contam no limite de saída e cortariam a resposta; o plano gratuito limita requisições por minuto |
 | Embeddings locais | sem chave e sem limite de uso; o mesmo vetor em toda execução |
@@ -86,10 +87,58 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 Os guardrails 2, 3 e 4 têm teste automatizado na seção 6 do notebook.
 
 ## Avaliação (RAGAS)
-**[copiar da seção 7 do notebook: a tabela v1 × v2 das quatro métricas e o texto "Leitura dos números", que o código monta com os valores medidos.]**
+Execução de 17/11/2026 no Google Colab. Agente: Groq, `qwen/qwen3.8-27b`. Juiz do RAGAS: Google AI Studio, `gemini-3.1-flash-lite` (outro provedor e outro modelo, para o agente não avaliar as próprias respostas). Embeddings: `paraphrase-multilingual-MiniLM-L12-v2`. As 64 medições (8 perguntas × 4 métricas × 2 versões) voltaram válidas. Valores completos, com a resposta de cada pergunta, em `3_avaliacao_ragas.json`.
+
+Conjunto: 8 perguntas, 4 simples (nível 1) e 4 que dependem das armadilhas (nível 2), cada uma com resposta de referência conferida contra os documentos (processo descrito no `6_Chat_Log.txt`). v1 e v2 usam o mesmo modelo, o mesmo juiz, o mesmo `k = 4` e as mesmas perguntas; só muda o chunking.
+
+### Médias
+| Versão | faithfulness | answer_relevancy | context_precision | context_recall |
+|---|---|---|---|---|
+| v1 — chunking A (500/50) | 0.815 | 0.643 | 0.437 | 0.542 |
+| v2 — chunking B (1000/150), **usada no assistente** | **0.875** | **0.691** | **0.615** | **0.750** |
+
+### Médias por nível
+| Versão | Nível | faithfulness | answer_relevancy | context_precision | context_recall |
+|---|---|---|---|---|---|
+| v1 | 1 (simples) | 0.942 | 0.584 | 0.375 | 0.750 |
+| v1 | 2 (armadilha) | 0.688 | 0.702 | 0.500 | 0.333 |
+| v2 | 1 (simples) | 0.875 | 0.575 | 0.500 | 0.500 |
+| v2 | 2 (armadilha) | 0.875 | 0.807 | 0.729 | 1.000 |
+
+### Por pergunta (v1 → v2)
+| # | Nível | Pergunta | faithfulness | answer_relevancy | context_precision | context_recall |
+|---|---|---|---|---|---|---|
+| 1 | 1 | Qual o horário do primeiro ônibus da linha 502C-10 em dia útil? | 1.000 → 0.5 | 0.000 → 0.000 | 0.0 → 0.000 | 0.000 → 0.0 |
+| 2 | 1 | Quais pontos da linha 714A-10 são acessíveis? | 0.833 → 1.0 | 0.908 → 0.765 | 0.5 → 1.000 | 1.000 → 1.0 |
+| 3 | 1 | Quem tem direito à gratuidade? | 0.933 → 1.0 | 0.426 → 0.536 | 0.0 → 0.000 | 1.000 → 0.0 |
+| 4 | 1 | Onde fica o Terminal Ipê Roxo? | 1.000 → 1.0 | 1.000 → 1.000 | 1.0 → 1.000 | 1.000 → 1.0 |
+| 5 | 2 | A linha 714A-10 passa no domingo? | 0.500 → 1.0 | 0.937 → 0.883 | 1.0 → 0.417 | 0.333 → 1.0 |
+| 6 | 2 | Meu pai de 68 anos anda de graça no sábado? | 0.500 → 0.5 | 0.000 → 0.574 | 0.0 → 0.500 | 0.000 → 1.0 |
+| 7 | 2 | A plataforma C do Terminal Ipê Roxo está funcionando? | 0.750 → 1.0 | 1.000 → 0.878 | 0.0 → 1.000 | 0.000 → 1.0 |
+| 8 | 2 | Estudante paga no feriado? | 1.000 → 1.0 | 0.873 → 0.895 | 1.0 → 1.000 | 1.000 → 1.0 |
+
+Na v1, a pergunta 5 ficou sem o `doc_02` no contexto (coluna `docs_faltando` do JSON); na v2 nenhuma pergunta ficou sem documento.
+
+### Leitura dos números (texto gerado pelo notebook, seção 7)
+- **faithfulness:** 0.81 na v1 e 0.88 na v2. Melhor: v2 (chunking B).
+- **answer_relevancy:** 0.64 na v1 e 0.69 na v2. Melhor: v2 (chunking B).
+- **context_precision:** 0.44 na v1 e 0.61 na v2. Melhor: v2 (chunking B).
+- **context_recall:** 0.54 na v1 e 0.75 na v2. Melhor: v2 (chunking B).
+- **Simples × armadilha** (na versão usada, v2 (chunking B)): a maior diferença está em `context_recall`, 0.50 nas perguntas simples contra 1.00 nas armadilhas: as armadilhas foram melhor medidas que as simples.
+- **Pior pergunta:** "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?" (média 0.12). Causa: o documento certo foi recuperado, mas não o trecho que contém a resposta: `context_recall` de 0.00 e `context_precision` de 0.00; sem o trecho, o modelo tende a responder que não há informação, o que zera o `answer_relevancy` (0.00).
+- **Melhoria proposta:** busca híbrida, somando à busca por embeddings uma busca por palavra-chave (BM25), porque códigos como "502C-10" são termos exatos que o modelo de embeddings representa mal; e reranking dos trechos recuperados. Meta: levar o `context_recall` dessa pergunta de 0.00 para pelo menos 0,70.
+
+### O que os números dizem
+1. **O chunking B venceu nas quatro métricas, e a maior diferença está na recuperação:** `context_recall` de 0,54 para 0,75 e `context_precision` de 0,44 para 0,61. O RAGAS confirma, por outro caminho, o teste das armadilhas da seção 1 (3 de 3 contra 2 de 3).
+2. **As armadilhas explicam a vitória.** Nas 4 perguntas de nível 2, o `context_recall` foi de 0,33 na v1 para 1,00 na v2. Na v1, "A linha 714A-10 passa no domingo?" não recuperou o `doc_02`: com trechos de 500 caracteres, o documento antigo e a portaria que o corrige não entraram juntos nos 4 trechos do contexto. Com 1000 caracteres, a regra e a sua condição ficam no mesmo trecho, que era a hipótese da estratégia B.
+3. **O custo apareceu nas perguntas simples.** Na v2, o nível 1 caiu para `context_recall` de 0,50 (0,75 na v1). Duas perguntas simples ficaram com recall 0,00 na v2: o horário da 502C-10 (0,00 também na v1) e "Quem tem direito à gratuidade?" (1,00 na v1). A leitura provável é a prevista na justificativa do chunking: trechos maiores carregam mais assunto, e uma resposta curta e específica perde posição na busca.
+4. **A pior pergunta não depende do tamanho do chunk.** O horário da 502C-10 teve `context_recall` 0,00 nas duas versões, com o `doc_02` recuperado: a busca traz o documento certo, mas não a linha da tabela com o horário. Por isso a melhoria proposta não é outro chunking, e sim busca híbrida (BM25 + embeddings) com reranking: "502C-10" é um identificador exato, e embeddings aproximam sentido, não códigos. Meta: `context_recall` dessa pergunta de 0,00 para pelo menos 0,70, sem perder o 1,00 das armadilhas.
+5. **Metas de referência.** Na v2, `faithfulness` (0,88; meta 0,80) e `context_recall` (0,75; meta 0,70) ficaram na meta; `answer_relevancy` (0,69; meta 0,75) e `context_precision` (0,61; meta 0,70), abaixo. A busca híbrida ataca as duas: tira do topo trechos que não respondem (precision) e traz o trecho que responde (relevancy).
+
+As métricas vêm de um modelo juiz e variam entre execuções; por isso a leitura é a **comparação entre v1 e v2**, feita com o mesmo juiz, e não o valor absoluto de cada número.
 
 ## Prints
-Imagens na pasta `prints/`, ao lado deste README. Nenhum print mostra chave de API.
+Imagens na pasta `prints/`, ao lado deste README. Os prints 1–4 e 6–10 são as saídas do notebook executado em 17/11/2026 (o mesmo do ZIP), renderizadas sem as células de código; o print 5 é a captura da interface aberta. Nenhum print mostra chave de API.
 
 | # | O que mostra | Seção | Arquivo |
 |---|---|---|---|
@@ -97,7 +146,7 @@ Imagens na pasta `prints/`, ao lado deste README. Nenhum print mostra chave de A
 | 2 | Busca no ChromaDB com `distance` e metadados | 2 | ![](prints/02_busca.png) |
 | 3 | Três respostas com citação de `doc_id` | 3 | ![](prints/03_rag.png) |
 | 4 | Trace do agente escolhendo e chamando ferramentas | 4 | ![](prints/04_agente.png) |
-| 5 | Interface Gradio com histórico e fontes | 5 | ![](prints/05_gradio.png) |
+| 5 | Interface Gradio com histórico e fontes (captura da tela) | 5 | ![](prints/05_gradio.png) |
 | 6 | Guardrail de escopo | 6 | ![](prints/06_escopo.png) |
 | 7 | Guardrail de prompt injection | 6 | ![](prints/07_injection.png) |
 | 8 | Guardrail de dado sensível (LGPD) | 6 | ![](prints/08_lgpd.png) |
@@ -108,7 +157,8 @@ Imagens na pasta `prints/`, ao lado deste README. Nenhum print mostra chave de A
 - Documentos simulados; não é canal oficial.
 - O classificador de escopo usa o próprio modelo e pode errar em perguntas ambíguas.
 - O filtro de injection é por expressão regular: cobre os padrões conhecidos, não toda reformulação.
-- As métricas do RAGAS dependem de um modelo juiz e variam entre execuções. O juiz é escolhido no catálogo da chave do Google (os Gemini 2.5 não estão mais disponíveis para chaves novas); se nenhum responder, o juiz é o próprio modelo do agente e a conclusão do notebook declara essa limitação.
+- As métricas do RAGAS dependem de um modelo juiz e variam entre execuções. Nesta execução o juiz foi o `gemini-3.1-flash-lite`, escolhido no catálogo da chave do Google (os Gemini 2.5 não estão mais disponíveis para chaves novas). Se nenhum modelo do Google responder, o juiz passa a ser o próprio modelo do agente, e a conclusão do notebook declara essa limitação.
+- 8 perguntas são uma amostra pequena: uma pergunta muda a média de uma métrica em até 0,125. Os números servem para comparar as versões e achar onde o sistema erra, não como garantia de qualidade.
 - Planos gratuitos têm limite de requisições: em horários de pico a avaliação pode demorar ou falhar em algumas perguntas.
 - Sem horários em tempo real; a evolução prevista é a API Olho Vivo da SPTrans.
 

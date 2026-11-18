@@ -229,3 +229,12 @@ Revisão da célula de configuração, que tinha comentários contraditórios de
 
 **Por que importa (critério 7, peso 2,0):** "métricas reais configuradas" e "explicação e melhoria citando o número". Juiz igual ao agente é viés de autoavaliação, e a explicação anterior contradizia a meta.
 
+
+## D23 — Prompt & AI: execução final de 17/11 e frase "simples × armadilha" (17/11)
+**Execução:** Colab, 0 erros. Agente Groq `qwen/qwen3.8-27b`; juiz Google `gemini-3.1-flash-lite` (outro provedor); 64 de 64 medições válidas. Médias v1 → v2: faithfulness 0,815 → 0,875; answer_relevancy 0,643 → 0,691; context_precision 0,437 → 0,615; context_recall 0,542 → 0,750. B vence nas quatro e é a usada.
+
+**Erro encontrado e corrigido:** a frase "Simples × armadilha" usava `idxmax` de (simples − armadilha), ou seja, procurava só a métrica em que as simples ganhavam. Na v2 as armadilhas ganharam em tudo, e a frase saiu "faithfulness, 0,88 contra 0,88". Agora usa a maior diferença absoluta e diz o sentido (context_recall: 0,50 nas simples contra 1,00 nas armadilhas). A mesma variável (`FRASE_NIVEL`) alimenta a conclusão da seção 8, que dizia "é nelas [nas armadilhas] que a recuperação pesa mais" — o contrário do medido.
+
+**Prints:** gerados das saídas do notebook executado (sem as células de código), para não depender de captura manual; só o do Gradio é captura de tela.
+
+**Por que importa (critério 7):** a explicação precisa citar o número certo; uma frase gerada que contradiz a tabela ao lado é o tipo de erro que a banca vê primeiro.
