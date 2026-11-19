@@ -17,13 +17,13 @@ Execução
 - Data: 18/11/2026, Google Colab, "Executar tudo", sem erros.
 - Agente: Groq, qwen/qwen3.8-27b. Juiz do RAGAS: Google AI Studio / gemini-3.1-flash-lite.
 - Embeddings: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (no próprio Colab).
-- RAGAS: 64 de 64 medições válidas (8 perguntas x 4 métricas x 2 versões de chunking).
+- RAGAS: 61 de 64 medições válidas (8 perguntas x 4 métricas x 2 versões de chunking).
 
 Tela final (saída da seção 8, Conclusão)
 
-O que funcionou. O assistente responde com citação do documento, usa ferramentas para horário e gratuidade em vez de inventar, e os quatro guardrails disparam nos testes. Na versão usada (v2 (chunking B)), as médias foram: faithfulness 0.88, answer_relevancy 0.69, context_precision 0.61 e context_recall 0.75. Ficaram na meta de referência do enunciado: faithfulness, context_recall.
+O que funcionou. O assistente responde com citação do documento, usa ferramentas para horário e gratuidade em vez de inventar, e os quatro guardrails disparam nos testes. Na versão usada (v2 (chunking B)), as médias foram: faithfulness 0.88, answer_relevancy 0.68, context_precision 0.56 e context_recall 0.71. Ficaram na meta de referência do enunciado: faithfulness, context_recall.
 
-Onde o RAG erra e por quê. A pior pergunta foi "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?" (média 0.12): o documento certo foi recuperado, mas não o trecho que contém a resposta: context_recall de 0.00 e context_precision de 0.00; sem o trecho, o modelo tende a responder que não há informação, o que zera o answer_relevancy (0.00). As perguntas-armadilha dependem de dois documentos, e é nelas que a recuperação pesa mais (faithfulness: 0.88 nas simples contra 0.88 nas armadilhas).
+Onde o RAG erra e por quê. A pior pergunta foi "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?" (média 0.12): o documento certo foi recuperado, mas não o trecho que contém a resposta: context_recall de 0.00 e context_precision de 0.00; sem o trecho, o modelo tende a responder que não há informação, o que zera o answer_relevancy (0.00). Simples × armadilha: a maior diferença está em context_recall, 0.50 nas perguntas simples contra 1.00 nas armadilhas: as armadilhas foram melhor medidas que as simples.
 
 O que falta para produção. Documentos oficiais reais com atualização automática; avaliação contínua com perguntas reais de cidadãos; registro de consultas sem dado pessoal (LGPD); infraestrutura própria no lugar de camadas gratuitas com limite de uso; horários em tempo real (API Olho Vivo da SPTrans). Custo por pergunta: 1 chamada ao classificador de escopo, de 2 a 7 chamadas do agente e 1 busca por embeddings.
 

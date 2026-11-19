@@ -79,6 +79,13 @@ L.append("|---|---|---|" + "---|" * len(METRICAS))
 for i, (a, b) in enumerate(zip(perg["A"], perg["B"]), 1):
     L.append(f"| {i} | {a['nivel']} | {a['pergunta']} | "
              + " | ".join(f"{f3(a[m])} → {f3(b[m])}" for m in METRICAS) + " |")
+vazias = [(versao[n], i, m) for n in "AB" for i, p in enumerate(perg[n], 1) for m in METRICAS if p[m] is None]
+if vazias:
+    L.append("")
+    L.append(f"O juiz não devolveu valor em {len(vazias)} das 64 medições ("
+             + "; ".join(f"{v}, pergunta {i}, `{m}`" for v, i, m in vazias)
+             + "). Essas entram como vazio no JSON e ficam fora das médias, que são calculadas só sobre o que foi "
+               "medido; a comparação entre v1 e v2 em cada métrica usa as perguntas medidas nas duas versões.")
 faltando = {n: [(i, p["docs_faltando"]) for i, p in enumerate(perg[n], 1) if p["docs_faltando"]] for n in "AB"}
 L.append("")
 for n in "AB":

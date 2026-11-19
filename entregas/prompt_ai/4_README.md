@@ -57,7 +57,7 @@ Detalhes que só existem no corpo dos documentos: o ponto 7 da 714A-10 como úni
 ## Decisões técnicas
 | Decisão | Motivo |
 |---|---|
-| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; na seção 1, a estratégia B (1000/150) trouxe os dois documentos necessários em 3 de 3 armadilhas, contra 1 de 3 da A (500/50); a avaliação da seção 7 confirma, com B à frente na recuperação |
+| Chunking escolhido pelo teste das armadilhas | a resposta certa depende de recuperar o documento antigo **e** o que o corrige; na seção 1, a estratégia B (1000/150) trouxe os dois documentos necessários em 3 de 3 armadilhas, contra 2 de 3 da A (500/50); a avaliação da seção 7 confirma, com B à frente nas quatro métricas |
 | Indexação apaga a coleção antes de recriar, e confere o número de chunks | a coleção do ChromaDB sobrevive entre execuções da célula no mesmo kernel; sem apagar, os mesmos chunks entram de novo e a busca devolve duplicatas, o que gasta o `k` com trechos repetidos e derruba o `context_recall` |
 | `k = 4` | a base é pequena (5 documentos); 4 trechos bastam para trazer os dois documentos de uma armadilha sem encher o contexto |
 | Contexto ordenado do mais recente ao mais antigo, com a data no rótulo | dá ao modelo o critério para resolver conflitos |
@@ -96,44 +96,46 @@ Conjunto: 8 perguntas, 4 simples (nível 1) e 4 que dependem das armadilhas (ní
 ### Médias
 | Versão | faithfulness | answer_relevancy | context_precision | context_recall |
 |---|---|---|---|---|
-| v1 — chunking A (500/50) | 0.875 | 0.605 | 0.427 | 0.479 |
-| v2 — chunking B (1000/150), **usada no assistente** | **0.845** | **0.737** | **0.552** | **0.625** |
+| v1 — chunking A (500/50) | 0.815 | 0.644 | 0.500 | 0.542 |
+| v2 — chunking B (1000/150), **usada no assistente** | **0.875** | **0.684** | **0.559** | **0.714** |
 
 ### Médias por nível
 | Versão | Nível | faithfulness | answer_relevancy | context_precision | context_recall |
 |---|---|---|---|---|---|
-| v1 | 1 (simples) | 0.875 | 0.596 | 0.354 | 0.625 |
-| v1 | 2 (armadilha) | 0.875 | 0.615 | 0.500 | 0.333 |
-| v2 | 1 (simples) | 0.815 | 0.578 | 0.500 | 0.500 |
-| v2 | 2 (armadilha) | 0.875 | 0.895 | 0.604 | 0.750 |
+| v1 | 1 (simples) | 0.942 | 0.585 | 0.375 | 0.750 |
+| v1 | 2 (armadilha) | 0.688 | 0.702 | 0.667 | 0.333 |
+| v2 | 1 (simples) | 0.875 | 0.575 | 0.500 | 0.500 |
+| v2 | 2 (armadilha) | 0.875 | 0.792 | 0.639 | 1.000 |
 
 ### Por pergunta (v1 → v2)
 | # | Nível | Pergunta | faithfulness | answer_relevancy | context_precision | context_recall |
 |---|---|---|---|---|---|---|
-| 1 | 1 | Qual o horário do primeiro ônibus da linha 502C-10 em dia útil? | 0.500 → 0.500 | 0.000 → 0.000 | 0.000 → 0.000 | 0.000 → 0.000 |
-| 2 | 1 | Quais pontos da linha 714A-10 são acessíveis? | 1.000 → 0.833 | 0.908 → 0.900 | 0.417 → 1.000 | 1.000 → 1.000 |
-| 3 | 1 | Quem tem direito à gratuidade? | 1.000 → 0.929 | 0.475 → 0.411 | 0.000 → 0.000 | 0.500 → 0.000 |
+| 1 | 1 | Qual o horário do primeiro ônibus da linha 502C-10 em dia útil? | 1.000 → 0.500 | 0.000 → 0.000 | 0.000 → 0.000 | 0.000 → 0.000 |
+| 2 | 1 | Quais pontos da linha 714A-10 são acessíveis? | 0.833 → 1.000 | 0.908 → 0.765 | 0.500 → 1.000 | 1.000 → 1.000 |
+| 3 | 1 | Quem tem direito à gratuidade? | 0.933 → 1.000 | 0.432 → 0.536 | 0.000 → 0.000 | 1.000 → 0.000 |
 | 4 | 1 | Onde fica o Terminal Ipê Roxo? | 1.000 → 1.000 | 1.000 → 1.000 | 1.000 → 1.000 | 1.000 → 1.000 |
-| 5 | 2 | A linha 714A-10 passa no domingo? | 1.000 → 1.000 | 0.625 → 0.885 | 1.000 → 0.000 | 0.333 → 0.000 |
-| 6 | 2 | Meu pai de 68 anos anda de graça no sábado? | 0.500 → 0.833 | 0.000 → 0.829 | 0.000 → 0.417 | 0.000 → 1.000 |
-| 7 | 2 | A plataforma C do Terminal Ipê Roxo está funcionando? | 1.000 → 0.667 | 0.962 → 0.980 | 0.000 → 1.000 | 0.000 → 1.000 |
-| 8 | 2 | Estudante paga no feriado? | 1.000 → 1.000 | 0.871 → 0.888 | 1.000 → 1.000 | 1.000 → 1.000 |
+| 5 | 2 | A linha 714A-10 passa no domingo? | 0.500 → 1.000 | 0.937 → 0.882 | 1.000 → 0.417 | 0.333 → — |
+| 6 | 2 | Meu pai de 68 anos anda de graça no sábado? | 0.500 → 0.500 | 0.000 → 0.541 | — → 0.500 | 0.000 → 1.000 |
+| 7 | 2 | A plataforma C do Terminal Ipê Roxo está funcionando? | 0.750 → 1.000 | 1.000 → 0.851 | 0.000 → 1.000 | 0.000 → 1.000 |
+| 8 | 2 | Estudante paga no feriado? | 1.000 → 1.000 | 0.873 → 0.895 | 1.000 → — | 1.000 → 1.000 |
 
-Na v1, o contexto ficou sem documento necessário em: pergunta 1 (doc_02); pergunta 5 (doc_02); pergunta 7 (doc_05).
+O juiz não devolveu valor em 3 das 64 medições (v1, pergunta 6, `context_precision`; v2, pergunta 5, `context_recall`; v2, pergunta 8, `context_precision`). Essas entram como vazio no JSON e ficam fora das médias, que são calculadas só sobre o que foi medido; a comparação entre v1 e v2 em cada métrica usa as perguntas medidas nas duas versões.
+
+Na v1, o contexto ficou sem documento necessário em: pergunta 5 (doc_02).
 Na v2, nenhuma pergunta ficou sem documento necessário no contexto.
 
 ### O que os números dizem
-1. **Comparação v1 × v2.** A versão usada (v2, chunking B) ficou à frente em `answer_relevancy` (0.74 contra 0.61), `context_precision` (0.55 contra 0.43), `context_recall` (0.62 contra 0.48); ficou atrás em `faithfulness` (0.85 contra 0.88). A escolha do chunking foi feita antes, pelo teste das armadilhas da seção 1, e a avaliação confirma essa escolha.
-2. **Simples × armadilha.** Na versão usada, a maior diferença está em `answer_relevancy`: 0.58 nas simples contra 0.90 nas armadilhas, ou seja, melhor nas armadilhas que nas simples. As armadilhas são as perguntas que dependem de dois documentos, o antigo e o que o corrige.
+1. **Comparação v1 × v2.** A versão usada (v2, chunking B) ficou à frente em `faithfulness` (0.88 contra 0.81), `answer_relevancy` (0.68 contra 0.64), `context_precision` (0.56 contra 0.50), `context_recall` (0.71 contra 0.54). A escolha do chunking foi feita antes, pelo teste das armadilhas da seção 1, e a avaliação confirma essa escolha.
+2. **Simples × armadilha.** Na versão usada, a maior diferença está em `context_recall`: 0.50 nas simples contra 1.00 nas armadilhas, ou seja, melhor nas armadilhas que nas simples. As armadilhas são as perguntas que dependem de dois documentos, o antigo e o que o corrige.
 3. **Pior pergunta.** "Qual o horário do primeiro ônibus da linha 502C-10 em dia útil?" (média 0.12): o documento certo foi recuperado, mas não o trecho que responde: `context_recall` 0.00 e `context_precision` 0.00; sem o trecho, o assistente responde que não há informação, e isso zera o `answer_relevancy`.
 4. **Melhoria proposta.** Busca híbrida, somando BM25 à busca por embeddings, porque um código como "502C-10" é termo exato que o embedding representa mal; e reranking dos trechos. Meta: levar o `context_recall` dessa pergunta de 0.00 para pelo menos 0,70.
-5. **Metas de referência.** Na versão usada, `faithfulness` (0.85; meta 0.80) na meta; `answer_relevancy` (0.74; meta 0.75), `context_precision` (0.55; meta 0.70), `context_recall` (0.62; meta 0.70) abaixo.
+5. **Metas de referência.** Na versão usada, `faithfulness` (0.88; meta 0.80), `context_recall` (0.71; meta 0.70) na meta; `answer_relevancy` (0.68; meta 0.75), `context_precision` (0.56; meta 0.70) abaixo.
 
 As métricas vêm de um modelo juiz e variam entre execuções, principalmente o `answer_relevancy`, que gera perguntas a partir da resposta. Por isso a leitura é a comparação entre v1 e v2, medidas com o mesmo juiz na mesma execução, e não o valor absoluto de cada número. Com 8 perguntas, uma delas move a média de uma métrica em até 0,125.
 <!-- RAGAS:fim -->
 
 ## Prints
-Imagens na pasta `prints/`, ao lado deste README. Os prints 1–4 e 6–10 são as saídas do notebook executado em 17/11/2026 (o mesmo do ZIP), renderizadas sem as células de código; o print 5 é a captura da interface aberta. Nenhum print mostra chave de API.
+Imagens na pasta `prints/`, ao lado deste README. Os prints 1–4 e 6–10 são as saídas do notebook executado que está neste ZIP, renderizadas sem as células de código; o print 5 é a captura da interface aberta. Nenhum print mostra chave de API.
 
 | # | O que mostra | Seção | Arquivo |
 |---|---|---|---|
@@ -154,6 +156,7 @@ Imagens na pasta `prints/`, ao lado deste README. Os prints 1–4 e 6–10 são 
 - O filtro de injection é por expressão regular: cobre os padrões conhecidos, não toda reformulação.
 - As métricas do RAGAS dependem de um modelo juiz e variam entre execuções. Nesta execução o juiz foi o `gemini-3.1-flash-lite`, escolhido no catálogo da chave do Google (os Gemini 2.5 não estão mais disponíveis para chaves novas). Se nenhum modelo do Google responder, o juiz passa a ser o próprio modelo do agente, e a conclusão do notebook declara essa limitação.
 - O resultado depende de o notebook rodar do zero: `Ambiente de execução → Desconectar e excluir ambiente` antes de `Executar tudo`. Rodar células soltas num kernel já usado foi o que duplicou o índice na execução de 18/11 pela manhã.
+- O juiz do plano gratuito pode não devolver valor em algumas medições. A seção de avaliação diz quantas foram, e a célula pode ser rodada de novo para completar só o que falta, a partir do `ragas_cache.json`.
 - 8 perguntas são uma amostra pequena: uma pergunta muda a média de uma métrica em até 0,125. Os números servem para comparar as versões e achar onde o sistema erra, não como garantia de qualidade.
 - Planos gratuitos têm limite de requisições: em horários de pico a avaliação pode demorar ou falhar em algumas perguntas.
 - Sem horários em tempo real; a evolução prevista é a API Olho Vivo da SPTrans.

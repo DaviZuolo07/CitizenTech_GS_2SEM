@@ -1,6 +1,6 @@
 # Auditoria geral e plano até a entrega
 
-Documento vivo. Última atualização: **quarta, 18/11/2026, 11h**. Prazo final: **19/11 às 23h59**.
+Documento vivo. Última atualização: **quinta, 19/11/2026, 10h**. Prazo final: **hoje, 19/11 às 23h59**.
 
 Integrantes: Davi Queiroz Zuolo (RM 571669), Gustavo Zagato Bottechia (RM 569420), Daniel Vilela Mana (RM 571632). Turma 1CCPK. A GS foi dividida por disciplina; Prompt & AI, MMC e MLAM ficaram com o Davi.
 
@@ -215,3 +215,12 @@ Também ficou claro que a correção da D23 (frase "simples × armadilha") não 
 **Estado:** notebook corrigido e pronto para a execução final; prints 1–4 e 6–10 de 17/11 (as saídas não mudam de forma relevante, mas o 01, o 03 e o 10 valem regerar depois da execução final); README e certificação passam a ser preenchidos por `atualizar_entrega.py`; chat log reescrito com as decisões do grupo e a auditoria do ground truth; vídeo gravado, falta o áudio.
 
 **Ordem até a entrega:** (1) Colab: *Desconectar e excluir ambiente* → *Executar tudo*, com o notebook do repositório; (2) baixar o `.ipynb` e o `3_avaliacao_ragas.json` para `entregas/prompt_ai/`; (3) `python atualizar_entrega.py`; (4) link do vídeo nos arquivos 5 e 7; (5) `python montar_zip.py`; (6) commit e push; (7) envios.
+
+## 15. Execução final e estado da entrega (19/11)
+Notebook de 18/11 à noite, com as correções da D23 e da D24: 0 erros, índice correto (12 chunks), armadilha do domingo resolvida na seção 3, juiz `gemini-3.1-flash-lite` do Google, 61 de 64 medições (as 3 vazias estão declaradas no README). B vence nas quatro métricas; faithfulness e context_recall na meta.
+
+Conferido nesta data: JSON e notebook são da mesma execução (as médias batem); README e certificação foram gerados por `atualizar_entrega.py` a partir desses arquivos; os 9 prints de saída foram regerados do notebook final; nenhuma chave de API em nenhum arquivo do ZIP.
+
+**Único item em aberto:** o link do vídeo no YouTube, que falta no `5_certificacao.txt` e no `7_demo_video_url.txt`. Com ele, `python montar_zip.py` monta o `GS2026_2_1CCPK_LinhaCerta.zip` e a entrega está fechada.
+
+**Envios:** ZIP de Prompt & AI e `ENTREGA_PORTAL_MLAM.txt` pelo Portal; MMC pelo canal do professor.

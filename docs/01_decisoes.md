@@ -249,3 +249,10 @@ Revisão da célula de configuração, que tinha comentários contraditórios de
 **Números fora do texto.** `atualizar_entrega.py` reescreve a seção de avaliação do `4_README.md` e o bloco de execução do `5_certificacao.txt` a partir do `3_avaliacao_ragas.json` e do notebook executado. Nenhum número é digitado: README, certificação e JSON passam a vir da mesma fonte, e refazer a execução custa um comando.
 
 **Por que importa (critérios 3 e 7):** o critério 3 pede que o RAG resolva a contradição entre documentos, e era exatamente isso que o índice duplicado quebrava; o critério 7 exige que os números do relatório sejam os medidos.
+
+## D25 — Prompt & AI: execução final de 18/11 e medições vazias declaradas (19/11)
+**Execução final.** Ambiente novo, notebook com as correções da D23 e D24. Índice com 12 chunks (sem duplicata), armadilhas 3 de 3 na estratégia B contra 2 de 3 na A, e a seção 3 volta a resolver a contradição: "Não, a linha 714A-10 não opera aos domingos... [doc_03]", citando também o doc_02 como regra anterior. B vence nas quatro métricas: faithfulness 0,875 contra 0,815; answer_relevancy 0,684 contra 0,644; context_precision 0,559 contra 0,500; context_recall 0,714 contra 0,542. Na meta de referência: faithfulness (0,88) e context_recall (0,71).
+
+**3 das 64 medições vazias.** O juiz do plano gratuito falhou em três (v1 p6 `context_precision`; v2 p5 `context_recall`; v2 p8 `context_precision`). O notebook avisa na saída, as médias consideram só o que foi medido e a comparação v1 × v2 usa as perguntas medidas nas duas versões. O README declara quais foram, em vez de esconder. Rodar a célula de novo completaria só o que falta, a partir do cache.
+
+**Números gerados, não digitados.** `atualizar_entrega.py` preencheu a avaliação do README e o bloco de execução da certificação a partir do `3_avaliacao_ragas.json` e do notebook. Os prints 01 a 10 (menos o 05, que é captura de tela) foram regerados das saídas desta execução, então tudo na entrega vem da mesma rodada.
