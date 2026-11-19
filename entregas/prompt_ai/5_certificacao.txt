@@ -10,7 +10,7 @@ Integrantes
 Links
 - Repositório: https://github.com/DaviZuolo07/CitizenTech_GS_2SEM
 - Notebook no Colab: https://colab.research.google.com/github/DaviZuolo07/CitizenTech_GS_2SEM/blob/main/entregas/prompt_ai/1_Notebook_GS2026_2.ipynb
-- Vídeo de demonstração: [colar o link do YouTube, não listado]
+- Vídeo de demonstração: https://youtu.be/324EtdRJWTw
 
 Execução
 <!-- EXECUCAO:inicio -->

@@ -1,0 +1,177 @@
+{
+ "10": {
+  "empresa_codigo": 38,
+  "empresa": "SANTA BRIGIDA",
+  "area": 1
+ },
+ "11": {
+  "empresa_codigo": 38,
+  "empresa": "SANTA BRIGIDA",
+  "area": 1
+ },
+ "12": {
+  "empresa_codigo": 37,
+  "empresa": "GATO PRETO",
+  "area": 1
+ },
+ "13": {
+  "empresa_codigo": 37,
+  "empresa": "GATO PRETO",
+  "area": 1
+ },
+ "15": {
+  "empresa_codigo": 240,
+  "empresa": "D1 Transportes LTDA",
+  "area": 1
+ },
+ "16": {
+  "empresa_codigo": 235,
+  "empresa": "Norte Buss S.A.",
+  "area": 1
+ },
+ "21": {
+  "empresa_codigo": 92,
+  "empresa": "SAMBAIBA",
+  "area": 2
+ },
+ "22": {
+  "empresa_codigo": 92,
+  "empresa": "SAMBAIBA",
+  "area": 2
+ },
+ "26": {
+  "empresa_codigo": 235,
+  "empresa": "Norte Buss S.A.",
+  "area": 2
+ },
+ "31": {
+  "empresa_codigo": 50,
+  "empresa": "VIAÇÃO METRÓPOLE",
+  "area": 3
+ },
+ "32": {
+  "empresa_codigo": 50,
+  "empresa": "VIAÇÃO METRÓPOLE",
+  "area": 3
+ },
+ "35": {
+  "empresa_codigo": 239,
+  "empresa": "ALFA RODOBUS SPE",
+  "area": 3
+ },
+ "36": {
+  "empresa_codigo": 218,
+  "empresa": "TRANSUNIÃO",
+  "area": 3
+ },
+ "41": {
+  "empresa_codigo": 80,
+  "empresa": "AMBIENTAL S.A.",
+  "area": 4
+ },
+ "45": {
+  "empresa_codigo": 233,
+  "empresa": "Allibus",
+  "area": 4
+ },
+ "47": {
+  "empresa_codigo": 224,
+  "empresa": "Pêssego",
+  "area": 4
+ },
+ "48": {
+  "empresa_codigo": 82,
+  "empresa": "EXPRESS",
+  "area": 4
+ },
+ "51": {
+  "empresa_codigo": 51,
+  "empresa": "VIA SUDESTE",
+  "area": 5
+ },
+ "52": {
+  "empresa_codigo": 51,
+  "empresa": "VIA SUDESTE",
+  "area": 5
+ },
+ "55": {
+  "empresa_codigo": 236,
+  "empresa": "MOVEBUSS",
+  "area": 5
+ },
+ "56": {
+  "empresa_codigo": 218,
+  "empresa": "TRANSUNIÃO",
+  "area": 5
+ },
+ "61": {
+  "empresa_codigo": 53,
+  "empresa": "VIAÇÃO GRAJAÚ",
+  "area": 6
+ },
+ "63": {
+  "empresa_codigo": 81,
+  "empresa": "MOBIBRASIL",
+  "area": 6
+ },
+ "64": {
+  "empresa_codigo": 81,
+  "empresa": "MOBIBRASIL",
+  "area": 6
+ },
+ "68": {
+  "empresa_codigo": 229,
+  "empresa": "A2 Transportes",
+  "area": 6
+ },
+ "71": {
+  "empresa_codigo": 27,
+  "empresa": "CAMPO BELO",
+  "area": 7
+ },
+ "72": {
+  "empresa_codigo": 27,
+  "empresa": "CAMPO BELO",
+  "area": 7
+ },
+ "73": {
+  "empresa_codigo": 50,
+  "empresa": "VIAÇÃO METRÓPOLE",
+  "area": 7
+ },
+ "76": {
+  "empresa_codigo": 95,
+  "empresa": "GATUSA",
+  "area": 7
+ },
+ "77": {
+  "empresa_codigo": 55,
+  "empresa": "KBPX",
+  "area": 7
+ },
+ "80": {
+  "empresa_codigo": 89,
+  "empresa": "TRANSPPASS",
+  "area": 8
+ },
+ "81": {
+  "empresa_codigo": 89,
+  "empresa": "TRANSPPASS",
+  "area": 8
+ },
+ "82": {
+  "empresa_codigo": 37,
+  "empresa": "GATO PRETO",
+  "area": 8
+ },
+ "85": {
+  "empresa_codigo": 238,
+  "empresa": "AUTO BLESS",
+  "area": 8
+ },
+ "86": {
+  "empresa_codigo": 222,
+  "empresa": "ALFA RODOBUS",
+  "area": 8
+ }
+}

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linha Certa — simulação do dia real</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root { --fundo:#0e1116; --texto:#e8eaed; --sutil:#9aa0a6; --linha:#262b34; --cartao:#161a21;
+          --bom:#4ade80; --ruim:#f59e0b; --pior:#f87171; --destaque:#60a5fa; --sim:#f59e0b; }
+  html,body { margin:0; background:var(--fundo); color:var(--texto); font:14px/1.4 system-ui,sans-serif; }
+  .sutil { color:var(--sutil); font-size:12px; }
+  .num { font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; }
+  select, button { box-sizing:border-box; padding:6px 8px; border-radius:6px; border:1px solid #333; background:#1b1f27; color:var(--texto); font:inherit; }
+  button { cursor:pointer; }
+  #ctl { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--linha); }
+  #play { width:42px; font-weight:700; background:var(--destaque); color:#0b0e12; border:0; }
+  #tempo { flex:1 1 180px; accent-color:var(--destaque); }
+  #relogio { font-size:20px; min-width:92px; }
+  #mapas { display:grid; grid-template-columns:1fr 1fr; gap:3px; height:max(360px, calc(100vh - 230px)); background:#000; }
+  .lado { position:relative; overflow:hidden; }
+  .mapa { position:absolute; inset:0; background:#0b0e12; }
+  .selo { position:absolute; top:8px; left:8px; right:8px; z-index:1000; pointer-events:none; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+  .selo b { background:rgba(14,17,22,.9); padding:4px 10px; border-radius:6px; letter-spacing:.06em; font-size:13px; }
+  .selo.sim b { color:#0b0e12; background:var(--sim); }
+  .selo span { background:rgba(14,17,22,.85); padding:3px 8px; border-radius:6px; font-size:12px; }
+  .contador { position:absolute; bottom:22px; left:8px; z-index:1000; background:rgba(14,17,22,.9); padding:6px 10px; border-radius:8px; font-variant-numeric:tabular-nums; pointer-events:none; }
+  .contador .num { font-size:18px; } .contador .comb { color:var(--pior); }
+  /* estética de jogo: brilho nos ônibus (camada só visual) */
+  .leaflet-overlay-pane canvas { filter: drop-shadow(0 0 3px rgba(255,255,255,.45)); }
+  #rodape { padding:10px 12px 24px; }
+  .kpis { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+  .kpi { background:var(--cartao); border:1px solid var(--linha); border-radius:10px; padding:8px 12px; }
+  .kpi.ativo { border-color:var(--sim); }
+  .kpi .rotulo { color:var(--sutil); font-size:12px; }
+  .ganho { color:var(--bom); font-weight:600; }
+  details { margin-top:12px; } summary { cursor:pointer; color:var(--destaque); }
+  .tabela { overflow-x:auto; border:1px solid var(--linha); border-radius:10px; margin-top:8px; }
+  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  th, td { padding:5px 9px; text-align:right; border-bottom:1px solid var(--linha); white-space:nowrap; }
+  th { background:#12161c; color:var(--sutil); font-weight:500; font-size:12px; }
+  th:first-child, td:first-child { text-align:left; }
+  tbody tr { cursor:pointer; } tbody tr:hover { background:#ffffff0a; } tr.marcada { background:#60a5fa1f; }
+  .bola { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+  ul.hip { margin:8px 0; padding-left:18px; color:var(--sutil); font-size:13px; max-width:980px; }
+  #aviso { padding:16px; color:var(--ruim); display:none; }
+  @media (max-width:700px) {
+    #mapas { grid-template-columns:1fr; grid-template-rows:1fr 1fr; height:max(560px, calc(100vh - 210px)); }
+    .kpis { grid-template-columns:1fr 1fr; } .num { font-size:18px; } #relogio { font-size:18px; min-width:80px; }
+    #ctl { gap:6px 8px; padding:8px; } #ctl select { max-width:100%; }
+  }
+</style>
+</head>
+<body>
+<div id="ctl">
+  <select id="arq" title="lote e janela"></select>
+  <button id="play" title="tocar ou pausar">❚❚</button>
+  <select id="vel" title="velocidade">
+    <option value="30">30×</option><option value="60" selected>60× (1 h em 1 min)</option>
+    <option value="120">120×</option><option value="300">300×</option></select>
+  <input type="range" id="tempo" min="0" max="3600" step="1" value="0" title="arraste para ir a outro instante">
+  <div><span class="num" id="relogio">—</span><div class="sutil">relógio da coleta (hora do GPS)</div></div>
+  <select id="cen" title="cenário do lado simulado">
+    <option value="A">Simulação A: só regularizar (mesma frota)</option>
+    <option value="B">Simulação B: regularizar + realocar (frota do M2)</option></select>
+  <select id="lin" title="destacar uma linha"><option value="">todas as linhas</option></select>
+</div>
+<div id="aviso"></div>
+<div id="mapas">
+  <div class="lado"><div id="m1" class="mapa"></div>
+    <div class="selo"><b>O QUE ACONTECEU</b><span>replay das posições gravadas do Olho Vivo</span></div>
+    <div class="contador"><span class="num" id="n1">—</span> ônibus · <span class="comb"><span class="num" id="b1">—</span> em comboio agora</span></div></div>
+  <div class="lado"><div id="m2" class="mapa"></div>
+    <div class="selo sim"><b>SIMULAÇÃO</b><span id="cen-txt"></span></div>
+    <div class="contador"><span class="num" id="n2">—</span> ônibus · <span class="comb"><span class="num" id="b2">—</span> em comboio agora</span></div></div>
+</div>
+<div id="rodape">
+  <div class="kpis" id="kpis"></div>
+  <div class="sutil" id="fonte" style="margin-top:6px"></div>
+  <details><summary>Linhas, números por linha e hipóteses</summary>
+    <ul class="hip" id="hip"></ul>
+    <div class="tabela"><table><thead><tr>
+      <th>Linha</th><th>passageiros/dia</th><th>ônibus hoje → M2</th><th>intervalo médio medido</th><th>CV</th>
+      <th>espera medida</th><th>programada</th><th>simulação A</th><th>simulação B</th></tr></thead>
+      <tbody id="tab"></tbody></table></div>
+  </details>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 1) => x == null || Number.isNaN(x) ? '—' : Number(x).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const int = x => x == null ? '—' : Math.round(x).toLocaleString('pt-BR');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const hms = s => [Math.floor(s / 3600), Math.floor(s / 60) % 60, Math.floor(s) % 60].map(x => String(x).padStart(2, '0')).join(':');
+const hm = s => `${Math.floor(s / 3600)}h${String(Math.floor(s / 60) % 60).padStart(2, '0')}`;
+const CEN = { A: 'intervalo regular com a frota de hoje', B: 'intervalo regular com a frota recomendada pelo M2 no lote' };
+
+// ---------- dois mapas sincronizados ----------
+const BASE = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+function novoMapa(id, atrib) {
+  const m = L.map(id, { preferCanvas: true, zoomControl: false });
+  if (id === 'm2') L.control.zoom({ position: 'topright' }).addTo(m);
+  L.tileLayer(BASE, { maxZoom: 16, attribution: 'Base: Esri, HERE, Garmin, &copy; OpenStreetMap' + atrib }).addTo(m);
+  return m;
+}
+const m1 = novoMapa('m1', ' · posições: Olho Vivo / SPTrans'), m2 = novoMapa('m2', ' · traçados: GTFS SPTrans');
+let sincronizando = false;
+for (const [a, b] of [[m1, m2], [m2, m1]]) a.on('move', () => {
+  if (sincronizando) return; sincronizando = true; b.setView(a.getCenter(), a.getZoom(), { animate: false }); sincronizando = false; });
+const tela1 = L.canvas({ padding: 0.2 }), tela2 = L.canvas({ padding: 0.2 });
+const fundo1 = L.layerGroup().addTo(m1), fundo2 = L.layerGroup().addTo(m2);
+const camada1 = L.layerGroup().addTo(m1), camada2 = L.layerGroup().addTo(m2);
+
+// ---------- estado ----------
+let S = null, TR = {}, COR = [], M1 = [], M2 = [], cen = 'A', vel = 60, tau = 0, dur = 3600, tocando = true, linhaSel = '';
+
+function prepararTracados() {
+  TR = {};
+  for (const [chave, P] of Object.entries(S.tracados)) {
+    const D = [0];
+    for (let i = 1; i < P.length; i++) {
+      const dy = (P[i][0] - P[i - 1][0]) * 110540, dx = (P[i][1] - P[i - 1][1]) * 111320 * Math.cos(P[i][0] * Math.PI / 180);
+      D.push(D[i - 1] + Math.hypot(dx, dy));
+    }
+    TR[chave] = { P, D, L: D[D.length - 1] };
+  }
+}
+function pontoEm(tr, x) {
+  const D = tr.D; let lo = 0, hi = D.length - 1;
+  if (x <= 0) return tr.P[0]; if (x >= tr.L) return tr.P[hi];
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (D[m] <= x) lo = m; else hi = m; }
+  const f = (x - D[lo]) / ((D[hi] - D[lo]) || 1), a = tr.P[lo], b = tr.P[hi];
+  return [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])];
+}
+const compSentido = (l, sl) => { const j = l.sentidos.indexOf(sl); return j < 0 ? null : l.comprimento_m[j]; };
+
+// Lado "sem": posição gravada, interpolada em linha reta entre duas leituras do mesmo ônibus (até 3 min de distância).
+function posReplay(t) {
+  return S.onibus.map(o => {
+    const p = o.pts;
+    if (t < p[0][0]) return null;
+    let lo = 0, hi = p.length - 1;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (p[m][0] <= t) lo = m; else hi = m - 1; }
+    const a = p[lo], b = p[lo + 1];
+    let lat, lon, s;
+    if (b && b[0] - a[0] <= 180 && b[3] === a[3]) {
+      const f = (t - a[0]) / (b[0] - a[0]);
+      lat = a[1] + f * (b[1] - a[1]); lon = a[2] + f * (b[2] - a[2]);
+      s = a[4] >= 0 && b[4] >= 0 ? a[4] + f * (b[4] - a[4]) : -1;
+    } else if (t - a[0] <= 90) { lat = a[1]; lon = a[2]; s = a[4]; }
+    else return null;
+    const li = a[3] >> 1, l = S.linhas[li];
+    return { li, k: a[3], lat, lon, s, Ls: compSentido(l, (a[3] % 2) + 1) };
+  });
+}
+
+// Lado "com" (SIMULAÇÃO): n ônibus igualmente espaçados no ciclo T = intervalo médio medido × n atual
+// (a mesma vazão de hoje); velocidade constante em cada sentido; no cenário B, n = frota recomendada pelo M2.
+function posSim(t) {
+  const out = [];
+  S.linhas.forEach((l, i) => {
+    const T = l.h_media * l.n_atual * 60, n = cen === 'A' ? l.n_atual : l.n_recomendada, off = (i * 0.618034) % 1;
+    for (let j = 0; j < n; j++) {
+      let phi = (t / T + j / n + off) % 1, si = 0;
+      while (si < l.sentidos.length - 1 && phi >= l.frac_sentido[si]) { phi -= l.frac_sentido[si]; si++; }
+      const u = Math.min(phi / l.frac_sentido[si], 1), sl = l.sentidos[si], tr = TR[l.c + '|' + sl];
+      const [lat, lon] = pontoEm(tr, u * tr.L);
+      out.push({ li: i, k: i * 2 + sl - 1, lat, lon, s: u * l.comprimento_m[si], Ls: l.comprimento_m[si] });
+    }
+  });
+  return out;
+}
+
+// Comboio (M3 em distância): mesma linha e sentido, a menos de 25% do espaçamento regular, fora das pontas do traçado.
+function comboios(lista) {
+  const grupos = {}, marc = new Set(); let pares = 0;
+  lista.forEach((b, i) => {
+    if (!b || b.s < 0 || b.Ls == null || b.s < 0.05 * b.Ls || b.s > 0.95 * b.Ls) return;
+    (grupos[b.k] ??= []).push(i);
+  });
+  for (const [k, ids] of Object.entries(grupos)) {
+    const l = S.linhas[k >> 1], lim = 0.25 * l.comprimento_m.reduce((a, b) => a + b, 0) / l.n_atual;
+    ids.sort((x, y) => lista[x].s - lista[y].s);
+    for (let j = 1; j < ids.length; j++)
+      if (lista[ids[j]].s - lista[ids[j - 1]].s < lim) { pares++; marc.add(ids[j]); marc.add(ids[j - 1]); }
+  }
+  return { pares, marc };
+}
+
+function marcador(tela) { return L.circleMarker([0, 0], { renderer: tela, radius: 4, weight: 0, opacity: 0, fillOpacity: 0, interactive: false }); }
+function estilo(m, b, comb) {
+  if (!b) { m.setStyle({ fillOpacity: 0, opacity: 0 }); return 0; }
+  m.setLatLng([b.lat, b.lon]);
+  const apagado = linhaSel && S.linhas[b.li].c !== linhaSel;
+  m.setStyle({ fillColor: comb ? '#ff4d4d' : COR[b.li], radius: comb ? 6 : 4, fillOpacity: apagado ? .07 : .95,
+               color: '#fff', weight: comb && !apagado ? 1.5 : 0, opacity: comb && !apagado ? 1 : 0 });
+  return apagado ? 0 : 1;
+}
+function montarSim() {
+  camada2.clearLayers();
+  const n = S.linhas.reduce((a, l) => a + (cen === 'A' ? l.n_atual : l.n_recomendada), 0);
+  M2 = Array.from({ length: n }, () => marcador(tela2).addTo(camada2));
+}
+
+let ultimoDesenho = 0;
+function desenhar() {
+  const r = posReplay(tau), s = posSim(tau), cr = comboios(r), cs = comboios(s);
+  let v1 = 0, v2 = 0;
+  r.forEach((b, i) => v1 += estilo(M1[i], b, cr.marc.has(i)));
+  s.forEach((b, i) => v2 += estilo(M2[i], b, cs.marc.has(i)));
+  $('n1').textContent = v1; $('n2').textContent = v2;
+  const contar = (c, lista) => linhaSel ? [...c.marc].filter(i => S.linhas[lista[i].li].c === linhaSel).length : c.marc.size;
+  $('b1').textContent = contar(cr, r); $('b2').textContent = contar(cs, s);
+  $('relogio').textContent = hms(S.janela[0] + tau);
+  $('tempo').value = Math.floor(tau);
+}
+function laco(agora) {
+  if (laco.antes != null && tocando) { tau += (agora - laco.antes) / 1000 * vel; if (tau > dur) tau = 0; }
+  laco.antes = agora;
+  if (S && agora - ultimoDesenho > 40) { ultimoDesenho = agora; desenhar(); }
+  requestAnimationFrame(laco);
+}
+
+// ---------- números (todos vêm do arquivo gerado pelo motor) ----------
+function kpis() {
+  const l = linhaSel ? S.linhas.find(x => x.c === linhaSel) : null, r = S.resumo;
+  const med = l ? l.espera_real : r.espera_medida, prog = l ? l.espera_prog : r.espera_programada;
+  const A = l ? l.espera_regular : r.espera_regular, B = l ? l.espera_realoc : r.espera_realoc;
+  const onA = l ? l.n_atual : r.frota_atual, onB = l ? l.n_recomendada : r.frota_recomendada;
+  const quem = l ? `linha ${esc(l.c)}` : `lote ${esc(S.lote)} (${r.linhas} linhas)`;
+  const dif = d => d >= 0 ? `<span class="ganho">−${fmt(d, 2)} min</span>` : `<span style="color:var(--ruim);font-weight:600">+${fmt(-d, 2)} min</span>`;
+  const card = (id, rotulo, v, sub) => `<div class="kpi${id === cen ? ' ativo' : ''}"><div class="rotulo">${rotulo}</div><div class="num">${fmt(v, 2)} min</div><div class="sutil">${sub}</div></div>`;
+  $('kpis').innerHTML =
+    card('', `Espera medida · ${quem}`, med, `o que aconteceu nesta janela · programada ${fmt(prog, 2)} min`) +
+    card('A', 'Simulação A · só regularizar', A, `${dif(med - A)} com os mesmos ${int(onA)} ônibus`) +
+    card('B', 'Simulação B · regularizar + realocar', B, `${dif(A - B)} ${A - B >= 0 ? 'a mais' : '(esta linha cede ônibus a outra do lote)'} · ${int(onA)} → ${int(onB)} ônibus` +
+      (l ? '' : ` (no lote, ${int(r.onibus_movidos_lote)} trocam de linha)`)) +
+    `<div class="kpi"><div class="rotulo">Lote ${esc(S.lote)} · ${esc(S.empresa)}</div><div class="num">${hm(S.janela[0])}–${hm(S.janela[1])}</div>` +
+    `<div class="sutil">${r.linhas} de ${r.linhas_candidatas} linhas no ótimo medidas · ${int(r.intervalos_medidos)} intervalos · ${int(r.onibus_no_replay)} ônibus gravados</div></div>`;
+  $('fonte').textContent = `Esperas por passageiro, médias ponderadas pelos passageiros/dia (SPTrans, set/2026). Medida: motor (core/frota/regularidade.py) só com as posições desta janela. ` +
+    `Simulações: fórmulas das hipóteses abaixo. Arquivo ${S.arquivo}, gerado em ${S.gerado_em}.`;
+  $('cen-txt').textContent = CEN[cen];
+}
+function tabela() {
+  $('tab').innerHTML = S.linhas.map((l, i) => `<tr data-c="${esc(l.c)}" class="${l.c === linhaSel ? 'marcada' : ''}">
+    <td><span class="bola" style="background:${COR[i]}"></span>${esc(l.c)}</td><td>${int(l.passageiros_dia)}</td>
+    <td>${l.n_atual} → ${l.n_recomendada}</td><td>${fmt(l.h_media, 1)} min</td><td>${fmt(l.cv, 2)}</td>
+    <td>${fmt(l.espera_real, 2)}</td><td>${fmt(l.espera_prog, 2)}</td><td>${fmt(l.espera_regular, 2)}</td><td>${fmt(l.espera_realoc, 2)}</td></tr>`).join('');
+  $('tab').querySelectorAll('tr').forEach(tr => tr.onclick = () => selecionar(tr.dataset.c === linhaSel ? '' : tr.dataset.c));
+}
+function selecionar(c) {
+  linhaSel = c; $('lin').value = c;
+  const chaves = Object.keys(TR).filter(k => !c || k.startsWith(c + '|'));
+  const b = L.latLngBounds(chaves.flatMap(k => TR[k].P));
+  if (b.isValid()) m1.fitBounds(b, { padding: [20, 20] });
+  kpis(); tabela(); desenhar();
+}
+
+// ---------- carga ----------
+async function pegar(url) { const r = await fetch(url); const j = await r.json(); if (!r.ok) throw new Error(j.erro || r.status); return j; }
+async function carregar(arquivo) {
+  S = await pegar('/api/simulacao?arquivo=' + encodeURIComponent(arquivo)); S.arquivo = arquivo;
+  dur = S.janela[1] - S.janela[0]; tau = Math.min(tau, dur); $('tempo').max = dur;
+  // cores das linhas sem vermelho (vermelho = comboio)
+  COR = S.linhas.map((_, i) => `hsl(${25 + (i * 137.508) % 300},${i % 2 ? 75 : 90}%,${i % 3 === 2 ? 68 : 58}%)`);
+  prepararTracados();
+  fundo1.clearLayers(); fundo2.clearLayers(); camada1.clearLayers();
+  S.linhas.forEach((l, i) => l.sentidos.forEach(sl => {
+    const P = TR[l.c + '|' + sl].P;
+    L.polyline(P, { color: COR[i], weight: 1.5, opacity: .22, interactive: false }).addTo(fundo1);
+    L.polyline(P, { color: COR[i], weight: 1.5, opacity: .22, interactive: false }).addTo(fundo2);
+  }));
+  M1 = S.onibus.map(() => marcador(tela1).addTo(camada1));
+  montarSim();
+  $('lin').innerHTML = '<option value="">todas as linhas</option>' + S.linhas.map(l => `<option>${esc(l.c)}</option>`).join('');
+  $('hip').innerHTML = S.hipoteses.map(h => `<li>${esc(h)}</li>`).join('');
+  selecionar('');
+}
+async function iniciar() {
+  try {
+    const { arquivos } = await pegar('/api/simulacao/lista');
+    if (!arquivos.length) throw new Error('nenhuma simulação preparada: rode python3 scripts/simulacao_preparar.py');
+    $('arq').innerHTML = arquivos.map(a => `<option value="${esc(a.arquivo)}">${esc(a.lote)} · ${esc(a.empresa)} · ${hm(a.janela[0])}–${hm(a.janela[1])}</option>`).join('');
+    // Gravação reproduzível: simulacao.html?lote=D01&cen=B&vel=120&t=17:20&linha=978T-10&pausado=1 (todos opcionais)
+    const Q = new URLSearchParams(location.search);
+    const arq = (arquivos.find(a => a.arquivo === Q.get('arquivo')) || arquivos.find(a => a.lote === Q.get('lote')) || arquivos[0]).arquivo;
+    $('arq').value = arq;
+    if (Q.get('cen') === 'A' || Q.get('cen') === 'B') { cen = Q.get('cen'); $('cen').value = cen; }
+    if (+Q.get('vel') > 0) { vel = +Q.get('vel'); if ([...$('vel').options].some(o => o.value === Q.get('vel'))) $('vel').value = Q.get('vel'); }
+    await carregar(arq);
+    if (Q.get('t')) { const [h, m] = Q.get('t').split(':').map(Number); tau = Math.max(0, Math.min(dur, h * 3600 + (m || 0) * 60 - S.janela[0])); }
+    if (Q.get('linha')) selecionar(Q.get('linha'));
+    if (Q.get('pausado')) { tocando = false; $('play').textContent = '▶'; }
+  } catch (e) { $('aviso').style.display = 'block'; $('aviso').textContent = 'Simulação indisponível: ' + e.message; }
+}
+$('arq').onchange = () => carregar($('arq').value);
+$('play').onclick = () => { tocando = !tocando; $('play').textContent = tocando ? '❚❚' : '▶'; };
+document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'SELECT') { e.preventDefault(); $('play').click(); } });
+$('vel').onchange = () => vel = +$('vel').value;
+$('tempo').oninput = () => { tau = +$('tempo').value; if (S) desenhar(); };
+$('cen').onchange = () => { cen = $('cen').value; if (S) { montarSim(); kpis(); desenhar(); } };
+$('lin').onchange = () => selecionar($('lin').value);
+requestAnimationFrame(laco);
+iniciar();
+</script>
+</body>
+</html>

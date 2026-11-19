@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linha Certa</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root { --fundo:#0e1116; --texto:#e8eaed; --sutil:#9aa0a6; --painel:rgba(14,17,22,.88); --linha:#262b34;
+          --cartao:#161a21; --bom:#4ade80; --ruim:#f59e0b; --pior:#f87171; --destaque:#60a5fa; }
+  html,body { margin:0; height:100%; background:var(--fundo); color:var(--texto); font:14px/1.4 system-ui,sans-serif; }
+  .sutil { color:var(--sutil); font-size:12px; }
+  .num { font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; }
+
+  /* abas */
+  #abas { position:fixed; top:0; left:0; right:0; height:46px; z-index:2000; display:flex; align-items:center; gap:4px;
+          padding:0 10px; background:#0b0e12; border-bottom:1px solid var(--linha); overflow-x:auto; white-space:nowrap; }
+  #abas strong { margin-right:10px; font-size:15px; }
+  #abas button { background:none; border:0; color:var(--sutil); font:inherit; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  #abas button.ativa { color:var(--texto); background:#ffffff14; }
+  .vista { position:absolute; top:46px; left:0; right:0; bottom:0; display:none; }
+  .vista.ativa { display:block; }
+  .doc { overflow:auto; padding:16px; box-sizing:border-box; }
+  .miolo { max-width:1120px; margin:0 auto; }
+  .doc h2 { font-size:18px; margin:4px 0 4px; } .doc h3 { font-size:15px; margin:22px 0 8px; }
+  .nota { color:var(--sutil); font-size:13px; margin:4px 0 12px; max-width:860px; }
+
+  /* mapa ao vivo */
+  #mapa { position:absolute; inset:0; }
+  #painel { position:absolute; top:12px; left:12px; z-index:1000; background:var(--painel); padding:12px 14px;
+            border-radius:10px; max-width:min(320px, calc(100vw - 48px)); }
+  #painel h1 { font-size:15px; margin:0 0 6px; }
+  input, select { box-sizing:border-box; padding:6px 8px; border-radius:6px; border:1px solid #333; background:#1b1f27; color:var(--texto); font:inherit; }
+  #painel input { width:100%; }
+  #legenda { position:absolute; right:12px; bottom:28px; z-index:1000; background:var(--painel); padding:10px 12px;
+             border-radius:10px; width:min(260px, calc(100vw - 48px)); max-height:min(60vh, 520px); overflow:auto; }
+  .item { display:flex; align-items:center; gap:8px; padding:3px 4px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .item:hover { background:#ffffff14; } .item.apagado { opacity:.35; }
+  .cor { width:12px; height:12px; border-radius:50%; flex:none; }
+  .qtd { margin-left:auto; color:var(--sutil); font-variant-numeric:tabular-nums; }
+
+  /* indicadores e tabelas */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; margin:12px 0; }
+  .kpi { background:var(--cartao); border:1px solid var(--linha); border-radius:10px; padding:10px 12px; }
+  .kpi .rotulo { color:var(--sutil); font-size:12px; } .kpi .sutil { margin-top:2px; }
+  .tabela { overflow-x:auto; border:1px solid var(--linha); border-radius:10px; }
+  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  th, td { padding:6px 10px; text-align:right; border-bottom:1px solid var(--linha); white-space:nowrap; }
+  th { position:sticky; top:0; background:#12161c; color:var(--sutil); font-weight:500; font-size:12px; }
+  th:first-child, td:first-child, .txt { text-align:left; }
+  tbody tr:hover { background:#ffffff0a; } tr.clicavel { cursor:pointer; } tr.marcada { background:#60a5fa1f; }
+  tr.fora td { color:var(--sutil); }
+  .barra { display:inline-block; height:6px; border-radius:3px; vertical-align:middle; margin-left:6px; background:var(--pior); }
+  .mais { color:var(--bom); } .menos { color:var(--ruim); } .zero { color:var(--sutil); }
+  .filtros { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0; }
+  .chip { background:#60a5fa26; color:var(--destaque); border-radius:999px; padding:2px 10px; cursor:pointer; font-size:12px; }
+  .controles { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; background:var(--cartao);
+               border:1px solid var(--linha); border-radius:10px; padding:12px; }
+  .controles label { display:block; color:var(--sutil); font-size:12px; margin-bottom:4px; }
+  .controles input[type=range] { width:100%; accent-color:var(--destaque); padding:0; }
+  .controles select { width:100%; }
+  .valor { color:var(--texto); font-weight:600; }
+  button.link { background:none; border:0; color:var(--destaque); cursor:pointer; padding:0; font:inherit; font-size:12px; }
+
+  /* cidadão */
+  #conversa { display:flex; flex-direction:column; gap:10px; margin:12px 0; }
+  .msg { max-width:min(760px, 92%); padding:10px 12px; border-radius:12px; white-space:pre-wrap; }
+  .msg.eu { align-self:flex-end; background:#1d3a5f; }
+  .msg.bot { align-self:flex-start; background:var(--cartao); border:1px solid var(--linha); }
+  .fontes { margin-top:8px; font-size:12px; color:var(--sutil); white-space:normal; }
+  .fontes a { color:var(--destaque); }
+  #perguntar { display:flex; gap:8px; position:sticky; bottom:0; background:var(--fundo); padding:8px 0; }
+  #perguntar input { flex:1; padding:10px; }
+  #perguntar button { background:var(--destaque); color:#0b0e12; border:0; border-radius:8px; padding:0 16px; font-weight:600; cursor:pointer; }
+  .sugestoes { display:flex; flex-wrap:wrap; gap:6px; }
+
+  @media (max-width:600px) {
+    #legenda { max-height:30vh; bottom:24px; }
+    .doc { padding:12px 10px; } .kpis { grid-template-columns:1fr 1fr; } .num { font-size:18px; }
+    th, td { padding:5px 7px; }
+    #abas strong { display:none; } #abas button { padding:8px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav id="abas">
+  <strong>Linha Certa</strong>
+  <button data-vista="vivo" class="ativa">Ao vivo</button>
+  <button data-vista="regularidade">Regularidade</button>
+  <button data-vista="realocacao">Realocação</button>
+  <button data-vista="cidadao">Cidadão</button>
+  <button data-vista="simulacao">Simulação</button>
+</nav>
+
+<!-- 1. mapa ao vivo -->
+<div id="vivo" class="vista ativa">
+  <div id="mapa"></div>
+  <div id="legenda">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+      <strong>Empresas</strong><a href="#" id="todas" class="sutil">mostrar todas</a></div>
+    <div id="itens"></div>
+    <div class="sutil" style="margin-top:6px">clique numa empresa para isolá-la</div>
+  </div>
+  <div id="painel">
+    <h1>Frota ao vivo</h1>
+    <div><span class="num" id="total">—</span> ônibus em operação</div>
+    <div class="sutil" id="hora">conectando…</div>
+    <p style="margin:8px 0 4px">Linha</p>
+    <input id="filtro" placeholder="ex.: 8000-10 (vazio = todas)">
+    <div class="sutil" id="filtrados" style="margin-top:6px"></div>
+  </div>
+</div>
+
+<!-- 2. regularidade -->
+<section id="regularidade" class="vista doc"><div class="miolo">
+  <h2>Regularidade medida</h2>
+  <p class="nota">Intervalo real entre ônibus da mesma linha, medido nas posições do Olho Vivo, contra o programado no GTFS.
+    <b>Espera excessiva</b> = espera real − espera programada, como Londres mede desde 2001, só nas linhas com intervalo
+    programado ≤ <span class="lim">15</span> min. <b>Comboio</b> = intervalo menor que 25% do programado.</p>
+  <div class="kpis" id="reg-kpis"></div>
+  <h3>Por lote (unidade do contrato)</h3>
+  <p class="nota">Clique num lote para ver as linhas dele. Média ponderada por passageiros.</p>
+  <div class="tabela"><table id="reg-lotes"></table></div>
+  <h3>Por linha</h3>
+  <div class="filtros"><input id="reg-busca" placeholder="buscar linha ou empresa"><span id="reg-chip"></span>
+    <span class="sutil" id="reg-conta"></span></div>
+  <div class="tabela" style="max-height:70vh"><table id="reg-linhas"></table></div>
+  <p class="nota" id="reg-rodape"></p>
+</div></section>
+
+<!-- 3. realocação -->
+<section id="realocacao" class="vista doc"><div class="miolo">
+  <h2>Realocação dentro do lote</h2>
+  <p class="nota">Mesma frota, mesmo lote, mesma empresa e garagem: só muda quantos ônibus cada linha recebe (regra da raiz
+    quadrada, M2). Nenhuma linha é cortada e nenhuma baldeação nova é criada.</p>
+  <div class="controles">
+    <div><label>Lote</label><select id="rea-lote"></select></div>
+    <div><label>Perda máxima por linha (piso de cobertura): <span class="valor" id="rea-perda-v"></span></label>
+      <input type="range" id="rea-perda" min="0" max="50" step="5"></div>
+    <div><label>Só mudam linhas com intervalo atual ≤ <span class="valor" id="rea-hmax-v"></span></label>
+      <input type="range" id="rea-hmax" min="10" max="30" step="5"></div>
+    <div style="align-self:end"><button class="link" id="rea-padrao">voltar ao padrão (20% e 15 min)</button>
+      <div class="sutil" id="rea-status"></div></div>
+  </div>
+  <h3>Cidade inteira, com estes controles</h3>
+  <div class="kpis" id="rea-total"></div>
+  <h3 id="rea-titulo-lote"></h3>
+  <div class="kpis" id="rea-kpis-lote"></div>
+  <div class="tabela"><table id="rea-linhas"></table></div>
+  <p class="nota" id="rea-rodape"></p>
+</div></section>
+
+<!-- 4. cidadão -->
+<section id="cidadao" class="vista doc"><div class="miolo" style="max-width:860px">
+  <h2>Pergunte sobre o ônibus em São Paulo</h2>
+  <p class="nota">Respostas tiradas só de documentos oficiais (legislação municipal, SPTrans e legislação federal),
+    sempre com a fonte. Se a resposta não estiver nos documentos, o assistente diz que não sabe.
+    <button class="link" id="ver-fontes">ver as fontes</button></p>
+  <div id="lista-fontes" class="fontes" style="display:none;margin:0 0 12px"></div>
+  <div class="sugestoes" id="sugestoes"></div>
+  <div id="conversa"></div>
+  <form id="perguntar"><input id="pergunta" placeholder="ex.: quem tem direito à gratuidade?" autocomplete="off">
+    <button>Enviar</button></form>
+</div></section>
+
+<!-- 5. simulação do dia real (F4): página própria, carregada só quando a aba abre -->
+<section id="simulacao" class="vista"><iframe id="sim-frame" title="Simulação do dia real" style="border:0;width:100%;height:100%;display:block"></iframe></section>
+
+<script>
+// ---------- utilidades e abas (independem do mapa) ----------
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 1) => x == null || Number.isNaN(x) ? '—' : Number(x).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const int = x => x == null ? '—' : Math.round(x).toLocaleString('pt-BR');
+const pct = x => x == null ? '—' : fmt(100 * x, 0) + '%';
+const hora = h => `${Math.floor(h)}h${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const kpi = (rotulo, valor, sub = '') => `<div class="kpi"><div class="rotulo">${rotulo}</div><div class="num">${valor}</div>${sub ? `<div class="sutil">${sub}</div>` : ''}</div>`;
+async function pegar(url, opcoes) {
+  const r = await fetch(url, opcoes); const j = await r.json();
+  if (!r.ok) throw new Error(j.erro || r.status); return j;
+}
+const carregadas = {};
+function abrir(vista) {
+  document.querySelectorAll('.vista').forEach(v => v.classList.toggle('ativa', v.id === vista));
+  document.querySelectorAll('#abas button').forEach(b => b.classList.toggle('ativa', b.dataset.vista === vista));
+  if (vista === 'vivo') window.mapa && window.mapa.invalidateSize();
+  if (vista === 'regularidade' && !carregadas.reg) carregarReg();
+  if (vista === 'realocacao' && !carregadas.rea) carregarRea();
+  if (vista === 'cidadao' && !carregadas.cid) iniciarCidadao();
+  if (vista === 'simulacao' && !carregadas.sim) { $('sim-frame').src = 'simulacao.html'; carregadas.sim = true; }
+  history.replaceState(null, '', '#' + vista);
+}
+document.querySelectorAll('#abas button').forEach(b => b.onclick = () => abrir(b.dataset.vista));
+
+// ---------- regularidade ----------
+let reg = null, regLote = '';
+async function carregarReg() {
+  try { reg = await pegar('/api/regularidade'); carregadas.reg = true; }
+  catch (e) { $('reg-kpis').innerHTML = `<p class="nota">Sem dados do motor: ${esc(e.message)}. Rode python scripts/motor_empresa.py.</p>`; return; }
+  const r = reg.resumo, c = reg.coleta;
+  document.querySelectorAll('.lim').forEach(s => s.textContent = reg.limite_ewt);
+  $('reg-kpis').innerHTML =
+    kpi('Espera excessiva média', fmt(r.espera_excessiva_media_min, 1) + ' min', 'por passageiro, além do programado') +
+    kpi('Intervalos em comboio', fmt(r.comboio_pct, 0) + '%', 'ônibus colado no da frente') +
+    kpi('Linhas medidas', int(r.linhas_medidas), `${int(r.intervalos)} intervalos`) +
+    kpi('Coleta', `${hora(c.inicio_h)}–${hora(c.fim_h)}`, `${c.pasta} · ${int(c.instantes)} leituras da frota`);
+  const maxL = Math.max(...reg.lotes.map(l => l.espera_excessiva || 0));
+  $('reg-lotes').innerHTML = `<thead><tr><th>Lote</th><th class="txt">Espera excessiva</th><th>Comboio</th><th class="txt">Empresa</th><th>Linhas</th>
+    <th>Espera real</th><th>Programada</th></tr></thead><tbody>` +
+    reg.lotes.map(l => `<tr class="clicavel" data-lote="${esc(l.lote)}"><td>${esc(l.lote)}</td><td class="txt">${barra(l.espera_excessiva, maxL)}</td><td>${pct(l.comboio)}</td>
+      <td class="txt">${esc(l.empresa)}</td><td>${int(l.linhas_medidas)}</td><td>${fmt(l.espera_real)} min</td><td>${fmt(l.espera_prog)} min</td></tr>`).join('') + '</tbody>';
+  $('reg-lotes').querySelectorAll('tr[data-lote]').forEach(tr => tr.onclick = () => { regLote = regLote === tr.dataset.lote ? '' : tr.dataset.lote; desenharLinhasReg(); });
+  $('reg-rodape').textContent = `Linha com menos de 10 intervalos medidos não aparece. Com uma janela de coleta curta, intervalos longos ficam de fora e a espera real sai subestimada. Coleta de ${hora(c.inicio_h)} a ${hora(c.fim_h)}.`;
+  desenharLinhasReg();
+}
+function barra(v, max) {
+  if (v == null) return '<span class="zero">—</span>';
+  const w = Math.max(2, Math.min(80, 80 * Math.abs(v) / (max || 1)));
+  return `<span style="display:inline-block;width:52px;text-align:right">${v > 0 ? '+' : ''}${fmt(v)}</span><span class="barra" style="width:${v > 0 ? w : 2}px;${v <= 0 ? 'background:var(--bom)' : ''}"></span>`;
+}
+function desenharLinhasReg() {
+  const t = $('reg-busca').value.trim().toLowerCase();
+  const ls = reg.linhas.filter(l => (!regLote || l.lote === regLote) && (!t || `${l.c} ${l.empresa_lote} ${l.lote}`.toLowerCase().includes(t)));
+  const maxE = Math.max(...reg.linhas.map(l => l.espera_excessiva || 0));
+  $('reg-lotes').querySelectorAll('tr[data-lote]').forEach(tr => tr.classList.toggle('marcada', tr.dataset.lote === regLote));
+  $('reg-chip').innerHTML = regLote ? `<span class="chip" title="limpar">lote ${esc(regLote)} ✕</span>` : '';
+  if (regLote) $('reg-chip').firstChild.onclick = () => { regLote = ''; desenharLinhasReg(); };
+  $('reg-conta').textContent = `${ls.length} linhas`;
+  $('reg-linhas').innerHTML = `<thead><tr><th>Linha</th><th class="txt">Espera excessiva</th><th>Comboio</th><th>Intervalo prog.</th><th>Intervalo medido</th>
+    <th>CV</th><th>Espera real</th><th>Programada</th><th>Passageiros/dia</th><th class="txt">Lote · empresa</th></tr></thead><tbody>` +
+    ls.map(l => `<tr class="${l.alta_frequencia ? '' : 'fora'}"><td>${esc(l.c)}</td><td class="txt">${l.alta_frequencia ? barra(l.espera_excessiva, maxE) : '<span class="sutil">intervalo &gt; ' + reg.limite_ewt + ' min</span>'}</td>
+      <td>${pct(l.comboio)}</td><td>${fmt(l.h_prog)} min</td><td>${fmt(l.h_media)} min</td><td>${fmt(l.cv, 2)}</td><td>${fmt(l.espera_real)} min</td>
+      <td>${fmt(l.espera_prog)} min</td><td>${int(l.passageiros_dia)}</td><td class="txt">${esc(l.lote)} · ${esc(l.empresa_lote)}</td></tr>`).join('') + '</tbody>';
+}
+$('reg-busca').addEventListener('input', () => reg && desenharLinhasReg());
+
+// ---------- realocação ----------
+const rea = { lote: '', perda: 20, hmax: 15 };
+let reaTimer = null;
+async function carregarRea() {
+  $('rea-perda').value = rea.perda; $('rea-hmax').value = rea.hmax; rotulosRea();
+  $('rea-status').textContent = 'calculando…';
+  let d;
+  try { d = await pegar(`/api/realocacao?lote=${encodeURIComponent(rea.lote)}&perda=${rea.perda / 100}&hmax=${rea.hmax}`); carregadas.rea = true; }
+  catch (e) { $('rea-status').textContent = 'erro: ' + e.message; return; }
+  rea.lote = d.lote;
+  const T = d.total;
+  $('rea-status').textContent = `coleta de ${hora(d.coleta.inicio_h)} a ${hora(d.coleta.fim_h)}`;
+  $('rea-lote').innerHTML = d.lotes.map(l => `<option value="${esc(l.lote)}" ${l.lote === d.lote ? 'selected' : ''}>${esc(l.lote)} · ${esc(l.empresa)} — ${int(l.onibus_movidos)} ônibus mudam</option>`).join('');
+  $('rea-total').innerHTML =
+    kpi('Ônibus que trocam de linha', int(T.onibus_movidos), `dentro do lote · ${int(T.frota_no_otimo)} ônibus em ${int(T.linhas_no_otimo)} linhas avaliadas`) +
+    kpi('Espera média, antes → depois', `${fmt(T.espera_antes_min, 2)} → ${fmt(T.espera_depois_min, 2)}`, `min, nas linhas avaliadas · com expoente 2/3: ${fmt(T.espera_depois_k23_min, 2)}`) +
+    kpi('Horas de espera poupadas', int(T.horas_espera_poupadas_dia) + ' h/dia', 'estimativa: frota da coleta aplicada à demanda do dia') +
+    kpi('Lotes', int(T.lotes), `frota total na rua: ${int(T.frota)} ônibus`);
+  const L = d.lotes.find(l => l.lote === d.lote);
+  $('rea-titulo-lote').textContent = L ? `Lote ${L.lote} · ${L.empresa}` : 'Nenhuma linha entra no ótimo com estes controles';
+  $('rea-kpis-lote').innerHTML = L ?
+    kpi('Ônibus que trocam de linha', int(L.onibus_movidos), `${int(L.linhas_que_ganham)} linhas ganham, ${int(L.linhas_que_cedem)} cedem`) +
+    kpi('Espera média, antes → depois', `${fmt(L.espera_antes, 2)} → ${fmt(L.espera_depois, 2)}`, 'min, ponderada por passageiros') +
+    kpi('Horas poupadas no lote', int(L.horas_espera_poupadas_dia) + ' h/dia', 'estimativa') : '';
+  $('rea-linhas').innerHTML = `<thead><tr><th>Linha</th><th>Passageiros/dia</th><th>Ônibus hoje</th><th>Recomendado</th><th>Mudança</th>
+    <th>Intervalo hoje → depois</th><th>Espera hoje → depois</th></tr></thead><tbody>` +
+    d.linhas.map(l => {
+      const cls = l.delta > 0 ? 'mais' : l.delta < 0 ? 'menos' : 'zero';
+      return `<tr class="${l.no_otimo ? '' : 'fora'}"><td>${esc(l.c)}</td><td>${int(l.passageiros_dia)}</td><td>${int(l.n_atual)}</td>
+        <td>${int(l.n_recomendada)}</td><td class="${cls}">${l.no_otimo ? (l.delta > 0 ? '+' : '') + int(l.delta) : 'mantém'}</td>
+        <td>${fmt(l.intervalo_atual)} → ${fmt(l.intervalo_depois)} min</td><td>${fmt(l.espera_antes)} → ${fmt(l.espera_depois)} min</td></tr>`;
+    }).join('') + '</tbody>';
+  $('rea-rodape').innerHTML = `Só mudam as linhas com intervalo atual ≤ ${rea.hmax} min, onde a espera é metade do intervalo
+    (acima disso o passageiro consulta horário); as demais mantêm a frota e aparecem em cinza. Nenhuma linha perde mais de ${rea.perda}% dos ônibus.
+    Ônibus hoje = média dos ônibus da linha na rua durante a coleta. Espera = ciclo ÷ (2 × ônibus), supondo intervalo regular.
+    As horas poupadas são estimativa: a frota medida na coleta aplicada aos passageiros do dia (SPTrans, set/2026).`;
+}
+function rotulosRea() { $('rea-perda-v').textContent = rea.perda + '%'; $('rea-hmax-v').textContent = rea.hmax + ' min'; }
+function mudarRea() { clearTimeout(reaTimer); rotulosRea(); reaTimer = setTimeout(carregarRea, 250); }
+$('rea-perda').oninput = e => { rea.perda = +e.target.value; mudarRea(); };
+$('rea-hmax').oninput = e => { rea.hmax = +e.target.value; mudarRea(); };
+$('rea-lote').onchange = e => { rea.lote = e.target.value; carregarRea(); };
+$('rea-padrao').onclick = () => { rea.perda = 20; rea.hmax = 15; carregarRea(); };
+
+// ---------- cidadão ----------
+const SUGESTOES = ['Quem tem direito à gratuidade no ônibus?', 'Quanto custa a passagem de ônibus em São Paulo?',
+  'Como funciona a integração do Bilhete Único?', 'Estudante paga meia?'];
+function iniciarCidadao() {
+  carregadas.cid = true;
+  $('ver-fontes').onclick = async () => {
+    const l = $('lista-fontes'); l.style.display = l.style.display === 'none' ? 'block' : 'none';
+    if (l.dataset.ok) return;
+    try { const fs = await pegar('/api/cidadao/fontes'); l.dataset.ok = 1;
+      l.innerHTML = fs.map(f => `<div>• <a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.doc_id)} · ${esc(f.titulo)}</a> · ${esc(f.data_publicacao)} · acessado em ${esc(f.acessado_em)}</div>`).join('');
+    } catch (e) { l.textContent = 'lista indisponível: ' + e.message; }
+  };
+  $('sugestoes').innerHTML = SUGESTOES.map(s => `<span class="chip">${esc(s)}</span>`).join('');
+  $('sugestoes').querySelectorAll('.chip').forEach(c => c.onclick = () => perguntar(c.textContent));
+}
+function balao(classe, html) { const d = document.createElement('div'); d.className = 'msg ' + classe; d.innerHTML = html; $('conversa').appendChild(d); d.scrollIntoView({ block: 'end' }); return d; }
+async function perguntar(texto) {
+  texto = texto.trim(); if (!texto) return;
+  $('pergunta').value = '';
+  balao('eu', esc(texto));
+  const b = balao('bot', '<span class="sutil">consultando os documentos…</span>');
+  try {
+    const d = await pegar('/api/cidadao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pergunta: texto }) });
+    const fontes = (d.fontes || []).map(f => `<div>• <a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.titulo)}</a>${f.data ? ' · ' + esc(f.data) : ''}${f.trecho ? ' · ' + esc(f.trecho) : ''}</div>`).join('');
+    b.innerHTML = esc(d.resposta) + (fontes ? `<div class="fontes"><b>Fontes</b>${fontes}</div>` : '');
+  } catch (e) { b.innerHTML = `<span class="sutil">Assistente indisponível agora (${esc(e.message)}).</span>`; }
+}
+$('perguntar').onsubmit = ev => { ev.preventDefault(); perguntar($('pergunta').value); };
+
+const inicial = location.hash.slice(1);
+if (['regularidade', 'realocacao', 'cidadao', 'simulacao'].includes(inicial)) abrir(inicial);
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ---------- mapa ao vivo ----------
+const mapa = window.mapa = L.map('mapa', { preferCanvas: true }).setView([-23.55, -46.63], 11);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Base: Esri, HERE, Garmin, &copy; OpenStreetMap · posições: API Olho Vivo / SPTrans', maxZoom: 16 }).addTo(mapa);
+const camada = L.layerGroup().addTo(mapa);
+const render = L.canvas({ padding: 0.3 });
+let dados = null;
+
+// Cor fixa por empresa: nomes em ordem alfabética, cada um a 137,5° do anterior no círculo de cores
+// (ângulo áureo), alternando a luminosidade; assim 30 empresas ficam distinguíveis e a cor não muda entre atualizações.
+const CINZA = '#7d838c';
+let cores = {}, selecionada = '';
+function atribuirCores(nomes) {
+  const conhecidas = nomes.filter(n => !n.startsWith('não identificada')).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  cores = {};
+  conhecidas.forEach((n, i) => cores[n] = `hsl(${(i * 137.508) % 360},${i % 2 ? 70 : 85}%,${i % 3 === 2 ? 70 : 58}%)`);
+}
+const cor = empresa => cores[empresa] || CINZA;
+
+function desenhar() {
+  if (!dados) return;
+  const f = document.getElementById('filtro').value.trim().toUpperCase();
+  const emp = selecionada;
+  const vs = dados.veiculos.filter(v => (!f || String(v.linha).toUpperCase().includes(f)) && (!emp || v.empresa === emp));
+  camada.clearLayers();
+  for (const v of vs) {
+    if (v.lat == null || v.lon == null) continue;
+    L.circleMarker([v.lat, v.lon], { renderer: render, radius: (f || emp) ? 5 : 3, weight: 0, fillOpacity: .9, fillColor: cor(v.empresa) })
+      .bindTooltip(`${v.linha} · sentido ${v.sentido}<br>${v.letreiros.join(' ⇄ ')}<br>${v.empresa} · prefixo ${v.prefixo}`)
+      .addTo(camada);
+  }
+  document.getElementById('filtrados').textContent = (f || emp) ? `${vs.length} ônibus no filtro` : '';
+}
+
+async function atualizar() {
+  try {
+    const r = await fetch('/api/posicao');
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.erro || r.status);
+    dados = j;
+    const contagem = {}; for (const v of j.veiculos) contagem[v.empresa] = (contagem[v.empresa] || 0) + 1;
+    if (Object.keys(cores).length === 0 || Object.keys(contagem).some(e => !(e in cores) && !e.startsWith('não identificada')))
+      atribuirCores(Object.keys(contagem));
+    desenharLegenda(contagem);
+    document.getElementById('total').textContent = j.total.toLocaleString('pt-BR');
+    document.getElementById('hora').textContent = `posições das ${j.hora} · atualiza a cada 20 s`;
+    desenhar();
+  } catch (e) {
+    document.getElementById('hora').textContent = `sem dados agora (${e.message}); tentando de novo`;
+  }
+}
+function desenharLegenda(contagem) {
+  const itens = document.getElementById('itens');
+  itens.innerHTML = '';
+  for (const [e, n] of Object.entries(contagem).sort((a, b) => b[1] - a[1])) {
+    const div = document.createElement('div');
+    div.className = 'item' + (selecionada && selecionada !== e ? ' apagado' : '');
+    div.innerHTML = `<span class="cor" style="background:${cor(e)}"></span><span></span><span class="qtd">${n.toLocaleString('pt-BR')}</span>`;
+    div.children[1].textContent = e;
+    div.onclick = () => { selecionada = selecionada === e ? '' : e; desenharLegenda(contagem); desenhar(); };
+    itens.appendChild(div);
+  }
+}
+document.getElementById('todas').onclick = ev => { ev.preventDefault(); selecionada = ''; atualizar(); };
+document.getElementById('filtro').addEventListener('input', desenhar);
+atualizar(); setInterval(atualizar, 20000);
+</script>
+</body>
+</html>

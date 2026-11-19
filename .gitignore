@@ -10,3 +10,5 @@ data/raw/*
 .pytest_cache/
 _to_delete/
 entregas/prompt_ai/ragas_cache.json
+data/olhovivo/
+*.mp4

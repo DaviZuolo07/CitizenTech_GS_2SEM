@@ -27,7 +27,7 @@ DECISÕES QUE EU TOMEI (a IA executou)
 - Rodar o notebook inteiro quantas vezes fosse preciso até a seção 7 fechar sem medição vazia.
 
 GROUND TRUTH (seção 7)
-A IA redigiu as 8 respostas de referência a partir dos documentos da base, a meu pedido. Eu auditei cada uma contra o
+A IA redigiu as 8 respostas de referência a partir dos documentos da base, a meu pedido. Eu auditei cada uma delas contra o
 documento que ela cita, corrigi o que não batia e aprovei. Portanto são respostas redigidas com apoio de IA e
 conferidas pelo grupo, não escritas do zero por mim.
 
