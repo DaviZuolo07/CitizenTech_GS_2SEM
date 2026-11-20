@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linha Certa — o dia em 3D, antes × depois</title>
+<link rel="stylesheet" href="vendor/maplibre-gl-5.24.1.css">
+<style>
+  :root { --fundo:#06080d; --texto:#eef1f6; --sutil:#9aa3b2; --vidro:rgba(10,14,22,.72); --borda:rgba(255,255,255,.12);
+          --antes:#ff5a5a; --depois:#3ee08f; --sim:#ffb020; --a:#ffd166; --prog:#8a93a3; --destaque:#5fb4ff; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--fundo); color:var(--texto); font:14px/1.35 "Segoe UI",system-ui,sans-serif; overflow:hidden; }
+  .vidro { background:var(--vidro); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid var(--borda); border-radius:12px; }
+  .sutil { color:var(--sutil); font-size:12px; }
+  .num { font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.01em; }
+  select, button { padding:6px 9px; border-radius:8px; border:1px solid var(--borda); background:rgba(255,255,255,.06); color:var(--texto); font:inherit; cursor:pointer; }
+  select option { background:#111722; }
+  #palco { position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr; gap:2px; background:#000; }
+  #palco.so-antes { grid-template-columns:1fr 0; } #palco.so-depois { grid-template-columns:0 1fr; }
+  .lado { position:relative; overflow:hidden; }
+  .mapa { position:absolute; inset:0; }
+  /* vinheta e granulação leves: estética de cinema/jogo (só visual) */
+  .lado::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+  .selo { position:absolute; top:calc(var(--hud, 70px) + 18px); left:12px; z-index:10; pointer-events:none; }
+  .selo b { display:inline-block; font-size:13px; letter-spacing:.14em; padding:5px 12px; border-radius:6px; }
+  .antes .selo b { background:var(--antes); color:#160606; } .depois .selo b { background:var(--sim); color:#1b1200; }
+  .selo div { margin-top:6px; font-size:12px; max-width:340px; padding:5px 9px; }
+  .placar { position:absolute; left:12px; bottom:calc(var(--painel, 180px) + 20px); z-index:10; padding:9px 12px; min-width:230px; pointer-events:none; }
+  .placar .linha1 { display:flex; gap:14px; align-items:baseline; }
+  .placar .grande { font-size:30px; } .placar .comb { color:var(--antes); }
+  .depois .placar .grande.espera { color:var(--depois); } .antes .placar .grande.espera { color:var(--antes); }
+  #hud { position:absolute; top:10px; left:10px; right:10px; z-index:20; display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; padding:8px 10px; }
+  #hud .marca { font-weight:800; letter-spacing:.06em; margin-right:4px; }
+  #hud .marca span { color:var(--depois); }
+  #play { width:44px; background:var(--depois); color:#03140b; font-weight:800; border:0; }
+  #tempo { flex:1 1 160px; accent-color:var(--depois); }
+  #relogio { font-size:26px; min-width:112px; text-align:center; }
+  #ceu { font-size:20px; width:26px; text-align:center; }
+  #painel { position:absolute; left:10px; right:10px; bottom:10px; z-index:20; display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:10px; padding:10px 12px; }
+  .titulo-graf { font-weight:700; font-size:14px; margin-bottom:2px; }
+  .barras { display:flex; gap:8px; align-items:stretch; height:128px; margin-top:6px; }
+  .grupo { flex:1; min-width:0; display:flex; flex-direction:column; border-radius:8px; padding:2px 2px 0; transition:background .3s; }
+  .grupo.atual { background:rgba(255,255,255,.08); }
+  .par { flex:1; display:flex; gap:5px; align-items:flex-end; justify-content:center; padding-top:18px; }
+  .barra { width:min(34px, 42%); border-radius:6px 6px 0 0; position:relative; min-height:2px; }
+  .barra.antes { background:linear-gradient(#ff7a7a, #c93636); } .barra.depois { background:linear-gradient(#5ff0a5, #1fa865); }
+  .barra span { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-size:12px; font-weight:800; white-space:nowrap; padding-bottom:2px; }
+  .barra.antes span { color:#ff8a8a; } .barra.depois span { color:#6ff0b0; }
+  .hora { text-align:center; font-size:12px; color:var(--sutil); padding:3px 0; border-top:1px solid var(--borda); }
+  .grupo.atual .hora { color:var(--texto); font-weight:700; }
+  .manchete { font-size:15px; line-height:1.35; } .manchete b { font-size:22px; }
+  .ganho-grande { font-size:26px; font-weight:800; color:var(--depois); margin:4px 0 6px; }
+  .ganho-grande span { font-size:14px; font-weight:600; color:var(--texto); }
+  .decomp { display:flex; height:12px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,.08); margin:4px 0; }
+  .decomp div { min-width:3px; } .decomp .d1 { background:var(--a); } .decomp .d2 { background:var(--destaque); }
+  .explica { font-size:12.5px; color:var(--sutil); line-height:1.4; } .explica b { color:var(--texto); }
+  .leg { display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--sutil); }
+  .leg i { display:inline-block; width:14px; height:3px; border-radius:2px; vertical-align:middle; margin-right:5px; }
+  #cartoes { display:flex; flex-direction:column; justify-content:center; padding-left:6px; }
+  .cartao { padding:7px 10px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid var(--borda); }
+  .cartao .v { font-size:22px; }
+  .verde { color:var(--depois); } .vermelho { color:var(--antes); } .ambar { color:var(--a); }
+  #hip { position:absolute; right:10px; top:calc(var(--hud, 70px) + 18px); z-index:25; width:min(460px, calc(100vw - 20px)); max-height:60vh; overflow:auto; padding:12px 14px; display:none; font-size:13px; }
+  #hip ul { padding-left:18px; margin:6px 0; color:var(--sutil); }
+  #aviso { position:absolute; inset:0; display:none; place-items:center; z-index:50; background:rgba(0,0,0,.8); padding:24px; text-align:center; }
+  #abertura { position:absolute; inset:0; z-index:60; background:#000; display:none; }
+  #abertura video { width:100%; height:100%; object-fit:cover; }
+  #abertura button { position:absolute; right:16px; bottom:16px; }
+  #abertura .rot { position:absolute; left:16px; bottom:16px; font-size:12px; color:#ccc; }
+  .maplibregl-ctrl-attrib { font-size:10px; opacity:.7; }
+  @media (max-width:800px) {
+    #palco { grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
+    #palco.so-antes { grid-template-rows:1fr 0; grid-template-columns:1fr; } #palco.so-depois { grid-template-rows:0 1fr; grid-template-columns:1fr; }
+    #painel { grid-template-columns:1fr; padding:8px; gap:4px; } .barras { height:76px; } .par { padding-top:16px; }
+    #painel .leg, .titulo-graf .sutil, .decomp, .explica { display:none; } #cam, #lin { display:none; }
+    .manchete { font-size:13px; } .manchete b { font-size:16px; } .ganho-grande { font-size:18px; margin:2px 0; }
+    .selo div { display:none; } .antes .selo { top:calc(var(--hud, 70px) + 12px); } .depois .selo { top:8px; }
+    .placar { left:auto; right:8px; min-width:0; padding:5px 8px; } .placar .grande { font-size:19px; } .placar .linha1 { gap:10px; }
+    .placar > .sutil { display:none; }
+    .antes .placar { top:auto; bottom:8px; } .depois .placar { top:42px; bottom:auto; }
+    .manchete, .titulo-graf { display:none; } .ganho-grande { font-size:17px; }
+    #relogio { font-size:20px; min-width:84px; } #hud { gap:6px; padding:6px; } #hud .marca, .so-largo { display:none; }
+  }
+</style>
+</head>
+<body>
+<div id="palco">
+  <div class="lado antes"><div id="m1" class="mapa"></div>
+    <div class="selo"><b>ANTES<span class="so-largo"> · O QUE ACONTECEU</span></b><div class="vidro">Posições reais gravadas do GPS dos ônibus (Olho Vivo/SPTrans). <span class="escopo"></span></div></div>
+    <div class="placar vidro"><div class="linha1"><div><div class="sutil">espera no ponto, nesta hora</div><span class="grande num espera" id="e1">—</span> <span class="sutil">min</span></div>
+      <div><div class="sutil">ônibus grudados agora</div><span class="grande num comb" id="b1">—</span></div></div>
+      <div class="sutil"><span id="n1">—</span> <span class="rua">ônibus do lote na rua</span></div></div></div>
+  <div class="lado depois"><div id="m2" class="mapa"></div>
+    <div class="selo"><b>DEPOIS · SIMULAÇÃO<span class="so-largo"> COM A LINHA CERTA</span></b><div class="vidro"><span id="cen-txt"></span> <span class="escopo"></span></div></div>
+    <div class="placar vidro"><div class="linha1"><div><div class="sutil">espera no ponto, nesta hora</div><span class="grande num espera" id="e2">—</span> <span class="sutil">min</span></div>
+      <div><div class="sutil">ônibus grudados agora</div><span class="grande num comb" id="b2">—</span></div></div>
+      <div class="sutil"><span id="n2">—</span> <span class="rua">ônibus do lote na rua</span></div></div></div>
+</div>
+
+<div id="hud" class="vidro">
+  <div class="marca">LINHA <span>CERTA</span></div>
+  <select id="arq" title="lote e período"></select>
+  <button id="play" title="tocar ou pausar (espaço)">❚❚</button>
+  <select id="vel" title="velocidade"><option value="60">60×</option><option value="120">120×</option><option value="300" selected>300× (1 h em 12 s)</option><option value="600">600×</option></select>
+  <input type="range" id="tempo" min="0" max="3600" step="1" value="0" title="arraste para ir a outra hora">
+  <span id="ceu">☀</span><span class="num" id="relogio">—</span>
+  <select id="cen" title="o que o lado DEPOIS simula">
+    <option value="B">Depois: intervalo certo + ônibus remanejados</option><option value="A">Depois: só intervalo certo (mesmos ônibus)</option></select>
+  <select id="lin" title="destacar uma linha"><option value="">todas as linhas</option></select>
+  <select id="cam" title="câmera"><option value="orbita">câmera: órbita</option><option value="livre">câmera: livre</option><option value="seguir">câmera: seguir ônibus</option></select>
+  <select id="vista" class="so-largo" title="telas"><option value="">lado a lado</option><option value="so-antes">só antes</option><option value="so-depois">só depois</option></select>
+  <button id="ver-hip" class="so-largo">hipóteses</button>
+  <a href="simulacao.html" class="sutil so-largo" style="color:var(--destaque)">versão 2D</a>
+</div>
+
+<div id="painel" class="vidro">
+  <div>
+    <div class="titulo-graf">Quanto tempo se espera no ponto, hora a hora <span class="sutil">· minutos, média por passageiro</span></div>
+    <div class="leg"><span><i style="background:var(--antes)"></i>Hoje (medido no GPS)</span><span><i style="background:var(--depois)"></i>Com a Linha Certa (simulado)</span><span id="leg-lote"></span></div>
+    <div class="barras" id="barras"></div>
+  </div>
+  <div id="cartoes"></div>
+</div>
+<div id="hip" class="vidro"></div>
+<div id="aviso"></div>
+<div id="abertura"><video id="video" muted playsinline></video><span class="rot">abertura gerada por IA (Higgsfield) · só estética, nenhum dado</span><button id="pular">pular ▸</button></div>
+
+<script src="vendor/maplibre-gl-5.24.1.js"></script>
+<script src="vendor/deck.gl-9.4.1.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 1) => x == null || Number.isNaN(x) ? '—' : Number(x).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const hms = s => [Math.floor(s / 3600), Math.floor(s / 60) % 60].map(x => String(x).padStart(2, '0')).join(':');
+const hm = s => `${Math.floor(s / 3600)}h${String(Math.floor(s / 60) % 60).padStart(2, '0')}`;
+const CEN = { A: 'Os mesmos ônibus de hoje, passando no intervalo certo.', B: 'Ônibus no intervalo certo e alguns trocando de linha dentro da mesma empresa.' };
+const Q = new URLSearchParams(location.search);
+
+// ---------- cores: dia → pôr do sol → noite, pelo relógio da simulação ----------
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, f) => { const x = hex(a), y = hex(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * f).toString(16).padStart(2, '0')).join(''); };
+const passo = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+// pôr do sol em São Paulo em 19/11: ~18h30 (sem horário de verão)
+function luz(h) {
+  const noite = passo(18.2, 19.3, h), por = Math.max(0, 1 - Math.abs(h - 18.45) / 0.75);
+  const c = (dia, nt, quente) => { let x = mix(dia, nt, noite); return quente ? mix(x, quente, por * 0.55) : x; };
+  return { noite, por,
+    fundo: c('#d3cab8', '#070a12', '#d9a985'), agua: c('#8fbfe0', '#0b1a2c', '#c99a7c'), verde: c('#a9c99a', '#0b1611', '#a39a6c'),
+    via: c('#ffffff', '#2a2418', '#ffd9b0'), via1: c('#ffe6a3', '#ffae42', '#ffb070'),
+    predio1: c('#f3ede2', '#1b2234', '#f2b98c'), predio2: c('#b9c3cf', '#34405e', '#c9906a'),
+    ceu: c('#7fb2e8', '#050915', '#3f5a8f'), horizonte: c('#d7e8f7', '#16203a', '#ff9a5c'),
+    texto: c('#4a4f58', '#c9d3e6'), sombra: c('#6b5f4e', '#000000', '#7a4a3a'), brilho: c('#fff8ea', '#1a2238', '#ffd2a8'), luzCor: c('#ffffff', '#8aa0ff', '#ffb27a'), luzInt: 0.25 + 0.35 * (1 - noite) };
+}
+function estilo(L0) {
+  const via = (classe, cor, w) => ({ id: 'via-' + classe.join('-'), type: 'line', source: 'omt', 'source-layer': 'transportation',
+    filter: ['in', ['get', 'class'], ['literal', classe]], layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': cor, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 10, w * 0.25, 14, w, 17, w * 5] } });
+  return {
+    version: 8, glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+    sources: { omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '© OpenStreetMap · OpenFreeMap · OpenMapTiles' },
+               relevo: { type: 'raster-dem', encoding: 'terrarium', tileSize: 256, maxzoom: 13, attribution: 'Relevo: Terrarium/AWS',
+                         tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'] } },
+    light: { anchor: 'map', color: L0.luzCor, intensity: L0.luzInt, position: [1.4, 250, 40] },
+    sky: { 'sky-color': L0.ceu, 'horizon-color': L0.horizonte, 'fog-color': L0.horizonte, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.6 },
+    layers: [
+      { id: 'fundo', type: 'background', paint: { 'background-color': L0.fundo } },
+      { id: 'verde', type: 'fill', source: 'omt', 'source-layer': 'park', paint: { 'fill-color': L0.verde } },
+      { id: 'cobertura', type: 'fill', source: 'omt', 'source-layer': 'landcover', filter: ['in', ['get', 'class'], ['literal', ['wood', 'grass']]], paint: { 'fill-color': L0.verde, 'fill-opacity': .7 } },
+      { id: 'sombra', type: 'hillshade', source: 'relevo', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': L0.sombra, 'hillshade-highlight-color': L0.brilho, 'hillshade-illumination-direction': 300 } },
+      { id: 'agua', type: 'fill', source: 'omt', 'source-layer': 'water', paint: { 'fill-color': L0.agua } },
+      via(['minor', 'service', 'tertiary'], L0.via, 1.2), via(['secondary', 'primary'], L0.via1, 2.2), via(['trunk', 'motorway'], L0.via1, 3.2),
+      { id: 'predios', type: 'fill-extrusion', source: 'omt', 'source-layer': 'building', minzoom: 12, filter: ['!=', ['get', 'hide_3d'], true],
+        paint: { 'fill-extrusion-color': ['interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6], 0, L0.predio1, 60, L0.predio2],
+                 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 6], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+                 'fill-extrusion-opacity': 0.92, 'fill-extrusion-vertical-gradient': true } },
+      { id: 'bairros', type: 'symbol', source: 'omt', 'source-layer': 'place', filter: ['in', ['get', 'class'], ['literal', ['suburb', 'neighbourhood', 'quarter']]],
+        layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': 12, 'text-transform': 'uppercase', 'text-letter-spacing': .12 },
+        paint: { 'text-color': L0.texto, 'text-halo-color': L0.fundo, 'text-halo-width': 1.2 } },
+    ] };
+}
+function aplicarLuz(m, L0, h) {
+  if (!m.isStyleLoaded()) return;
+  m.setPaintProperty('fundo', 'background-color', L0.fundo);
+  m.setPaintProperty('agua', 'fill-color', L0.agua);
+  m.setPaintProperty('verde', 'fill-color', L0.verde); m.setPaintProperty('cobertura', 'fill-color', L0.verde);
+  m.setPaintProperty('via-minor-service-tertiary', 'line-color', L0.via);
+  m.setPaintProperty('via-secondary-primary', 'line-color', L0.via1); m.setPaintProperty('via-trunk-motorway', 'line-color', L0.via1);
+  m.setPaintProperty('predios', 'fill-extrusion-color', ['interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6], 0, L0.predio1, 60, L0.predio2]);
+  m.setPaintProperty('sombra', 'hillshade-shadow-color', L0.sombra); m.setPaintProperty('sombra', 'hillshade-highlight-color', L0.brilho);
+  m.setPaintProperty('bairros', 'text-color', L0.texto); m.setPaintProperty('bairros', 'text-halo-color', L0.fundo);
+  // sol: vai do oeste-sudoeste (tarde) até se pôr; ângulo polar sobe até o horizonte
+  m.setLight({ anchor: 'map', color: L0.luzCor, intensity: L0.luzInt, position: [1.4, 230 + 40 * passo(13, 19, h), 30 + 55 * passo(13, 18.6, h)] });
+  m.setSky({ 'sky-color': L0.ceu, 'horizon-color': L0.horizonte, 'fog-color': L0.horizonte, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.7, 'fog-ground-blend': 0.6, 'atmosphere-blend': 0.6 });
+}
+
+// ---------- ônibus 3D: caixa 12 × 2,6 × 3,2 m (eixo x = sentido de marcha), sem índice ----------
+function malhaOnibus() {
+  const C = 6, W = 1.3, H = 3.2, P = [], N = [], T = [];
+  const faces = [[[1, 0, 0], [[C, -W, 0], [C, W, 0], [C, W, H], [C, -W, H]]], [[-1, 0, 0], [[-C, W, 0], [-C, -W, 0], [-C, -W, H], [-C, W, H]]],
+                 [[0, 1, 0], [[C, W, 0], [-C, W, 0], [-C, W, H], [C, W, H]]], [[0, -1, 0], [[-C, -W, 0], [C, -W, 0], [C, -W, H], [-C, -W, H]]],
+                 [[0, 0, 1], [[C, -W, H], [C, W, H], [-C, W, H], [-C, -W, H]]]];
+  for (const [n, q] of faces) for (const i of [0, 1, 2, 0, 2, 3]) { P.push(...q[i]); N.push(...n); T.push(i === 1 || i === 2 ? 1 : 0, i >= 2 ? 1 : 0); }
+  return { positions: { value: new Float32Array(P), size: 3 }, normals: { value: new Float32Array(N), size: 3 }, texCoords: { value: new Float32Array(T), size: 2 } };
+}
+const MALHA = malhaOnibus();
+
+// ---------- dois mapas 3D independentes (cada tela tem sua câmera) ----------
+let L0 = luz(14);
+function novoMapa(id) {
+  return new maplibregl.Map({ container: id, style: estilo(L0), center: [-46.63, -23.55], zoom: 12, pitch: 62, bearing: -18,
+                              maxPitch: 80, antialias: true, attributionControl: { compact: true }, fadeDuration: 0,
+                              // ?gravar=1: mantém o buffer do canvas para capturar o quadro com toDataURL (custa desempenho)
+                              preserveDrawingBuffer: Q.has('gravar') });
+}
+const m1 = novoMapa('m1'), m2 = novoMapa('m2');
+for (const m of [m1, m2]) m.on('dragstart', () => { if ($('cam').value !== 'livre') { $('cam').value = 'livre'; } });
+const sol = new deck.LightingEffect({ amb: new deck.AmbientLight({ color: [255, 255, 255], intensity: 1.2 }),
+  dir: new deck.DirectionalLight({ color: [255, 245, 230], intensity: 1.6, direction: [-1, -2, -3] }) });
+const camadas1 = new deck.MapboxOverlay({ interleaved: true, layers: [], effects: [sol] });
+const camadas2 = new deck.MapboxOverlay({ interleaved: true, layers: [], effects: [sol] });
+m1.addControl(camadas1); m2.addControl(camadas2);
+for (const m of [m1, m2]) m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+const MAPAS = [m1, m2];
+const ambos = (f) => MAPAS.forEach(f);
+// câmera inicial: aplicada quando cada mapa termina de carregar (antes disso o MapLibre a descarta)
+let camInicial = null;
+function posicionar(c) { camInicial = c; ambos(m => m.jumpTo(c)); }
+ambos(m => m.once('load', () => { if (camInicial) m.jumpTo(camInicial); }));
+
+// ---------- estado ----------
+let S = null, TR = {}, COR = [], cen = Q.get('cen') === 'A' ? 'A' : 'B', vel = 300, tau = 0, dur = 3600, tocando = true, linhaSel = '';
+$('cen').value = cen;
+const hsl = (h, s, l) => { s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+  return [0, 8, 4].map(n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))))); };
+
+function prepararTracados() {
+  TR = {};
+  for (const [chave, P] of Object.entries(S.tracados)) {
+    const D = [0];
+    for (let i = 1; i < P.length; i++) {
+      const dy = (P[i][0] - P[i - 1][0]) * 110540, dx = (P[i][1] - P[i - 1][1]) * 111320 * Math.cos(P[i][0] * Math.PI / 180);
+      D.push(D[i - 1] + Math.hypot(dx, dy));
+    }
+    TR[chave] = { P, D, L: D[D.length - 1] };
+  }
+}
+function pontoEm(tr, x) {   // [lat, lon, rumo em graus a partir do leste, anti-horário]
+  const D = tr.D; let lo = 0, hi = D.length - 1;
+  x = Math.min(Math.max(x, 0), tr.L);
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (D[m] <= x) lo = m; else hi = m; }
+  const f = (x - D[lo]) / ((D[hi] - D[lo]) || 1), a = tr.P[lo], b = tr.P[hi];
+  return [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1]), rumo(a, b)];
+}
+const rumo = (a, b) => Math.atan2((b[0] - a[0]) * 110540, (b[1] - a[1]) * 111320 * 0.916) * 180 / Math.PI;
+const compSentido = (l, sl) => { const j = l.sentidos.indexOf(sl); return j < 0 ? null : l.comprimento_m[j]; };
+
+// ANTES: posição gravada, interpolada em linha reta entre duas leituras do mesmo ônibus (até 3 min)
+function umReplay(o, t) {
+  const p = o.pts;
+  if (t < p[0][0]) return null;
+  let lo = 0, hi = p.length - 1;
+  while (lo < hi) { const m = (lo + hi + 1) >> 1; if (p[m][0] <= t) lo = m; else hi = m - 1; }
+  const a = p[lo], b = p[lo + 1];
+  let lat, lon, s, r = o.rumo ?? 0;
+  if (b && b[0] - a[0] <= 180 && b[3] === a[3]) {
+    const f = (t - a[0]) / (b[0] - a[0]);
+    lat = a[1] + f * (b[1] - a[1]); lon = a[2] + f * (b[2] - a[2]);
+    s = a[4] >= 0 && b[4] >= 0 ? a[4] + f * (b[4] - a[4]) : -1;
+    if (b[1] !== a[1] || b[2] !== a[2]) r = o.rumo = rumo([a[1], a[2]], [b[1], b[2]]);
+  } else if (t - a[0] <= 90) { lat = a[1]; lon = a[2]; s = a[4]; }
+  else return null;
+  const li = a[3] >> 1;
+  return { li, k: a[3], lat, lon, s, r, Ls: compSentido(S.linhas[li], (a[3] % 2) + 1) };
+}
+const posReplay = t => S.onibus.map(o => umReplay(o, t));
+
+// DEPOIS (SIMULAÇÃO): n ônibus igualmente espaçados no ciclo T = intervalo médio medido × n atual
+function posSim(t) {
+  const out = [];
+  S.linhas.forEach((l, i) => {
+    const T = l.h_media * l.n_atual * 60, n = cen === 'A' ? l.n_atual : l.n_recomendada, off = (i * 0.618034) % 1;
+    for (let j = 0; j < n; j++) {
+      let phi = ((t / T + j / n + off) % 1 + 1) % 1, si = 0;
+      while (si < l.sentidos.length - 1 && phi >= l.frac_sentido[si]) { phi -= l.frac_sentido[si]; si++; }
+      const u = Math.min(phi / l.frac_sentido[si], 1), sl = l.sentidos[si], tr = TR[l.c + '|' + sl];
+      const [lat, lon, r] = pontoEm(tr, u * tr.L);
+      out.push({ li: i, k: i * 2 + sl - 1, j, lat, lon, r, s: u * l.comprimento_m[si], Ls: l.comprimento_m[si] });
+    }
+  });
+  return out;
+}
+// comboio (M3 em distância): mesma linha e sentido, a menos de 25% do espaçamento regular, fora das pontas do traçado
+function comboios(lista) {
+  const grupos = {}, marc = new Set();
+  lista.forEach((b, i) => { if (!b || b.s < 0 || b.Ls == null || b.s < 0.05 * b.Ls || b.s > 0.95 * b.Ls) return; (grupos[b.k] ??= []).push(i); });
+  for (const [k, ids] of Object.entries(grupos)) {
+    const l = S.linhas[k >> 1], lim = 0.25 * l.comprimento_m.reduce((a, b) => a + b, 0) / l.n_atual;
+    ids.sort((x, y) => lista[x].s - lista[y].s);
+    for (let j = 1; j < ids.length; j++) if (lista[ids[j]].s - lista[ids[j - 1]].s < lim) { marc.add(ids[j]); marc.add(ids[j - 1]); }
+  }
+  return marc;
+}
+
+// ---------- camadas deck.gl ----------
+const RASTRO = 150;                 // rastro de 150 s de simulação
+let AMOSTRAS = 6;                    // pontos por rastro (cai para 3 na cidade inteira, ~9 mil ônibus nas duas telas)
+function camadas(lista, rastros, marc, lado, escala, L1) {
+  const viva = lista.map((b, i) => b && { ...b, comb: marc.has(i) }).filter(Boolean);
+  const apagado = b => linhaSel && S.linhas[b.li].c !== linhaSel;
+  const alfa = b => apagado(b) ? 30 : 255;
+  return [
+    new deck.TripsLayer({ id: lado + '-rastro', data: rastros, getPath: d => d.path, getTimestamps: d => d.ts, currentTime: tau, trailLength: RASTRO,
+      getColor: d => [...COR[d.li], apagado(d) ? 20 : 200], widthMinPixels: 3, widthMaxPixels: 9, getWidth: 6 * escala, capRounded: true, jointRounded: true,
+      fadeTrail: true, updateTriggers: { getColor: [linhaSel], getWidth: [escala] } }),
+    new deck.ScatterplotLayer({ id: lado + '-brilho', data: viva, getPosition: b => [b.lon, b.lat, 1], getRadius: 16 * escala,
+      getFillColor: b => b.comb ? [255, 60, 60, apagado(b) ? 0 : 150] : [...COR[b.li], apagado(b) ? 0 : Math.round(40 + 120 * L1.noite)],
+      radiusMinPixels: 2, updateTriggers: { getFillColor: [linhaSel, L1.noite], getRadius: [escala] } }),
+    new deck.SimpleMeshLayer({ id: lado + '-onibus', data: viva, mesh: MALHA, sizeScale: escala,
+      getPosition: b => [b.lon, b.lat, 0], getOrientation: b => [0, b.r, 0], getColor: b => b.comb ? [255, 70, 70, alfa(b)] : [...COR[b.li], alfa(b)],
+      material: { ambient: 0.6, diffuse: 0.6, shininess: 64, specularColor: [255, 255, 255] }, updateTriggers: { getColor: [linhaSel] } }),
+    new deck.ScatterplotLayer({ id: lado + '-comboio', data: viva.filter(b => b.comb && !apagado(b)), getPosition: b => [b.lon, b.lat, 2],
+      getRadius: (26 + 8 * Math.sin(performance.now() / 160)) * escala, stroked: true, filled: false, getLineColor: [255, 70, 70, 230],
+      lineWidthMinPixels: 2, updateTriggers: { getRadius: [Math.round(performance.now() / 40)] } }),
+  ];
+}
+function rastrosDe(fn, lista) {   // amostra a posição nos últimos RASTRO segundos
+  const n = lista.length, cam = Array.from({ length: n }, () => ({ path: [], ts: [] }));
+  for (let k = AMOSTRAS; k >= 0; k--) {
+    const t = tau - RASTRO * k / AMOSTRAS, ps = k === 0 ? lista : fn(t);
+    for (let i = 0; i < n; i++) {
+      const b = ps[i], c = cam[i]; if (!b || (lista[i] && b.k !== lista[i].k)) continue;
+      const u = c.path[c.path.length - 1];
+      if (u && Math.hypot((b.lon - u[0]) * 102000, (b.lat - u[1]) * 110540) > 30 * RASTRO / AMOSTRAS) { c.path = []; c.ts = []; }
+      c.path.push([b.lon, b.lat]); c.ts.push(t);
+    }
+  }
+  return cam.map((c, i) => lista[i] && c.path.length > 1 && { ...c, li: lista[i].li }).filter(Boolean);
+}
+
+// ---------- quadro ----------
+let ultimo = 0, ultimaLuz = -1, ultimoAnt = null;
+function quadro(agora) {
+  if (ultimoAnt != null && tocando && S) { tau += (agora - ultimoAnt) / 1000 * vel; if (tau > dur) tau = 0; }
+  ultimoAnt = agora;
+  if (S && agora - ultimo > 33) { ultimo = agora; desenhar(); }
+  requestAnimationFrame(quadro);
+}
+function desenhar() {
+  const relogio = S.janela[0] + tau, h = relogio / 3600;
+  if (Math.abs(h - ultimaLuz) > 0.04) { L0 = luz(h); ultimaLuz = h; aplicarLuz(m1, L0, h); aplicarLuz(m2, L0, h);
+    sol.directionalLights[0].intensity = 0.6 + 1.2 * (1 - L0.noite); sol.ambientLight.intensity = 0.7 + 0.6 * (1 - L0.noite); }
+  const escalaDe = m => Math.min(14, Math.max(2.5, 2 ** (16.8 - m.getZoom())));
+  const r = posReplay(tau), s = posSim(tau), mr = comboios(r), ms = comboios(s);
+  const tr = rastrosDe(posReplay, r);
+  const ts = rastrosDe(t => { const x = posSim(t); return x; }, s);
+  camadas1.setProps({ layers: camadas(r, tr, mr, 'a', escalaDe(m1), L0) });
+  camadas2.setProps({ layers: camadas(s, ts, ms, 'd', escalaDe(m2), L0) });
+  const conta = (lista, marc) => linhaSel ? [...marc].filter(i => S.linhas[lista[i].li].c === linhaSel).length : marc.size;
+  const vis = lista => lista.filter(b => b && (!linhaSel || S.linhas[b.li].c === linhaSel)).length;
+  $('n1').textContent = vis(r); $('n2').textContent = vis(s); $('b1').textContent = conta(r, mr); $('b2').textContent = conta(s, ms);
+  $('relogio').textContent = hms(relogio); $('ceu').textContent = L0.noite > 0.5 ? '☾' : (L0.por > 0.3 ? '◐' : '☀');
+  $('tempo').value = Math.floor(tau);
+  const hh = horaAtual(relogio);
+  if (hh) { $('e1').textContent = fmt(hh.espera_medida, 1); $('e2').textContent = fmt(cen === 'A' ? hh.espera_regular : hh.espera_realoc, 1); }
+  marcarHora(h);
+  if ($('cam').value === 'orbita') ambos(m => m.setBearing(m.getBearing() + 0.06));
+  if ($('cam').value === 'seguir') { seguir(m1, r, 0); seguir(m2, s, 1); }
+}
+const alvo = [-1, -1];
+function seguir(m, lista, i) {   // cada tela segue um ônibus seu (da linha destacada, se houver)
+  if (alvo[i] < 0 || !lista[alvo[i]] || (linhaSel && S.linhas[lista[alvo[i]].li].c !== linhaSel))
+    alvo[i] = lista.findIndex(b => b && (!linhaSel || S.linhas[b.li].c === linhaSel));
+  const b = lista[alvo[i]]; if (!b) return;
+  const c = m.getCenter(), f = 0.12;
+  m.jumpTo({ center: [c.lng + (b.lon - c.lng) * f, c.lat + (b.lat - c.lat) * f], zoom: Math.max(m.getZoom(), 15.2), pitch: 68 });
+}
+
+// ---------- gráfico do dia (espera por hora) e cartões ----------
+const horaAtual = seg => S.por_hora.find(x => x.hora === Math.floor(seg / 3600)) || null;
+function grafico() {
+  const ph = S.por_hora, alvoEl = $('barras');
+  if (!ph.length) { alvoEl.innerHTML = '<div class="sutil">sem medição por hora neste arquivo</div>'; return; }
+  const dep = p => cen === 'A' ? p.espera_regular : p.espera_realoc;
+  const max = Math.max(...ph.flatMap(p => [p.espera_medida, dep(p)])) * 1.05;   // barras começam no zero
+  alvoEl.innerHTML = ph.map(p => `<div class="grupo" data-h="${p.hora}" title="${p.linhas} linhas, ${p.intervalos} intervalos medidos${p.minutos < 55 ? `, só ${p.minutos} min de coleta nesta hora` : ''}">
+      <div class="par"><div class="barra antes" style="height:${100 * p.espera_medida / max}%"><span>${fmt(p.espera_medida, 1)}</span></div>
+        <div class="barra depois" style="height:${100 * dep(p) / max}%"><span>${fmt(dep(p), 1)}</span></div></div>
+      <div class="hora">${p.hora}h${p.minutos < 55 ? '*' : ''}</div></div>`).join('');
+}
+let horaMarcada = null;
+function marcarHora(h) {
+  const hh = Math.floor(h); if (hh === horaMarcada) return; horaMarcada = hh;
+  document.querySelectorAll('#barras .grupo').forEach(g => g.classList.toggle('atual', +g.dataset.h === hh));
+}
+function cartoes() {
+  const r = S.resumo, l = linhaSel ? S.linhas.find(x => x.c === linhaSel) : null;
+  const med = l ? l.espera_real : r.espera_medida, A = l ? l.espera_regular : r.espera_regular, B = l ? l.espera_realoc : r.espera_realoc;
+  const dep = cen === 'A' ? A : B, ganho = med - dep, pct = Math.round(100 * ganho / med);
+  const cidade = S.lote === 'CIDADE';
+  const quem = l ? `na linha <b style="font-size:inherit">${esc(l.c)}</b>` : cidade ? `nas ${r.linhas} linhas mais frequentes da cidade` : `nas ${r.linhas} linhas do lote ${esc(S.lote)} (${esc(S.empresa)})`;
+  const gA = Math.max(0, med - A), gB = Math.max(0, A - B);
+  $('cartoes').innerHTML =
+    `<div class="manchete">Hoje, quem pega ônibus ${quem} espera em média <b class="vermelho">${fmt(med, 1)} min</b> no ponto. ` +
+    `Com a Linha Certa: <b class="verde">${fmt(dep, 1)} min</b>.</div>` +
+    `<div class="ganho-grande">${ganho >= 0 ? '−' : '+'}${Math.abs(pct)}% de espera<span> · ${fmt(Math.abs(ganho), 1)} min ${ganho >= 0 ? 'a menos' : 'a mais'} em cada viagem</span></div>` +
+    `<div class="decomp" title="de onde vem o ganho"><div class="d1" style="flex:${gA}"></div>${cen === 'B' ? `<div class="d2" style="flex:${gB}"></div>` : ''}</div>` +
+    `<div class="explica"><b style="color:var(--a)">${fmt(med - A, 1)} min</b> vêm de os ônibus passarem no intervalo certo, sem chegar grudados` +
+    (cen === 'B' ? `; <b style="color:var(--destaque)">${fmt(A - B, 1)} min</b> vêm de ${l ? `esta linha ir de ${l.n_atual} para ${l.n_recomendada} ônibus` : `${r.onibus_movidos_lote.toLocaleString('pt-BR')} ônibus trocarem de linha${cidade ? ', cada um dentro da sua própria empresa' : ' dentro da mesma empresa'}`}` : '') +
+    `. Mesma frota, nenhuma linha cortada.</div>`;
+  $('cen-txt').textContent = CEN[cen];
+  document.querySelectorAll('.rua').forEach(e => e.textContent = cidade ? 'ônibus na rua' : 'ônibus do lote na rua');
+  document.querySelectorAll('.escopo').forEach(e => e.textContent = cidade
+    ? `Cidade inteira: ${r.linhas} linhas frequentes de ${S.empresa}; nenhum ônibus muda de empresa.`
+    : `Mostra só o lote ${S.lote} (${S.empresa}, ${r.linhas} linhas frequentes); as outras empresas não aparecem.`);
+  $('leg-lote').textContent = `${hm(S.janela[0])}–${hm(S.janela[1])} · ${r.intervalos_medidos.toLocaleString('pt-BR')} intervalos medidos` +
+    (S.por_hora.some(p => p.minutos < 55) ? ' · * hora incompleta' : '');
+  $('hip').innerHTML = `<b>De onde vem cada número</b><ul>${S.hipoteses.map(x => `<li>${esc(x)}</li>`).join('')}
+    <li>Programada (horário oficial do GTFS): ${fmt(l ? l.espera_prog : r.espera_programada, 2)} min. A diferença entre o simulado "só intervalo certo" e o programado é a parcela "faltaram ônibus/viagens".</li>
+    <li>"Ônibus grudados" = dois ônibus da mesma linha e sentido a menos de 25% do espaçamento normal (comboio).</li>
+    <li>Na tela 3D, os ônibus estão fora de escala (aumentados conforme o zoom) para aparecerem; a posição é a gravada ou a simulada.</li>
+    <li>Prédios: OpenStreetMap (OpenFreeMap), altura informada no mapa. Céu e luz seguem o relógio da simulação (pôr do sol ~18h30).</li></ul>
+    <div class="sutil">Arquivo ${esc(S.arquivo)} · gerado em ${esc(S.gerado_em)} · esperas: motor (core/frota/regularidade.py) só com as posições do período.</div>`;
+  requestAnimationFrame(medirPainel);
+}
+function selecionar(c, inicio) {
+  linhaSel = c; $('lin').value = c; alvo[0] = alvo[1] = -1;
+  if (inicio && !c) { cartoes(); return; }
+  const chaves = Object.keys(TR).filter(k => !c || k.startsWith(c + '|'));
+  if (chaves.length) {
+    const b = new maplibregl.LngLatBounds(); chaves.forEach(k => TR[k].P.forEach(p => b.extend([p[1], p[0]])));
+    const cam = m1.cameraForBounds(b, { padding: { top: 120, bottom: 220, left: 40, right: 40 } });
+    if (cam) ambos(m => m.easeTo({ center: cam.center, zoom: Math.max(cam.zoom, 13.6), pitch: 64, bearing: m1.getBearing(), duration: 1200 }));
+  }
+  cartoes();
+}
+
+// ---------- carga ----------
+async function pegar(url) { const r = await fetch(url); const j = await r.json(); if (!r.ok) throw new Error(j.erro || r.status); return j; }
+async function carregar(arquivo) {
+  S = await pegar('/api/simulacao?arquivo=' + encodeURIComponent(arquivo)); S.arquivo = arquivo; S.por_hora ||= [];
+  dur = S.janela[1] - S.janela[0]; tau = Math.min(tau, dur); $('tempo').max = dur;
+  COR = S.linhas.map((_, i) => hsl(25 + (i * 137.508) % 300, i % 2 ? 80 : 95, i % 3 === 2 ? 66 : 56));
+  prepararTracados();
+  AMOSTRAS = S.onibus.length > 2000 ? 3 : 6;
+  $('lin').innerHTML = '<option value="">todas as linhas</option>' + S.linhas.map(l => `<option>${esc(l.c)}</option>`).join('');
+  grafico(); selecionar(Q.get('linha') || '', true);
+  if (!Q.get('linha')) { const r = S.onibus.map(o => o.pts[0]), md = a => a.sort((x, y) => x - y)[a.length >> 1];
+    const cid = S.lote === 'CIDADE';
+    if (r.length) posicionar({ center: cid ? [-46.635, -23.56] : [md(r.map(p => p[2])), md(r.map(p => p[1]))], zoom: cid ? 11.9 : 14.3, pitch: cid ? 58 : 66, bearing: -20 }); }
+}
+async function iniciar() {
+  try {
+    const { arquivos } = await pegar('/api/simulacao/lista');
+    if (!arquivos.length) throw new Error('nenhuma simulação preparada: rode python scripts/simulacao_preparar.py');
+    // o período mais longo primeiro (o "dia todo" coletado), depois o lote que mais poupa
+    arquivos.sort((a, b) => (b.janela[1] - b.janela[0]) - (a.janela[1] - a.janela[0]) || (b.resumo.horas_poupadas_dia_motor || 0) - (a.resumo.horas_poupadas_dia_motor || 0));
+    $('arq').innerHTML = arquivos.map(a => `<option value="${esc(a.arquivo)}">${esc(a.lote)} · ${esc(a.empresa)} · ${hm(a.janela[0])}–${hm(a.janela[1])}</option>`).join('');
+    const arq = (arquivos.find(a => a.arquivo === Q.get('arquivo')) || arquivos.find(a => a.lote === Q.get('lote')) || arquivos[0]).arquivo;
+    $('arq').value = arq;
+    if (+Q.get('vel') > 0) { vel = +Q.get('vel'); if ([...$('vel').options].some(o => o.value === Q.get('vel'))) $('vel').value = Q.get('vel'); }
+    await carregar(arq);
+    if (Q.get('t')) { const [h, mm] = Q.get('t').split(':').map(Number); tau = Math.max(0, Math.min(dur, h * 3600 + (mm || 0) * 60 - S.janela[0])); }
+    if (Q.get('cam')) $('cam').value = Q.get('cam');
+    if (Q.get('pausado')) { tocando = false; $('play').textContent = '▶'; }
+  } catch (e) { $('aviso').style.display = 'grid'; $('aviso').textContent = 'Simulação indisponível: ' + e.message; }
+}
+// abertura opcional: se existir assets/higgsfield/abertura.mp4 (vídeo gerado no Higgsfield), toca antes da simulação
+fetch('assets/higgsfield/abertura.mp4', { method: 'HEAD' }).then(r => {
+  if (!r.ok || Q.get('sem_abertura')) return;
+  const v = $('video'); v.src = 'assets/higgsfield/abertura.mp4'; $('abertura').style.display = 'block'; v.play();
+  v.onended = $('pular').onclick = () => { $('abertura').style.display = 'none'; v.pause(); };
+}).catch(() => {});
+
+$('arq').onchange = () => carregar($('arq').value);
+$('play').onclick = () => { tocando = !tocando; $('play').textContent = tocando ? '❚❚' : '▶'; };
+document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'SELECT') { e.preventDefault(); $('play').click(); } });
+$('vel').onchange = () => vel = +$('vel').value;
+$('tempo').oninput = () => { tau = +$('tempo').value; };
+$('cen').onchange = () => { cen = $('cen').value; grafico(); cartoes(); };
+$('lin').onchange = () => selecionar($('lin').value);
+$('vista').onchange = () => { $('palco').className = $('vista').value; setTimeout(() => { m1.resize(); m2.resize(); }, 50); };
+$('ver-hip').onclick = () => { const h = $('hip'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; };
+const medirHud = () => document.documentElement.style.setProperty('--hud', $('hud').offsetHeight + 'px');
+function medirPainel() { document.documentElement.style.setProperty('--painel', $('painel').offsetHeight + 'px'); }
+addEventListener('resize', () => { medirHud(); medirPainel(); }); medirHud(); medirPainel();
+// a barra e o painel mudam de altura quando os seletores enchem ou a tela gira: mede sempre que mudarem
+if (window.ResizeObserver) { new ResizeObserver(medirHud).observe($('hud')); new ResizeObserver(medirPainel).observe($('painel')); }
+iniciar(); requestAnimationFrame(quadro);   // não espera os prédios carregarem; a luz é aplicada quando o estilo fica pronto
+for (const m of [m1, m2]) m.on('load', () => { ultimaLuz = -1; });
+</script>
+</body>
+</html>

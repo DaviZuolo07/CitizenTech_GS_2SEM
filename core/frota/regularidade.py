@@ -121,6 +121,9 @@ def regularidade(h: pd.DataFrame) -> pd.DataFrame:
     r["espera_real"] = r.sh2 / (2 * r.sh)                    # AWT
     r["espera_prog"] = r.h_prog / 2                          # SWT
     r["espera_excessiva"] = r.espera_real - r.espera_prog    # EWT
+    # EWT em duas parcelas (M1): intervalo irregular + ônibus a menos que o programado
+    r["irregularidade"] = r.espera_real - r.h_media / 2      # = h_media/2 · CV² (CV populacional); some com intervalo regular
+    r["falta_onibus"] = r.h_media / 2 - r.espera_prog        # intervalo médio maior que o programado = viagens a menos
     r["alta_frequencia"] = r.h_prog <= LIMITE_EWT
     r = r[r.intervalos >= MIN_INTERVALOS].drop(columns=["h_dp", "sh", "sh2"])
     return r.round(3).reset_index()

@@ -162,6 +162,7 @@ if __name__ == "__main__":
         Rotas.api = OlhoVivo(ler_token())
         print("conectado à API Olho Vivo")
     except (SystemExit, requests.RequestException) as erro:
-        print(f"modo offline (mapa ao vivo desligado): {erro}")
+        # a mensagem do requests traz a URL de login com o token: imprimir só o tipo do erro
+        print(f"modo offline (mapa ao vivo desligado): {erro if isinstance(erro, SystemExit) else type(erro).__name__}")
     print(f"abra http://localhost:{PORTA}  (Ctrl+C para parar)")
     http.server.ThreadingHTTPServer(("127.0.0.1", PORTA), Rotas).serve_forever()

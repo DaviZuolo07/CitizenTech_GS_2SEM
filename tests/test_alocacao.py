@@ -37,3 +37,14 @@ def test_espera_irregular_m1():
     h = pd.DataFrame({"c": "x", "sl": 1, "hora": 14, "h": [2.0, 18.0] * 5, "h_prog": 10.0})
     r = R.regularidade(h).iloc[0]
     assert abs(r.espera_real - 8.2) < 1e-9 and abs(r.espera_excessiva - 3.2) < 1e-9 and r.comboio == 0.5
+
+
+def test_decomposicao_ewt_a_mao():
+    """Intervalos alternando 2 e 10 min, programado 5: AWT = 104·6/(2·72) = 4,333; metade do intervalo médio = 3;
+    SWT = 2,5. Irregularidade 1,333 + falta de ônibus 0,5 = EWT 1,833."""
+    import pandas as pd
+    from core.frota import regularidade as R
+    h = pd.DataFrame({"c": "X", "sl": 1, "hora": 14, "h": [2.0, 10.0] * 6, "h_prog": 5.0})
+    r = R.regularidade(h).iloc[0]
+    assert abs(r.espera_excessiva - 1.833) < 1e-3
+    assert abs(r.irregularidade - 1.333) < 1e-3 and abs(r.falta_onibus - 0.5) < 1e-3

@@ -39,10 +39,11 @@ def resumo_motor() -> dict:
 def regularidade() -> dict:
     """Por linha e por lote: espera real × programada, espera excessiva (só intervalo programado <= 15 min) e comboio."""
     lin = _ler("regularidade_linha.csv").copy()
-    lin.loc[~lin.alta_frequencia, "espera_excessiva"] = None      # Londres: EWT só vale em linha frequente
+    for col in ("espera_excessiva", "irregularidade", "falta_onibus"):   # Londres: EWT só vale em linha frequente
+        lin.loc[~lin.alta_frequencia, col] = None
     lin = lin.sort_values(["alta_frequencia", "espera_excessiva"], ascending=[False, False])
     cols = ["c", "lote", "empresa_lote", "intervalos", "h_media", "h_prog", "cv", "espera_real", "espera_prog",
-            "espera_excessiva", "comboio", "alta_frequencia", "passageiros_dia"]
+            "espera_excessiva", "irregularidade", "falta_onibus", "comboio", "alta_frequencia", "passageiros_dia"]
     lot = _ler("regularidade_lote.csv").sort_values("espera_excessiva", ascending=False)
     r = resumo_motor()
     return {"coleta": r["coleta"], "resumo": r["regularidade"], "limite_ewt": LIMITE_EWT,

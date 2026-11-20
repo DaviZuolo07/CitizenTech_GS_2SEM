@@ -35,6 +35,8 @@ def main(pasta: Path) -> None:
         include_groups=False)
     reg_lote["espera_excessiva"] = alta.groupby("lote").apply(
         lambda g: A.media(g.espera_excessiva, g.passageiros_dia), include_groups=False)
+    for col in ("irregularidade", "falta_onibus"):
+        reg_lote[col] = alta.groupby("lote").apply(lambda g: A.media(g[col], g.passageiros_dia), include_groups=False)
     reg_lote.round(3).to_csv(PROC / "regularidade_lote.csv")
 
     # F2 — frota por linha dentro do lote (M2)
@@ -53,6 +55,12 @@ def main(pasta: Path) -> None:
                    "fim_h": round(instantes.max() / 3600, 2), "instantes": len(instantes)},
         "regularidade": {"linhas_medidas": len(reg), "intervalos": int(reg.intervalos.sum()),
                          "espera_excessiva_media_min": round(A.media(alta.espera_excessiva, alta.passageiros_dia), 3),
+                         "irregularidade_min": round(A.media(alta.irregularidade, alta.passageiros_dia), 3),
+                         "falta_onibus_min": round(A.media(alta.falta_onibus, alta.passageiros_dia), 3),
+                         # ônibus que passaram a menos que o programado: 1 − intervalo programado / intervalo medido
+                         "onibus_a_menos_pct": round(100 * (1 - A.media(alta.h_prog, alta.passageiros_dia)
+                                                             / A.media(alta.h_media, alta.passageiros_dia)), 1),
+                         "onibus_a_menos_mediana_pct": round(100 * float((1 - alta.h_prog / alta.h_media).median()), 1),
                          "comboio_pct": round(100 * A.media(reg.comboio, reg.intervalos), 1)},
         "realocacao": {**A.resumir_total(rea), "h_max_min": R.LIMITE_EWT, "perda_maxima": PERDA_MAXIMA},
     }

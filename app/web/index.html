@@ -115,7 +115,9 @@
   <h2>Regularidade medida</h2>
   <p class="nota">Intervalo real entre ônibus da mesma linha, medido nas posições do Olho Vivo, contra o programado no GTFS.
     <b>Espera excessiva</b> = espera real − espera programada, como Londres mede desde 2001, só nas linhas com intervalo
-    programado ≤ <span class="lim">15</span> min. <b>Comboio</b> = intervalo menor que 25% do programado.</p>
+    programado ≤ <span class="lim">15</span> min. <b>Comboio</b> = intervalo menor que 25% do programado.
+    A espera excessiva tem duas parcelas: <b>intervalo irregular</b> (espera medida − metade do intervalo médio medido)
+    e <b>falta de ônibus</b> (metade do intervalo médio medido − metade do programado).</p>
   <div class="kpis" id="reg-kpis"></div>
   <h3>Por lote (unidade do contrato)</h3>
   <p class="nota">Clique num lote para ver as linhas dele. Média ponderada por passageiros.</p>
@@ -162,7 +164,7 @@
     <button>Enviar</button></form>
 </div></section>
 
-<!-- 5. simulação do dia real (F4): página própria, carregada só quando a aba abre -->
+<!-- 5. simulação do dia real (F4): página 3D própria (a versão 2D leve fica em simulacao.html), carregada só quando a aba abre -->
 <section id="simulacao" class="vista"><iframe id="sim-frame" title="Simulação do dia real" style="border:0;width:100%;height:100%;display:block"></iframe></section>
 
 <script>
@@ -186,7 +188,7 @@ function abrir(vista) {
   if (vista === 'regularidade' && !carregadas.reg) carregarReg();
   if (vista === 'realocacao' && !carregadas.rea) carregarRea();
   if (vista === 'cidadao' && !carregadas.cid) iniciarCidadao();
-  if (vista === 'simulacao' && !carregadas.sim) { $('sim-frame').src = 'simulacao.html'; carregadas.sim = true; }
+  if (vista === 'simulacao' && !carregadas.sim) { $('sim-frame').src = 'simulacao3d.html'; carregadas.sim = true; }
   history.replaceState(null, '', '#' + vista);
 }
 document.querySelectorAll('#abas button').forEach(b => b.onclick = () => abrir(b.dataset.vista));
@@ -200,16 +202,20 @@ async function carregarReg() {
   document.querySelectorAll('.lim').forEach(s => s.textContent = reg.limite_ewt);
   $('reg-kpis').innerHTML =
     kpi('Espera excessiva média', fmt(r.espera_excessiva_media_min, 1) + ' min', 'por passageiro, além do programado') +
+    (r.irregularidade_min != null ? kpi('Por intervalo irregular', fmt(r.irregularidade_min, 1) + ' min',
+      `${fmt(100 * r.irregularidade_min / r.espera_excessiva_media_min, 0)}% da espera excessiva · ônibus colados e buracos`) +
+    kpi('Por falta de ônibus', fmt(r.falta_onibus_min, 1) + ' min',
+      `${fmt(100 * r.falta_onibus_min / r.espera_excessiva_media_min, 0)}% · passaram ${fmt(r.onibus_a_menos_pct, 0)}% menos ônibus que o programado`) : '') +
     kpi('Intervalos em comboio', fmt(r.comboio_pct, 0) + '%', 'ônibus colado no da frente') +
     kpi('Linhas medidas', int(r.linhas_medidas), `${int(r.intervalos)} intervalos`) +
     kpi('Coleta', `${hora(c.inicio_h)}–${hora(c.fim_h)}`, `${c.pasta} · ${int(c.instantes)} leituras da frota`);
   const maxL = Math.max(...reg.lotes.map(l => l.espera_excessiva || 0));
-  $('reg-lotes').innerHTML = `<thead><tr><th>Lote</th><th class="txt">Espera excessiva</th><th>Comboio</th><th class="txt">Empresa</th><th>Linhas</th>
+  $('reg-lotes').innerHTML = `<thead><tr><th>Lote</th><th class="txt">Espera excessiva</th><th>Irregular</th><th>Falta de ônibus</th><th>Comboio</th><th class="txt">Empresa</th><th>Linhas</th>
     <th>Espera real</th><th>Programada</th></tr></thead><tbody>` +
-    reg.lotes.map(l => `<tr class="clicavel" data-lote="${esc(l.lote)}"><td>${esc(l.lote)}</td><td class="txt">${barra(l.espera_excessiva, maxL)}</td><td>${pct(l.comboio)}</td>
+    reg.lotes.map(l => `<tr class="clicavel" data-lote="${esc(l.lote)}"><td>${esc(l.lote)}</td><td class="txt">${barra(l.espera_excessiva, maxL)}</td><td>${fmt(l.irregularidade)}</td><td>${fmt(l.falta_onibus)}</td><td>${pct(l.comboio)}</td>
       <td class="txt">${esc(l.empresa)}</td><td>${int(l.linhas_medidas)}</td><td>${fmt(l.espera_real)} min</td><td>${fmt(l.espera_prog)} min</td></tr>`).join('') + '</tbody>';
   $('reg-lotes').querySelectorAll('tr[data-lote]').forEach(tr => tr.onclick = () => { regLote = regLote === tr.dataset.lote ? '' : tr.dataset.lote; desenharLinhasReg(); });
-  $('reg-rodape').textContent = `Linha com menos de 10 intervalos medidos não aparece. Com uma janela de coleta curta, intervalos longos ficam de fora e a espera real sai subestimada. Coleta de ${hora(c.inicio_h)} a ${hora(c.fim_h)}.`;
+  $('reg-rodape').textContent = `Linha com menos de 10 intervalos medidos não aparece. Com uma janela de coleta curta, intervalos longos ficam de fora e a espera real sai subestimada. Coleta de ${hora(c.inicio_h)} a ${hora(c.fim_h)}. Ônibus sem GPS somem da medição e abrem buracos que inflam a espera e a parcela "falta de ônibus". Regularizar exige um mecanismo de operação (retenção no ponto, despacho por intervalo); a Linha Certa entrega a medição e a meta.`;
   desenharLinhasReg();
 }
 function barra(v, max) {
@@ -225,10 +231,10 @@ function desenharLinhasReg() {
   $('reg-chip').innerHTML = regLote ? `<span class="chip" title="limpar">lote ${esc(regLote)} ✕</span>` : '';
   if (regLote) $('reg-chip').firstChild.onclick = () => { regLote = ''; desenharLinhasReg(); };
   $('reg-conta').textContent = `${ls.length} linhas`;
-  $('reg-linhas').innerHTML = `<thead><tr><th>Linha</th><th class="txt">Espera excessiva</th><th>Comboio</th><th>Intervalo prog.</th><th>Intervalo medido</th>
+  $('reg-linhas').innerHTML = `<thead><tr><th>Linha</th><th class="txt">Espera excessiva</th><th>Irregular</th><th>Falta de ônibus</th><th>Comboio</th><th>Intervalo prog.</th><th>Intervalo medido</th>
     <th>CV</th><th>Espera real</th><th>Programada</th><th>Passageiros/dia</th><th class="txt">Lote · empresa</th></tr></thead><tbody>` +
     ls.map(l => `<tr class="${l.alta_frequencia ? '' : 'fora'}"><td>${esc(l.c)}</td><td class="txt">${l.alta_frequencia ? barra(l.espera_excessiva, maxE) : '<span class="sutil">intervalo &gt; ' + reg.limite_ewt + ' min</span>'}</td>
-      <td>${pct(l.comboio)}</td><td>${fmt(l.h_prog)} min</td><td>${fmt(l.h_media)} min</td><td>${fmt(l.cv, 2)}</td><td>${fmt(l.espera_real)} min</td>
+      <td>${fmt(l.irregularidade)}</td><td>${fmt(l.falta_onibus)}</td><td>${pct(l.comboio)}</td><td>${fmt(l.h_prog)} min</td><td>${fmt(l.h_media)} min</td><td>${fmt(l.cv, 2)}</td><td>${fmt(l.espera_real)} min</td>
       <td>${fmt(l.espera_prog)} min</td><td>${int(l.passageiros_dia)}</td><td class="txt">${esc(l.lote)} · ${esc(l.empresa_lote)}</td></tr>`).join('') + '</tbody>';
 }
 $('reg-busca').addEventListener('input', () => reg && desenharLinhasReg());

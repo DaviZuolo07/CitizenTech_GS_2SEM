@@ -2,26 +2,30 @@
  "coleta": {
   "pasta": "2026-11-19",
   "inicio_h": 13.95,
-  "fim_h": 15.0,
-  "instantes": 125
+  "fim_h": 20.58,
+  "instantes": 781
  },
  "regularidade": {
-  "linhas_medidas": 567,
-  "intervalos": 11817,
-  "espera_excessiva_media_min": 2.842,
-  "comboio_pct": 10.0
+  "linhas_medidas": 987,
+  "intervalos": 120507,
+  "espera_excessiva_media_min": 5.582,
+  "irregularidade_min": 4.187,
+  "falta_onibus_min": 1.395,
+  "onibus_a_menos_pct": 21.9,
+  "onibus_a_menos_mediana_pct": 16.9,
+  "comboio_pct": 10.2
  },
  "realocacao": {
   "lotes": 32,
-  "linhas": 1042,
-  "linhas_no_otimo": 390,
-  "frota": 9609,
-  "frota_no_otimo": 4919,
-  "onibus_movidos": 289,
-  "espera_antes_min": 5.288,
-  "espera_depois_min": 5.145,
-  "espera_depois_k23_min": 5.186,
-  "horas_espera_poupadas_dia": 6927,
+  "linhas": 1076,
+  "linhas_no_otimo": 432,
+  "frota": 10385,
+  "frota_no_otimo": 5771,
+  "onibus_movidos": 327,
+  "espera_antes_min": 5.023,
+  "espera_depois_min": 4.904,
+  "espera_depois_k23_min": 4.944,
+  "horas_espera_poupadas_dia": 6346,
   "h_max_min": 15,
   "perda_maxima": 0.2
  }

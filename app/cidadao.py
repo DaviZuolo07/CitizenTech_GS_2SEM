@@ -21,10 +21,13 @@ BASE = RAIZ / "base_documental_oficial"
 K = 4                       # trechos por pergunta (o mesmo do notebook)
 TAM_TRECHO = 900            # caracteres; fatias quebram de preferência no início de um artigo
 PROVEDORES = [  # nome, variável da chave, endereço, modelo, ajustes
-    ("Groq", "GROQ_API_KEY", "https://api.groq.com/openai/v1", "llama-3.3-70b-versatile", {}),
-    ("Google AI Studio", "GOOGLE_API_KEY", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",
-     {"reasoning_effort": "none"}),
+    # 19/11 16h40: llama-3.3-70b-versatile saiu do Groq e gemini-2.5-flash não aceita mais contas novas (os dois davam
+    # HTTP 404). Trocados pelos modelos que a conta lista hoje; o Google passou para a API nativa (a rota compatível
+    # com OpenAI também respondia 404).
+    ("Groq", "GROQ_API_KEY", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b", {"reasoning_effort": "low"}),
+    ("Google AI Studio", "GOOGLE_API_KEY", "https://generativelanguage.googleapis.com/v1beta", "gemini-3.5-flash", {}),
 ]
+MIN_TOKENS = 512            # modelos com raciocínio gastam tokens antes da resposta; 5 tokens não bastam nem para "SIM"
 
 CANAL = "Central 156 da Prefeitura de São Paulo"
 NAO_SEI = f"Não há informação sobre isso nos documentos oficiais que consultei. Procure a {CANAL} ou o site da SPTrans."
@@ -53,6 +56,11 @@ Regras:
 <pergunta>
 {pergunta}
 </pergunta>"""
+# Vocabulário de transporte: pergunta com esses termos é do escopo sem consultar o LLM. O gpt-oss classificava
+# "o ônibus é de graça no domingo?" como fora de escopo (19/11 18h, auditoria); o que não está na base continua
+# barrado pelo limite de confiança ("não sei").
+TRANSPORTE = re.compile(r"\b(onibus|linha|tarifa|passage|bilhete|gratui|isenc|terminal|ponto|parada|sptrans|itinerari|"
+                        r"integrac|embarque|corredor|domingao|vale.transporte|expresso|catraca|coletivo)", re.I)
 PROMPT_ESCOPO = ("A pergunta abaixo é sobre transporte público por ônibus (linhas, horários, itinerários, pontos, terminais, tarifas, "
                  "Bilhete Único, gratuidades, avisos, deslocamentos na cidade)? Responda só SIM ou NAO.\n\nPergunta: {pergunta}")
 
@@ -168,12 +176,18 @@ def llm(prompt: str, max_tokens: int = 500) -> str:
             continue
         r = None
         try:
+            if nome.startswith("Google"):                     # API nativa do Gemini
+                r = requests.post(f"{url}/models/{modelo}:generateContent", headers={"x-goog-api-key": k}, timeout=60,
+                                  json={"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                                        "generationConfig": {"temperature": 0, "maxOutputTokens": max(max_tokens, MIN_TOKENS)}})
+                r.raise_for_status()
+                return "".join(p.get("text", "") for p in r.json()["candidates"][0]["content"]["parts"]).strip()
             r = requests.post(f"{url}/chat/completions", headers={"Authorization": f"Bearer {k}"}, timeout=60,
-                              json={"model": modelo, "temperature": 0, "max_tokens": max_tokens,
+                              json={"model": modelo, "temperature": 0, "max_tokens": max(max_tokens, MIN_TOKENS),
                                     "messages": [{"role": "user", "content": prompt}], **extra})
             r.raise_for_status()
             return r.json()["choices"][0]["message"]["content"].strip()
-        except (requests.RequestException, KeyError, ValueError) as e:
+        except (requests.RequestException, KeyError, ValueError, IndexError) as e:
             falhas.append(f"{nome}: {type(e).__name__}" + (f" HTTP {r.status_code}" if r is not None else ""))
     raise RuntimeError("nenhum provedor de LLM respondeu (" + ("; ".join(falhas) or "sem GROQ_API_KEY nem GOOGLE_API_KEY no .env") + ")")
 
@@ -194,12 +208,14 @@ def responder(pergunta: str) -> dict:
         return {"resposta": MSG_INJECAO, "fontes": [], "guardrail": "injecao"}
     if DADO_PESSOAL.search(pergunta):
         return {"resposta": MSG_LGPD, "fontes": [], "guardrail": "lgpd"}
-    if not normalizar(llm(PROMPT_ESCOPO.format(pergunta=pergunta), 5)).startswith("sim"):
+    if not TRANSPORTE.search(normalizar(pergunta)) and not normalizar(llm(PROMPT_ESCOPO.format(pergunta=pergunta), 5)).startswith("sim"):
         return {"resposta": MSG_ESCOPO, "fontes": [], "guardrail": "escopo"}
     fatias = indice().buscar(pergunta)
     if not fatias:
         return {"resposta": NAO_SEI, "fontes": [], "guardrail": "sem_trecho"}
     resposta = llm(PROMPT_RAG.format(nao_sei=NAO_SEI, contexto=contexto(fatias), pergunta=pergunta))
+    # o gpt-oss às vezes cita com 【doc_XX】 e usa **negrito** de Markdown; a tela mostra texto puro
+    resposta = re.sub(r"[【\[]\s*(doc_\d{2})[^】\]]*[】\]]", r"[\1]", resposta).replace("**", "")
     consultados = {f["doc"]["doc_id"]: f["doc"] for f in fatias}
     citados = [d for d in dict.fromkeys(re.findall(r"doc_\d{2}", resposta)) if d in consultados]
     if not citados:                                               # limite de confiança: sem fonte citada, não responde
